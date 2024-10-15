@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems.swerve
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
-import com.outoftheboxrobotics.photoncore.Photon
 import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
@@ -14,7 +13,6 @@ import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.AbsoluteAnalogEncoder
 import org.firstinspires.ftc.teamcode.utils.PIDController
 import kotlin.math.abs
-import kotlin.math.cos
 import kotlin.math.sign
 
 class SwerveModule {
@@ -61,6 +59,7 @@ class SwerveModule {
 
     private fun initialize() {
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        motor.direction = DcMotorSimple.Direction.REVERSE
 
         servo.pwmRange = PwmControl.PwmRange(500.0, 2500.0, 5000.0)
         servo.direction = DcMotorSimple.Direction.REVERSE
@@ -100,6 +99,15 @@ class SwerveModule {
 
     }
 
+    fun setDesiredHeading(rotation: Rotation2d) {
+        val desiredRotation = optimizeHeading(rotation)
+        delta = rotation.minus(Rotation2d(getHeading()))
+        turnPower = turnPID.calculate(getHeading(), desiredRotation.radians)
+        turnPower += if (abs(turnPID.positionError) > 0.02) 0.03 else 0.0 * sign(turnPower)
+
+        servo.power = turnPower
+    }
+
     fun setDesiredStateAccel(state: SwerveModuleStateAccel) {
         val delta = state.w - getHeading()
         var desiredState = state
@@ -137,6 +145,21 @@ class SwerveModule {
 
     }
 
+    fun optimizeHeading(desiredRotation: Rotation2d): Rotation2d {
+        val delta = desiredRotation.minus(Rotation2d(getHeading()))
+        return if (abs(delta.degrees) > 90.0) {
+            desiredRotation.rotateBy(Rotation2d.fromDegrees(180.0))
+        } else {
+            desiredRotation
+        }
+    }
+
+    fun stop() {
+        motor.power = 0.0
+        servo.power = 0.0
+        desiredState = SwerveModuleState()
+    }
+
     /**
      * Spins modules
      * @param drive drive motor power. -1 to 1
@@ -147,6 +170,10 @@ class SwerveModule {
         servo.power = steer
     }
 
+    /**
+     * return difference in degrees between desired and current heading
+     * @return degrees
+     */
     fun getDelta(): Double {
         return delta.degrees
     }

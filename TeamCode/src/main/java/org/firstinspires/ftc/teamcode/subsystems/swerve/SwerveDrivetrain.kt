@@ -17,13 +17,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.WHEEL_BASE
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sin
 
-@Photon
 class SwerveDrivetrain: SubsystemBase {
     private var lf: SwerveModule
     private var rf: SwerveModule
@@ -61,6 +61,10 @@ class SwerveDrivetrain: SubsystemBase {
         configureOtos()
     }
 
+    override fun periodic() {
+
+    }
+
     /**
      * @return radians
      */
@@ -79,6 +83,21 @@ class SwerveDrivetrain: SubsystemBase {
         return Pose2d(pose.x, pose.y, Rotation2d.fromDegrees(pose.h))
     }
 
+    /**
+     * in/s, deg/s
+     */
+    fun getVelocity(): ChassisSpeeds {
+        val velocity = odo.velocity
+        return ChassisSpeeds(velocity.x, velocity.y, velocity.h)
+    }
+
+    /**
+     * in/s/s, deg/s/s
+     */
+    fun getAcceleration(): ChassisSpeeds {
+        val accel = odo.acceleration
+        return ChassisSpeeds(accel.x, accel.y, accel.h)
+    }
 
     fun drive(speeds: ChassisSpeeds) {
         //if (hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) >= 0.01 || speeds.omegaRadiansPerSecond >= 0.01) {
@@ -188,6 +207,22 @@ class SwerveDrivetrain: SubsystemBase {
         rr.setDesiredStateAccel(moduleStates[3])
     }
 
+    fun setModuleHeadings(lfRotation: Rotation2d, rfRotation: Rotation2d, lrRotation: Rotation2d, rrRotation: Rotation2d) {
+        lf.setDesiredHeading(lfRotation)
+        rf.setDesiredHeading(rfRotation)
+        lr.setDesiredHeading(lrRotation)
+        rr.setDesiredHeading(rrRotation)
+    }
+
+    /**
+     * if all modules are at the desired heading
+     * @param desiredHeading
+     * @param tolerance degrees
+     */
+    fun areModulesAligned(desiredHeading: Rotation2d, tolerance: Double): Boolean {
+        return abs(lf.getDelta()) < tolerance && abs(rf.getDelta()) < tolerance && abs(lr.getDelta()) < tolerance && abs(rr.getDelta()) < tolerance
+    }
+
     fun getModuleHeadings(): Array<Double> {
         return arrayOf(lf.getHeading(), rf.getHeading(), lr.getHeading(), rr.getHeading())
     }
@@ -210,6 +245,13 @@ class SwerveDrivetrain: SubsystemBase {
         rf.spin(drive, steer)
         lr.spin(drive, steer)
         rr.spin(drive, steer)
+    }
+
+    fun stop() {
+        lf.stop()
+        rf.stop()
+        lr.stop()
+        rr.stop()
     }
 
     fun testModule(index: Int, drivePower: Double, steerPower: Double) {

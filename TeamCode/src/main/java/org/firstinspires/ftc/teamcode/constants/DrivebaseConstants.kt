@@ -103,6 +103,8 @@ class DrivebaseConstants {
         private const val k = TRACK_WIDTH/2
         private const val j = WHEEL_BASE/2
 
+        // note: drivebase efficiency prototype 84%
+
         //const val MAX_ANGULAR_VELOCITY_RAD = 10
 
         val LF_POS = Translation2d(k, j)
@@ -120,14 +122,33 @@ class DrivebaseConstants {
 
     @Config
     object Otos {
-        @JvmField var offset = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)
+        @JvmField var offset = SparkFunOTOS.Pose2D(0.0, 0.0, -180.0)
         @JvmField var angularUnit = AngleUnit.DEGREES
         @JvmField var linearUnit = DistanceUnit.INCH
 
-        @JvmField var linearScalar = 1.0
-        @JvmField var angularScalar = 1.0
+        @JvmField var linearScalar = 1.1188 // 1.011 old, 1.024 new
+        @JvmField var angularScalar = 0.9857
 
         @JvmField var startPose = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)
+    }
+
+    @Config
+    object PIDToPosition {
+        @JvmField var KF = 0.05
+
+        @JvmField var TranslationKP = 0.3
+        @JvmField var TranslationKI = 0.0
+        @JvmField var TranslationKD = 0.025
+
+        @JvmField var RotationKP = 0.015
+        @JvmField var RotationKI = 0.0
+        @JvmField var RotationKD = 0.0
+
+        @JvmField var TranslationPositionTolerance = 0.25
+        @JvmField var TranslationVelocityTolerance = 10.0
+
+        @JvmField var RotationPositionTolerance = 5.0
+        @JvmField var RotationVelocityTolerance = 10.0
     }
 
 }

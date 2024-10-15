@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
+import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.outoftheboxrobotics.photoncore.Photon
 import com.qualcomm.hardware.lynx.LynxModule
@@ -17,7 +18,7 @@ import kotlin.math.hypot
 import kotlin.math.pow
 
 @TeleOp
-class TeleOp: OpMode() {
+class Test: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime
     private lateinit var drive: SwerveDrivetrain
@@ -45,11 +46,7 @@ class TeleOp: OpMode() {
             hub.clearBulkCache()
         }
 
-        drive.firstOrderFieldCentricDrive(ChassisSpeeds(
-            -gamepad.leftY.pow(1) *DrivebaseConstants.Measurements.MAX_VELOCITY,
-            gamepad.leftX.pow(1)*DrivebaseConstants.Measurements.MAX_VELOCITY,
-            gamepad.rightX.pow(1)*DrivebaseConstants.Measurements.MAX_ANGULAR_VELOCITY
-        ))
+        drive.setModuleHeadings(Rotation2d(), Rotation2d(), Rotation2d(), Rotation2d())
 
         /*
         drive.drive(ChassisSpeeds(
