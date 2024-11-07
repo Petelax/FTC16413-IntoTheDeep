@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.PIDController
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -17,7 +18,7 @@ class PIDToPosition(private val drive: SwerveDrivetrain, private val setpoint: P
     val headingController: PIDController = PIDController(c.RotationKP, c.RotationKI, c.RotationKD)
 
     init {
-        headingController.enableContinuousInput(-180.0, 180.0)
+        headingController.enableContinuousInput(-PI, PI)
 
         xController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
         yController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
@@ -28,7 +29,7 @@ class PIDToPosition(private val drive: SwerveDrivetrain, private val setpoint: P
     override fun initialize() {
         xController.setPoint = setpoint.x
         yController.setPoint = setpoint.y
-        headingController.setpoint = setpoint.rotation.degrees
+        headingController.setpoint = setpoint.rotation.radians
     }
 
     override fun execute() {
@@ -37,7 +38,7 @@ class PIDToPosition(private val drive: SwerveDrivetrain, private val setpoint: P
         xFeedback += xFeedback.sign * DrivebaseConstants.PIDToPosition.KF
         var yFeedback = -yController.calculate(currentPose.y)
         yFeedback += yFeedback.sign * DrivebaseConstants.PIDToPosition.KF
-        var headingFeedback = -headingController.calculate(currentPose.rotation.degrees)
+        var headingFeedback = -headingController.calculate(currentPose.rotation.radians)
         headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
 
         drive.firstOrderFieldCentricDrive(ChassisSpeeds(xFeedback, yFeedback, headingFeedback))

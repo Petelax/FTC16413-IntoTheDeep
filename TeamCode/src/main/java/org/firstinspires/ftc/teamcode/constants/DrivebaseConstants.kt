@@ -42,20 +42,20 @@ class DrivebaseConstants {
         /*
         Control Hub:
             Motor:
-                0: LR
-                1: LF
-                2: RR
-                3: RF
+                0: LF
+                1: RF
+                2: LR
+                3: RR
             Servo:
-                0: LR
-                1: LF
-                2: RR
-                3: RF
+                0: LF
+                1: RF
+                2: LR
+                3: RR
             Analog Input:
-                0: LR
-                1: LF
-                2: RR
-                3: RF
+                0: LF
+                1: RF
+                2: LR
+                3: RR
             I2C bus 0:
                 0: imu
                 1: otos
@@ -72,6 +72,12 @@ class DrivebaseConstants {
                 2: wrist
 
         Webcam 1
+
+        Axon Mini+ drivetrain:
+        PWM Power:  100.0% //86.3%
+        ProPTL:     3.0s
+        Inversion:  false
+
         */
 
     }
@@ -79,10 +85,10 @@ class DrivebaseConstants {
     @Config
     object ModuleCoefficients {
         @JvmField var KS = 0.0
-        @JvmField var KV = 8.0
-        @JvmField var KA = 0.0
+        @JvmField var KV = 6.82 //7.0
+        @JvmField var KA = 0.30 //0.5
 
-        @JvmField var KP = 0.5
+        @JvmField var KP = 0.4
         @JvmField var KI = 0.0
         @JvmField var KD = 0.0
     }
@@ -112,10 +118,17 @@ class DrivebaseConstants {
         val LR_POS = Translation2d(-k, j)
         val RR_POS = Translation2d(-k, -j)
 
+        /*
         const val LF_OFFSET = 1.2775
-        const val RF_OFFSET = 0.3179
+        const val RF_OFFSET = 3.4595//0.3179
         const val LR_OFFSET = 6.1118
         const val RR_OFFSET = 4.5067
+
+         */
+        const val LF_OFFSET = -5.3141
+        const val RF_OFFSET = -2.4581
+        const val LR_OFFSET = -5.9195
+        const val RR_OFFSET = -4.8038
 
 
     }
@@ -126,7 +139,7 @@ class DrivebaseConstants {
         @JvmField var angularUnit = AngleUnit.DEGREES
         @JvmField var linearUnit = DistanceUnit.INCH
 
-        @JvmField var linearScalar = 1.1188 // 1.011 old, 1.024 new
+        @JvmField var linearScalar = 1.0 // 1.1188 // 1.011 old, 1.024 new
         @JvmField var angularScalar = 0.9857
 
         @JvmField var startPose = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)

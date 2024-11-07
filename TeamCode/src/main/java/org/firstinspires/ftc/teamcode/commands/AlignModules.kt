@@ -27,7 +27,7 @@ class AlignModules(private val drive: SwerveDrivetrain, private val heading: Rot
     }
 
     override fun isFinished(): Boolean {
-        return drive.areModulesAligned(desiredHeading, 2.0)
+        return drive.areModulesAligned(desiredHeading, 10.0)
     }
 
     override fun end(interrupted: Boolean) {

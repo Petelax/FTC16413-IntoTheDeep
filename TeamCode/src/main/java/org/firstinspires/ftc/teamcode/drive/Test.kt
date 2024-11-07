@@ -66,10 +66,12 @@ class Test: OpMode() {
         telemetry.addData("heading deg", pose.rotation.degrees)
 
         val vel = drive.getVelocity()
-        telemetry.addData("vel x", vel.vxMetersPerSecond)
-        telemetry.addData("vel y", vel.vyMetersPerSecond)
-        telemetry.addData("vel heading deg", vel.omegaRadiansPerSecond)
-        telemetry.addData("vel magnitude", hypot(vel.vyMetersPerSecond, vel.vxMetersPerSecond))
+        // telemetry.addData("vel x", vel.vxMetersPerSecond)
+        // telemetry.addData("vel y", vel.vyMetersPerSecond)
+        // telemetry.addData("vel heading deg", vel.omegaRadiansPerSecond)
+        // telemetry.addData("vel magnitude", hypot(vel.vyMetersPerSecond, vel.vxMetersPerSecond))
+        telemetry.addData("delta lf", drive.getDelta()[0])
+        telemetry.addData("delta aligned", drive.areModulesAligned(Rotation2d(), 8.0))
 
         //drive.test(gamepad.leftY, gamepad.rightX.49s for 30in)
         val headings = drive.getModuleHeadings()

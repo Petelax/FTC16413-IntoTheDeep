@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveModule
 import kotlin.math.hypot
 import kotlin.math.pow
 
@@ -21,7 +22,9 @@ import kotlin.math.pow
 class TestModule: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime
-    private lateinit var drive: SwerveDrivetrain
+    //private lateinit var drive: SwerveDrivetrain
+    private lateinit var module: SwerveModule
+    private lateinit var rr: SwerveModule
     private lateinit var gamepad: GamepadEx
 
     override fun init() {
@@ -34,7 +37,10 @@ class TestModule: OpMode() {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
         }
 
-        drive = SwerveDrivetrain(hardwareMap)
+        val id = DrivebaseConstants.DeviceIDs
+        module = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET)
+        rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
+        //drive = SwerveDrivetrain(hardwareMap)
         gamepad = GamepadEx(gamepad1)
 
         elapsedtime.reset()
@@ -46,7 +52,10 @@ class TestModule: OpMode() {
             hub.clearBulkCache()
         }
 
-        drive.setModuleHeadings(Rotation2d(), Rotation2d(), Rotation2d(), Rotation2d())
+        module.spin(0.0, gamepad.rightX)
+        rr.spin(0.0, gamepad.rightX)
+
+        //drive.setModuleHeadings(Rotation2d(), Rotation2d(), Rotation2d(), Rotation2d())
 
         /*
         drive.drive(ChassisSpeeds(
@@ -56,28 +65,12 @@ class TestModule: OpMode() {
         ))
          */
 
-        if(gamepad.wasJustPressed(GamepadKeys.Button.A)) {
-            drive.resetHeading()
-        }
-
-        val pose = drive.getPose()
-        telemetry.addData("x", pose.x)
-        telemetry.addData("y", pose.y)
-        telemetry.addData("heading deg", pose.rotation.degrees)
-
-        val vel = drive.getVelocity()
-        // telemetry.addData("vel x", vel.vxMetersPerSecond)
-        // telemetry.addData("vel y", vel.vyMetersPerSecond)
-        // telemetry.addData("vel heading deg", vel.omegaRadiansPerSecond)
-        // telemetry.addData("vel magnitude", hypot(vel.vyMetersPerSecond, vel.vxMetersPerSecond))
-        telemetry.addData("delta lf", drive.getDelta()[0])
-        telemetry.addData("delta aligned", drive.areModulesAligned(Rotation2d(), 8.0))
+        telemetry.addData("delta rf", module.getDelta())
+        telemetry.addData("rf heading", module.getHeading())
+        telemetry.addData("rf voltage", module.getEncoderVoltage())
+        telemetry.addData("rf desired heading", module.getDesiredState())
 
         //drive.test(gamepad.leftY, gamepad.rightX.49s for 30in)
-        val headings = drive.getModuleHeadings()
-        val voltages = drive.getModuleEncoderVoltages()
-        val states = drive.getDesiredModuleStates()
-        val gyro = drive.getHeading()
         //telemetry.addData("thing", drive.getDelta()[0])
 
         /*

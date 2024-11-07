@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.outoftheboxrobotics.photoncore.Photon
+import com.outoftheboxrobotics.photoncore.hardware.PhotonLynxVoltageSensor
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -22,6 +23,7 @@ class TeleOp: OpMode() {
     private lateinit var elapsedtime: ElapsedTime
     private lateinit var drive: SwerveDrivetrain
     private lateinit var gamepad: GamepadEx
+    //private lateinit var voltage: PhotonLynxVoltageSensor
 
     override fun init() {
         elapsedtime = ElapsedTime()
@@ -32,6 +34,8 @@ class TeleOp: OpMode() {
         for (hub in hubs) {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
         }
+
+        //voltage = hardwareMap.getAll(PhotonLynxVoltageSensor::class.java).iterator().next()
 
         drive = SwerveDrivetrain(hardwareMap)
         gamepad = GamepadEx(gamepad1)
@@ -63,6 +67,11 @@ class TeleOp: OpMode() {
             drive.resetHeading()
         }
 
+        //telemetry.addData("voltage", voltage.cachedVoltage)
+
+        /*
+
+
         val pose = drive.getPose()
         telemetry.addData("x", pose.x)
         telemetry.addData("y", pose.y)
@@ -72,7 +81,7 @@ class TeleOp: OpMode() {
         telemetry.addData("vel x", vel.vxMetersPerSecond)
         telemetry.addData("vel y", vel.vyMetersPerSecond)
         telemetry.addData("vel heading deg", vel.omegaRadiansPerSecond)
-        telemetry.addData("vel magnitude", hypot(vel.vyMetersPerSecond, vel.vxMetersPerSecond))
+        //telemetry.addData("vel magnitude", hypot(vel.vyMetersPerSecond, vel.vxMetersPerSecond))
 
         //drive.test(gamepad.leftY, gamepad.rightX.49s for 30in)
         val headings = drive.getModuleHeadings()
@@ -81,26 +90,25 @@ class TeleOp: OpMode() {
         val gyro = drive.getHeading()
         //telemetry.addData("thing", drive.getDelta()[0])
 
-        /*
         telemetry.addData("heading rad", gyro)
         telemetry.addData("lf heading", headings[0])
-        telemetry.addData("lf voltage", voltages[0])
+        //telemetry.addData("lf voltage", voltages[0])
         telemetry.addData("lf desired heading", states[0].angle.radians)
 
         telemetry.addData("rf heading", headings[1])
-        telemetry.addData("rf voltage", voltages[1])
+        //telemetry.addData("rf voltage", voltages[1])
         telemetry.addData("rf desired heading", states[1].angle.radians)
 
         telemetry.addData("lr heading", headings[2])
-        telemetry.addData("lr voltage", voltages[2])
+        //telemetry.addData("lr voltage", voltages[2])
         telemetry.addData("lr desired heading", states[2].angle.radians)
 
         telemetry.addData("rr heading", headings[3])
-        telemetry.addData("rr voltage", voltages[3])
+        //telemetry.addData("rr voltage", voltages[3])
         telemetry.addData("rr desired heading", states[3].angle.radians)
 
          */
-
         telemetry.addData("ms", elapsedtime.milliseconds())
+
         elapsedtime.reset()
     }}
