@@ -12,6 +12,7 @@
             <ContinuousRotationServo name="servoRF" port="1" />
             <ContinuousRotationServo name="servoLR" port="2" />
             <ContinuousRotationServo name="servoRR" port="3" />
+            <Servo name="test" port="4" />
             <AnalogInput name="encoderLF" port="0" />
             <AnalogInput name="encoderRF" port="1" />
             <AnalogInput name="encoderLR" port="2" />

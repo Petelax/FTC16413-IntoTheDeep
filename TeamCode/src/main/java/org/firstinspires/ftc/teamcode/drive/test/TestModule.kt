@@ -3,20 +3,13 @@ package org.firstinspires.ftc.teamcode.drive.test
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.gamepad.GamepadEx
-import com.arcrobotics.ftclib.gamepad.GamepadKeys
-import com.arcrobotics.ftclib.geometry.Rotation2d
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
-import com.outoftheboxrobotics.photoncore.Photon
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveModule
-import kotlin.math.hypot
-import kotlin.math.pow
 
 @TeleOp
 class TestModule: OpMode() {
@@ -37,7 +30,7 @@ class TestModule: OpMode() {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
         }
 
-        val id = DrivebaseConstants.DeviceIDs
+        val id = DeviceIDs
         module = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET)
         rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
         //drive = SwerveDrivetrain(hardwareMap)
