@@ -4,30 +4,27 @@ import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.controller.PIDFController
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants.*
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
+import java.util.function.DoubleSupplier
 
-class ElevatorPIDCommand(private var elevator: Elevator, private val setPoint: Double): CommandBase() {
-    private var controller: PIDFController
+class ElevatorCommand(private var elevator: Elevator, private val speed: DoubleSupplier): CommandBase() {
     init {
-        val c = ElevatorCoefficients
-        controller = PIDFController(c.KP, c.KI, c.KD, c.KF)
-        controller.setPoint = setPoint
-        controller.setTolerance(ElevatorConstants.POSITION_TOLERANCE, ElevatorConstants.VELOCITY_TOLERANCE)
         addRequirements(elevator)
     }
     override fun initialize() {
-        controller.calculate(elevator.getPosition(), setPoint)
+
     }
 
     override fun execute() {
-        elevator.setSpeed(controller.calculate(elevator.getPosition(), setPoint))
+        elevator.setSpeed(speed.asDouble)
     }
 
     override fun isFinished(): Boolean {
-        return controller.atSetPoint()
+        return false
     }
 
     override fun end(interrupted: Boolean) {
-        elevator.setSpeed(0.0)
+        if (!interrupted)
+            elevator.setSpeed(0.0)
     }
 
 }

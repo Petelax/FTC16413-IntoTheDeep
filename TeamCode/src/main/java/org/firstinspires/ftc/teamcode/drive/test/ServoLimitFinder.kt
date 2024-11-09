@@ -4,26 +4,15 @@ import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.gamepad.GamepadEx
-import com.arcrobotics.ftclib.gamepad.GamepadKeys
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
-import com.outoftheboxrobotics.photoncore.Photon
-import com.outoftheboxrobotics.photoncore.hardware.PhotonLynxVoltageSensor
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.PwmControl
-import com.qualcomm.robotcore.hardware.Servo
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
-import org.firstinspires.ftc.teamcode.drive.test.ServoPositions
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
-import kotlin.math.hypot
-import kotlin.math.pow
 
 @TeleOp(group = "test")
-class ResetServo: OpMode() {
+class ServoLimitFinder: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime
     private lateinit var gamepad: GamepadEx
@@ -51,16 +40,16 @@ class ResetServo: OpMode() {
 
     override fun loop() {
         if (gamepad1.a) {
-            telemetry.addLine("middle")
+            telemetry.addData("middle", ServoPositions.mid)
             servo.position = ServoPositions.mid
         }
 
         if (gamepad1.b) {
-            telemetry.addLine("1")
+            telemetry.addData("max", ServoPositions.max)
             servo.position = ServoPositions.max
         }
         if (gamepad1.x) {
-            telemetry.addLine("-1")
+            telemetry.addData("min", ServoPositions.min)
             servo.position = ServoPositions.min
         }
 

@@ -13,6 +13,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
+import org.firstinspires.ftc.teamcode.constants.VerticalConstants
+import org.firstinspires.ftc.teamcode.drive.test.ServoPositions
+import org.firstinspires.ftc.teamcode.subsystems.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import kotlin.math.hypot
 import kotlin.math.pow
@@ -23,6 +27,9 @@ class TeleOp: OpMode() {
     private lateinit var elapsedtime: ElapsedTime
     private lateinit var drive: SwerveDrivetrain
     private lateinit var gamepad: GamepadEx
+    private lateinit var elevator: Elevator
+    private lateinit var verticalArm: VerticalArm
+
     //private lateinit var voltage: PhotonLynxVoltageSensor
 
     override fun init() {
@@ -38,6 +45,8 @@ class TeleOp: OpMode() {
         //voltage = hardwareMap.getAll(PhotonLynxVoltageSensor::class.java).iterator().next()
 
         drive = SwerveDrivetrain(hardwareMap)
+        elevator = Elevator(hardwareMap)
+        verticalArm = VerticalArm(hardwareMap)
         gamepad = GamepadEx(gamepad1)
 
         elapsedtime.reset()
@@ -54,6 +63,18 @@ class TeleOp: OpMode() {
             gamepad.leftX.pow(1)*DrivebaseConstants.Measurements.MAX_VELOCITY,
             gamepad.rightX.pow(1)*DrivebaseConstants.Measurements.MAX_ANGULAR_VELOCITY
         ))
+
+        elevator.setSpeed(-gamepad2.left_stick_y.toDouble())
+
+        if (gamepad2.a) {
+            verticalArm.setPosition(VerticalConstants.DepositPositions.INTAKE)
+        }
+        if (gamepad2.y) {
+            verticalArm.setPosition(VerticalConstants.DepositPositions.SAMPLE)
+        }
+        if (gamepad2.b) {
+            verticalArm.setPosition(VerticalConstants.DepositPositions.SPECIMEN)
+        }
 
         /*
         drive.drive(ChassisSpeeds(

@@ -102,7 +102,7 @@ class SwerveModule {
         // desiredState = state
         delta = state.angle.minus(Rotation2d(getHeading()))
 
-        drivePower = driveFeedForward.calculate(desiredState.speedMetersPerSecond) / 12.0 //* abs(delta.cos)
+        drivePower = driveFeedForward.calculate(desiredState.speedMetersPerSecond) / 12.0 // * abs(delta.cos)
         turnPower = turnPID.calculate(getHeading(), desiredState.angle.radians)
 
         //(Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power)
