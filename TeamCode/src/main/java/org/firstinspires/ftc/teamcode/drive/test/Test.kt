@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.arcrobotics.ftclib.geometry.Rotation2d
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -40,7 +41,7 @@ class Test: OpMode() {
             hub.clearBulkCache()
         }
 
-        drive.setModuleHeadings(Rotation2d(), Rotation2d(), Rotation2d(), Rotation2d())
+        drive.setModuleHeadings(ChassisSpeeds(0.0, 0.0, 0.0))
 
         /*
         drive.drive(ChassisSpeeds(
@@ -65,7 +66,7 @@ class Test: OpMode() {
         // telemetry.addData("vel heading deg", vel.omegaRadiansPerSecond)
         // telemetry.addData("vel magnitude", hypot(vel.vyMetersPerSecond, vel.vxMetersPerSecond))
         telemetry.addData("delta lf", drive.getDelta()[0])
-        telemetry.addData("delta aligned", drive.areModulesAligned(Rotation2d(), 8.0))
+        telemetry.addData("delta aligned", drive.areModulesAligned(8.0))
 
         //drive.test(gamepad.leftY, gamepad.rightX.49s for 30in)
         val headings = drive.getModuleHeadings()

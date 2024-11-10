@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PwmControl
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.AbsoluteAnalogEncoder
+import org.firstinspires.ftc.teamcode.utils.Cache
 import org.firstinspires.ftc.teamcode.utils.PIDController
 import kotlin.math.abs
 import kotlin.math.sign
@@ -72,14 +73,28 @@ class SwerveModule {
      * set power of the turn servo. Limits the max power
      */
     private fun setServoPower(n: Double) {
+        /*
         var power = n
         if (abs(power) > 1.0)
             power = sign(n)
-
         power *= maxTurnPower
+        */
+        val corrected = n.coerceIn(-1.0..1.0)
+        if (Cache.shouldUpdate(lastTurnPower, corrected)) {
+            servo.power = corrected
+            lastTurnPower = corrected
+        }
+    }
 
-        servo.power = n
-
+    /**
+     * set power of motor (write caching)
+     */
+    private fun setMotorPower(n: Double) {
+        val corrected = n.coerceIn(-1.0..1.0)
+        if (Cache.shouldUpdate(lastDrivePower, corrected)) {
+            motor.power = corrected
+            lastDrivePower = corrected
+        }
     }
 
     /**
@@ -97,16 +112,37 @@ class SwerveModule {
         return desiredState
     }
 
+    /**
+     * set state of module
+     */
     fun setDesiredState(state: SwerveModuleState) {
+        setDesiredState(state, true)
+
+    }
+
+    /**
+     * set state of module
+     * @param state desired state
+     * @param drive power the drive motor
+     */
+    fun setDesiredState(state: SwerveModuleState, drive: Boolean) {
         desiredState = SwerveModuleState.optimize(state, Rotation2d(getHeading()))
         // desiredState = state
-        delta = state.angle.minus(Rotation2d(getHeading()))
+        delta = desiredState.angle.minus(Rotation2d(getHeading()))
 
-        drivePower = driveFeedForward.calculate(desiredState.speedMetersPerSecond) / 12.0 // * abs(delta.cos)
         turnPower = turnPID.calculate(getHeading(), desiredState.angle.radians)
 
         //(Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power)
-        turnPower += if (abs(turnPID.positionError) > 0.02) 0.03 else 0.0 * sign(turnPower)
+        turnPower += if (abs(turnPID.positionError) > 0.02) 0.035 else 0.0 * sign(turnPower)
+
+        if (drive) {
+            drivePower = driveFeedForward.calculate(desiredState.speedMetersPerSecond) / 12.0 // * abs(delta.cos)
+            if (abs(drivePower) < 0.0001) {
+                turnPower = 0.0
+            }
+        } else {
+            drivePower = 0.0
+        }
 
         //servo.power = turnPower
         //motor.power = drivePower
@@ -114,6 +150,9 @@ class SwerveModule {
 
     }
 
+    /**
+     * not working
+     */
     fun setDesiredHeading(rotation: Rotation2d) {
         val desiredRotation = optimizeHeading(rotation)
         delta = desiredRotation.minus(Rotation2d(getHeading()))
@@ -142,13 +181,9 @@ class SwerveModule {
     }
 
     fun write() {
-        if (abs(drivePower) < 0.0001) {
-            turnPower = 0.0
-        }
 
         setServoPower(turnPower)
-        //servo.power = turnPower
-        motor.power = drivePower
+        setMotorPower(drivePower)
 
 //        if (abs(turnPower - lastTurnPower) > 0.005) {
 //            servo.power = turnPower

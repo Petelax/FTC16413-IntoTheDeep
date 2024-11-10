@@ -13,11 +13,14 @@ class DrivebaseConstants {
         @JvmField var KV = 6.82 //7.0
         @JvmField var KA = 0.30 //0.5
 
-        @JvmField var KP = 0.4
+        @JvmField var KP = 0.47
         @JvmField var KI = 0.0
         @JvmField var KD = 0.0
+
+        @JvmField var alignTolerance = 12.0
     }
 
+    @Config
     object Measurements {
         const val PI = 3.1415926535897932384626433832795028841971693993751058209
         const val INCHES_TO_METERS = 0.0254
@@ -33,6 +36,8 @@ class DrivebaseConstants {
         //const val CENTER_WHEEL_OFFSET = 0.0
         private const val k = TRACK_WIDTH/2
         private const val j = WHEEL_BASE/2
+
+        @JvmField val cachingTolerance = 0.005
 
         // note: drivebase efficiency prototype 84%
 
@@ -78,15 +83,16 @@ class DrivebaseConstants {
         @JvmField var TranslationKI = 0.0
         @JvmField var TranslationKD = 0.025
 
-        @JvmField var RotationKP = 0.015
+        @JvmField var RotationKP = 15.0
         @JvmField var RotationKI = 0.0
-        @JvmField var RotationKD = 0.0
+        @JvmField var RotationKD = 0.35
 
         @JvmField var TranslationPositionTolerance = 0.25
         @JvmField var TranslationVelocityTolerance = 10.0
 
-        @JvmField var RotationPositionTolerance = 5.0
-        @JvmField var RotationVelocityTolerance = 10.0
+        @JvmField var RotationPositionTolerance = 0.015
+        @JvmField var RotationVelocityTolerance = 1.0
     }
+
 
 }

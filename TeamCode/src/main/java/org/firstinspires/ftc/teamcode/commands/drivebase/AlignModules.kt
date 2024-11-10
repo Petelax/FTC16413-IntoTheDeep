@@ -2,25 +2,24 @@ package org.firstinspires.ftc.teamcode.commands.drivebase
 
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.geometry.Rotation2d
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 
-class AlignModules(private val drive: SwerveDrivetrain, private val heading: Rotation2d): CommandBase() {
-    private val desiredHeading: Rotation2d = heading
+class AlignModules(private val drive: SwerveDrivetrain, private val speeds: ChassisSpeeds): CommandBase() {
     init {
-
         addRequirements(drive)
     }
 
     override fun initialize() {
-        drive.setModuleHeadings(desiredHeading, desiredHeading, desiredHeading, desiredHeading)
+        drive.setModuleHeadings(speeds)
     }
 
     override fun execute() {
-        drive.setModuleHeadings(desiredHeading, desiredHeading, desiredHeading, desiredHeading)
+        drive.setModuleHeadings(speeds)
     }
 
     override fun isFinished(): Boolean {
-        return drive.areModulesAligned(desiredHeading, 10.0)
+        return drive.areModulesAligned()
     }
 
     override fun end(interrupted: Boolean) {

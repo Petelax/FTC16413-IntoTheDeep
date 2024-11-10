@@ -40,26 +40,27 @@ class ServoLimitFinder: OpMode() {
 
     override fun loop() {
         if (gamepad1.a) {
-            telemetry.addData("middle", ServoPositions.mid)
-            servo.position = ServoPositions.mid
+            telemetry.addData("middle", mid)
+            servo.position = mid
         }
 
         if (gamepad1.b) {
-            telemetry.addData("max", ServoPositions.max)
-            servo.position = ServoPositions.max
+            telemetry.addData("max", max)
+            servo.position = max
         }
         if (gamepad1.x) {
-            telemetry.addData("min", ServoPositions.min)
-            servo.position = ServoPositions.min
+            telemetry.addData("min", min)
+            servo.position = min
         }
 
         telemetry.update()
     }
+
+    @Config
+    companion object ServoPositions {
+        @JvmField var min = -1.0
+        @JvmField var mid = 0.0
+        @JvmField var max = 1.0
+    }
 }
 
-@Config
-object ServoPositions {
-    @JvmField var min = -1.0
-    @JvmField var mid = 0.0
-    @JvmField var max = 1.0
-}

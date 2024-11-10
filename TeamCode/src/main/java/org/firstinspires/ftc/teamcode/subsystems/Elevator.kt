@@ -7,6 +7,8 @@ import com.arcrobotics.ftclib.hardware.motors.MotorGroup
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
+import org.firstinspires.ftc.teamcode.utils.Cache
+import kotlin.math.abs
 
 class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
     private var motorLeft: Motor
@@ -14,6 +16,7 @@ class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
 
     private var elevator: MotorGroup
     private var currentPosition: Double = 0.0
+    private var lastSpeed = 0.0
 
     private val positions = VerticalConstants.ElevatorPositions
     private val coefficients = VerticalConstants.ElevatorCoefficients
@@ -37,16 +40,20 @@ class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
     }
 
     fun setRawSpeed(speed: Double) {
-        elevator.set(speed)
+        val corrected = speed.coerceIn(-1.0..1.0)
+        if (Cache.shouldUpdate(lastSpeed, corrected)) {
+            elevator.set(corrected)
+            lastSpeed = corrected
+        }
     }
 
     fun setSpeed(speed: Double) {
         currentPosition = getPosition()
 
-        if ((currentPosition < positions.BOTTOM && speed < 0.0) || (currentPosition > positions.TOP && speed > 0.0)) {
-            elevator.set(0.0)
+        if ((currentPosition < positions.LOWER_LIMIT && speed <= 0.0) || (currentPosition > positions.UPPER_LIMIT && speed > 0.0)) {
+            setRawSpeed(0.0)
         } else {
-            elevator.set(speed + coefficients.KG)
+            setRawSpeed(speed + coefficients.KG)
         }
 
     }

@@ -5,19 +5,27 @@ import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.command.CommandOpMode
 import com.arcrobotics.ftclib.command.InstantCommand
+import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
+import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import org.firstinspires.ftc.teamcode.commands.drivebase.AlignModules
+import org.firstinspires.ftc.teamcode.commands.drivebase.AlignPIDToPosition
 import org.firstinspires.ftc.teamcode.commands.drivebase.PIDToPosition
+import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorPIDCommand
+import org.firstinspires.ftc.teamcode.constants.VerticalConstants
+import org.firstinspires.ftc.teamcode.subsystems.Elevator
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.utils.Drawing
 
 @Config
 @Autonomous
 class PIDAuto: CommandOpMode() {
     private lateinit var drive: SwerveDrivetrain
+    private lateinit var elevator: Elevator
     private lateinit var dashboard: FtcDashboard
 
     private var lastTime = System.nanoTime()
@@ -27,9 +35,9 @@ class PIDAuto: CommandOpMode() {
     override fun initialize() {
         //telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         drive = SwerveDrivetrain(hardwareMap)
+        elevator = Elevator(hardwareMap)
         sleep(700)
         dashboard = FtcDashboard.getInstance()
-
 
         val packet = TelemetryPacket()
         packet.addLine("init")
@@ -43,12 +51,49 @@ class PIDAuto: CommandOpMode() {
                 SequentialCommandGroup(),
                 WaitCommand(10),
                 //PIDToPosition(drive, pose),
-                //PIDToPosition(drive, Pose2d(24.0, 24.0, Rotation2d.fromDegrees(0.0))),
+                ParallelCommandGroup(
+                    AlignPIDToPosition(drive, Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))),
+                    SequentialCommandGroup(
+                        WaitCommand(100),
+                        ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP-0.5),
+                    )
+                ),
+                WaitCommand(100),
+                ParallelCommandGroup(
+                    AlignPIDToPosition(drive, Pose2d(-24.0, -12.0, Rotation2d.fromDegrees(0.0))),
+                    ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM),
+                ),
+                WaitCommand(100),
+                ParallelCommandGroup(
+                    AlignPIDToPosition(drive, Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))),
+                    SequentialCommandGroup(
+                        WaitCommand(100),
+                        ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP-0.5),
+                    )
+                ),
+                WaitCommand(100),
+                ParallelCommandGroup(
+                    AlignPIDToPosition(drive, Pose2d(-24.0, -24.0, Rotation2d.fromDegrees(0.0))),
+                    ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM),
+                ),
+                WaitCommand(100),
+                ParallelCommandGroup(
+                    AlignPIDToPosition(drive, Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))),
+                    SequentialCommandGroup(
+                        WaitCommand(100),
+                        ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP-0.5),
+                    )
+                ),
+                WaitCommand(100),
+                ParallelCommandGroup(
+                    AlignPIDToPosition(drive, Pose2d(-24.0, -36.0, Rotation2d.fromDegrees(0.0))),
+                    ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM),
+                ),
+                //AlignPIDToPosition(drive, Pose2d(24.0, 0.0, Rotation2d.fromDegrees(0.0))),
 
-                AlignModules(drive, Rotation2d(0.0)),
-                PIDToPosition(drive, Pose2d(48.0, 0.0, Rotation2d.fromDegrees(0.0))),
-                AlignModules(drive, Rotation2d(90.0)),
-                PIDToPosition(drive, Pose2d(48.0, -12.0, Rotation2d.fromDegrees(0.0))),
+                //PIDToPosition(drive, Pose2d(24.0, 0.0, Rotation2d.fromDegrees(0.0))),
+                //AlignModules(drive, ChassisSpeeds(1.0, 0.0, 0.0)),
+                //PIDToPosition(drive, Pose2d(24.0, -24.0, Rotation2d.fromDegrees(0.0))),
                 InstantCommand({dashboard.sendTelemetryPacket(help)}),
                 WaitCommand(100)
             ),
@@ -59,11 +104,21 @@ class PIDAuto: CommandOpMode() {
     override fun run() {
         val currentTime = System.nanoTime()
         val pose = drive.getPose()
+        val deltas = drive.getDelta()
         val packet = TelemetryPacket()
         packet.put("x", pose.x)
         packet.put("y", pose.y)
         packet.put("heading", pose.heading)
+        packet.put("elevator height", elevator.getPosition())
+
+        packet.put("lf", deltas[0])
+        packet.put("rf", deltas[1])
+        packet.put("lr", deltas[2])
+        packet.put("rr", deltas[3])
+
         packet.put("ms", (currentTime-lastTime)/1E6)
+        packet.fieldOverlay().setStroke("#3F51B5")
+        Drawing.drawRobot(packet.fieldOverlay(), pose)
         dashboard.sendTelemetryPacket(packet)
         telemetry.update()
 

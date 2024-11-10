@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
-import org.firstinspires.ftc.teamcode.drive.test.ServoPositions
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
 import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
@@ -90,7 +89,6 @@ class TeleOp: OpMode() {
 
         //telemetry.addData("voltage", voltage.cachedVoltage)
 
-        /*
 
 
         val pose = drive.getPose()
@@ -98,11 +96,12 @@ class TeleOp: OpMode() {
         telemetry.addData("y", pose.y)
         telemetry.addData("heading deg", pose.rotation.degrees)
 
+        /*
         val vel = drive.getVelocity()
         telemetry.addData("vel x", vel.vxMetersPerSecond)
         telemetry.addData("vel y", vel.vyMetersPerSecond)
         telemetry.addData("vel heading deg", vel.omegaRadiansPerSecond)
-        //telemetry.addData("vel magnitude", hypot(vel.vyMetersPerSecond, vel.vxMetersPerSecond))
+        telemetry.addData("vel magnitude", hypot(vel.vyMetersPerSecond, vel.vxMetersPerSecond))
 
         //drive.test(gamepad.leftY, gamepad.rightX.49s for 30in)
         val headings = drive.getModuleHeadings()
@@ -129,6 +128,7 @@ class TeleOp: OpMode() {
         telemetry.addData("rr desired heading", states[3].angle.radians)
 
          */
+
         telemetry.addData("ms", elapsedtime.milliseconds())
 
         elapsedtime.reset()

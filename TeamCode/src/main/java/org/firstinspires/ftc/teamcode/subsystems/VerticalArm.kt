@@ -6,10 +6,9 @@ import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
 
 class VerticalArm(hardwareMap: HardwareMap): SubsystemBase() {
-    private var servo: ServoImplEx
+    private var servo: ServoImplEx = hardwareMap.get(ServoImplEx::class.java, "test")
 
     init {
-        servo = hardwareMap.get(ServoImplEx::class.java, "test")
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
     }
 

@@ -203,20 +203,36 @@ class SwerveDrivetrain: SubsystemBase {
         rr.setDesiredStateAccel(moduleStates[3])
     }
 
-    fun setModuleHeadings(lfRotation: Rotation2d, rfRotation: Rotation2d, lrRotation: Rotation2d, rrRotation: Rotation2d) {
-        lf.setDesiredHeading(lfRotation)
-        rf.setDesiredHeading(rfRotation)
-        lr.setDesiredHeading(lrRotation)
-        rr.setDesiredHeading(rrRotation)
+    /**
+     * sets the headings of the modules to what they should be at the given chassis speed without
+     * drive the motors. Field centric
+     */
+    fun setModuleHeadings(speeds: ChassisSpeeds) {
+        val fieldSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            speeds.vxMetersPerSecond,
+            speeds.vyMetersPerSecond,
+            speeds.omegaRadiansPerSecond,
+            Rotation2d(getHeading())
+        )
+
+        val moduleStates = firstOrderInverse(fieldSpeeds)
+        SwerveDriveKinematics.normalizeWheelSpeeds(moduleStates, DrivebaseConstants.Measurements.MAX_VELOCITY)
+        lf.setDesiredState(moduleStates[0], false)
+        rf.setDesiredState(moduleStates[1], false)
+        lr.setDesiredState(moduleStates[2], false)
+        rr.setDesiredState(moduleStates[3], false)
     }
 
     /**
      * if all modules are at the desired heading
-     * @param desiredHeading
      * @param tolerance degrees
      */
-    fun areModulesAligned(desiredHeading: Rotation2d, tolerance: Double): Boolean {
+    fun areModulesAligned(tolerance: Double): Boolean {
         return abs(lf.getDelta()) < tolerance && abs(rf.getDelta()) < tolerance && abs(lr.getDelta()) < tolerance && abs(rr.getDelta()) < tolerance
+    }
+
+    fun areModulesAligned(): Boolean {
+        return areModulesAligned(DrivebaseConstants.ModuleCoefficients.alignTolerance)
     }
 
     fun getModuleHeadings(): Array<Double> {

@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorPIDCommand
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.utils.Drawing
 
 @TeleOp
 class CommandTeleOp: CommandOpMode() {
@@ -68,6 +69,10 @@ class CommandTeleOp: CommandOpMode() {
         packet.put("heading", pose.heading)
         packet.put("elevator height", elevator.getPosition())
         packet.put("ms", (currentTime-lastTime)/1E6)
+
+        packet.fieldOverlay().setStroke("#3F51B5")
+        Drawing.drawRobot(packet.fieldOverlay(), pose)
+
         dashboard.sendTelemetryPacket(packet)
 
         GamepadButton(toolOp, GamepadKeys.Button.A).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM))
