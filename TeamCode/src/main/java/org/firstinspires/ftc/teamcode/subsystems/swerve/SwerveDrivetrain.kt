@@ -33,6 +33,7 @@ class SwerveDrivetrain: SubsystemBase {
     )
     //private var imu: IMU
     private var odo: SparkFunOTOS
+    private var pose = Pose2d()
 
     /* Define the offsets from the center of the robot to each wheel */
 
@@ -58,6 +59,13 @@ class SwerveDrivetrain: SubsystemBase {
     }
 
     override fun periodic() {
+        val tempPose = odo.position
+        pose = Pose2d(tempPose.x, tempPose.y, Rotation2d.fromDegrees(tempPose.h))
+
+        lf.periodic()
+        rf.periodic()
+        lr.periodic()
+        rr.periodic()
 
     }
 
@@ -75,8 +83,9 @@ class SwerveDrivetrain: SubsystemBase {
     }
 
     fun getPose(): Pose2d {
-        val pose = odo.position
-        return Pose2d(pose.x, pose.y, Rotation2d.fromDegrees(pose.h))
+        //val pose = odo.position
+        //return Pose2d(pose.x, pose.y, Rotation2d.fromDegrees(pose.h))
+        return pose
     }
 
     /**

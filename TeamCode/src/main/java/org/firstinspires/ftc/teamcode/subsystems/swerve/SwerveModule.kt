@@ -29,6 +29,7 @@ class SwerveModule {
     private var lastDrivePower = 0.0
     private var delta = Rotation2d()
     private var maxTurnPower = 0.863
+    private var currentHeading = 0.0
 
     /**
      * @param hardwareMap hardwareMap
@@ -69,6 +70,10 @@ class SwerveModule {
         turnPID.enableContinuousInput(0.0, 2.0*Math.PI)
     }
 
+    fun periodic() {
+        currentHeading = encoder.getHeading()
+    }
+
     /**
      * set power of the turn servo. Limits the max power
      */
@@ -101,7 +106,7 @@ class SwerveModule {
      * @return radians
      */
     fun getHeading(): Double {
-        return encoder.getHeading()
+        return currentHeading
     }
 
     fun getEncoderVoltage(): Double {

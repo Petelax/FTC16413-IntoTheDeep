@@ -47,7 +47,7 @@ class ElevatorTest: OpMode() {
         elevator.setSpeed(gamepad.leftY)
 
         telemetry.addData("speed", gamepad.leftY)
-        telemetry.addData("raw position", elevator.getRawPosition())
+        //telemetry.addData("raw position", elevator.getRawPosition())
         telemetry.addData("position", elevator.getPosition())
 
         telemetry.update()

@@ -39,6 +39,10 @@ class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
 
     }
 
+    override fun periodic() {
+        currentPosition = motorLeft.currentPosition * constants.TICKS_TO_INCHES
+    }
+
     fun setRawSpeed(speed: Double) {
         val corrected = speed.coerceIn(-1.0..1.0)
         if (Cache.shouldUpdate(lastSpeed, corrected)) {
@@ -58,12 +62,8 @@ class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
 
     }
 
-    fun getRawPosition(): Int {
-        return motorLeft.currentPosition
-    }
-
     fun getPosition(): Double {
-        return getRawPosition() * constants.TICKS_TO_INCHES
+        return currentPosition
     }
 
 }

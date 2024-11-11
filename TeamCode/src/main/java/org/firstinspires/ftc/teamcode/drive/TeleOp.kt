@@ -2,22 +2,18 @@ package org.firstinspires.ftc.teamcode.drive
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.arcrobotics.ftclib.command.CommandScheduler
 import com.arcrobotics.ftclib.gamepad.GamepadEx
-import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
-import com.outoftheboxrobotics.photoncore.Photon
-import com.outoftheboxrobotics.photoncore.hardware.PhotonLynxVoltageSensor
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
 import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
-import kotlin.math.hypot
 import kotlin.math.pow
 
 @TeleOp
@@ -52,16 +48,23 @@ class TeleOp: OpMode() {
     }
 
     override fun loop() {
+        elapsedtime.reset()
         // clears the cache on each hub
         for (hub in hubs) {
             hub.clearBulkCache()
         }
+
+        val cacheTime = elapsedtime.milliseconds()
+        telemetry.addData("ms cache", cacheTime)
 
         drive.firstOrderFieldCentricDrive(ChassisSpeeds(
             -gamepad.leftY.pow(1) *DrivebaseConstants.Measurements.MAX_VELOCITY,
             gamepad.leftX.pow(1)*DrivebaseConstants.Measurements.MAX_VELOCITY,
             gamepad.rightX.pow(1)*DrivebaseConstants.Measurements.MAX_ANGULAR_VELOCITY
         ))
+
+        val driveTime = elapsedtime.milliseconds()
+        telemetry.addData("ms drive", driveTime-cacheTime)
 
         elevator.setSpeed(-gamepad2.left_stick_y.toDouble())
 
@@ -75,6 +78,9 @@ class TeleOp: OpMode() {
             verticalArm.setPosition(VerticalConstants.DepositPositions.SPECIMEN)
         }
 
+        val subsystemTime = elapsedtime.milliseconds()
+        telemetry.addData("ms subsystem", subsystemTime-driveTime)
+
         /*
         drive.drive(ChassisSpeeds(
             -gamepad.leftY.pow(1)*DrivebaseConstants.Measurements.MAX_VELOCITY,
@@ -83,9 +89,12 @@ class TeleOp: OpMode() {
         ))
          */
 
+        /*
         if(gamepad.wasJustPressed(GamepadKeys.Button.A)) {
             drive.resetHeading()
         }
+
+         */
 
         //telemetry.addData("voltage", voltage.cachedVoltage)
 
@@ -95,6 +104,9 @@ class TeleOp: OpMode() {
         telemetry.addData("x", pose.x)
         telemetry.addData("y", pose.y)
         telemetry.addData("heading deg", pose.rotation.degrees)
+
+        val poseTime = elapsedtime.milliseconds()
+        telemetry.addData("ms pose", poseTime-subsystemTime)
 
         /*
         val vel = drive.getVelocity()
@@ -129,7 +141,17 @@ class TeleOp: OpMode() {
 
          */
 
+        //CommandScheduler.getInstance().run()
+        drive.periodic()
+
+        val schedulerTime = elapsedtime.milliseconds()
+        telemetry.addData("ms scheduler", schedulerTime-poseTime)
+
+        elevator.periodic()
+
+        val scheduler1Time = elapsedtime.milliseconds()
+        telemetry.addData("ms scheduler 1", scheduler1Time-schedulerTime)
+
         telemetry.addData("ms", elapsedtime.milliseconds())
 
-        elapsedtime.reset()
     }}

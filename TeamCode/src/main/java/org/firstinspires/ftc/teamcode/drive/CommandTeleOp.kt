@@ -62,24 +62,29 @@ class CommandTeleOp: CommandOpMode() {
             hub.clearBulkCache()
         }
 
-        val pose = drive.getPose()
+        //val pose = drive.getPose()
+
         val packet = TelemetryPacket()
+        /*
         packet.put("x", pose.x)
         packet.put("y", pose.y)
         packet.put("heading", pose.heading)
         packet.put("elevator height", elevator.getPosition())
-        packet.put("ms", (currentTime-lastTime)/1E6)
 
         packet.fieldOverlay().setStroke("#3F51B5")
         Drawing.drawRobot(packet.fieldOverlay(), pose)
 
-        dashboard.sendTelemetryPacket(packet)
-
         GamepadButton(toolOp, GamepadKeys.Button.A).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM))
         GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(ElevatorPIDCommand(elevator, 12.0))
         GamepadButton(toolOp, GamepadKeys.Button.Y).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP))
+         */
+
+        super.run()
+
+        packet.put("ms", (currentTime-lastTime)/1E6)
+        packet.put("ms pose", (currentTime-lastTime)/1E6)
+        dashboard.sendTelemetryPacket(packet)
 
         lastTime = currentTime
-        super.run()
     }
 }

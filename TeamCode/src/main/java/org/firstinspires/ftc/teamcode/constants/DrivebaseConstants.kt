@@ -37,7 +37,7 @@ class DrivebaseConstants {
         private const val k = TRACK_WIDTH/2
         private const val j = WHEEL_BASE/2
 
-        @JvmField val cachingTolerance = 0.005
+        @JvmField var cachingTolerance = 0.01
 
         // note: drivebase efficiency prototype 84%
 
