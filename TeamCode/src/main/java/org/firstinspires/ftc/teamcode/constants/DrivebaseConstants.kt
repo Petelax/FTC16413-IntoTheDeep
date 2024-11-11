@@ -90,7 +90,7 @@ class DrivebaseConstants {
         @JvmField var TranslationPositionTolerance = 0.25
         @JvmField var TranslationVelocityTolerance = 10.0
 
-        @JvmField var RotationPositionTolerance = 0.015
+        @JvmField var RotationPositionTolerance = 0.025
         @JvmField var RotationVelocityTolerance = 1.0
     }
 

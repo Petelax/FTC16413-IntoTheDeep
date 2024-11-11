@@ -54,7 +54,7 @@ class PIDAuto: CommandOpMode() {
                 ParallelCommandGroup(
                     AlignPIDToPosition(drive, Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))),
                     SequentialCommandGroup(
-                        WaitCommand(100),
+                        WaitCommand(600),
                         ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP-0.5),
                     )
                 ),
@@ -67,7 +67,7 @@ class PIDAuto: CommandOpMode() {
                 ParallelCommandGroup(
                     AlignPIDToPosition(drive, Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))),
                     SequentialCommandGroup(
-                        WaitCommand(100),
+                        WaitCommand(500),
                         ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP-0.5),
                     )
                 ),
@@ -80,7 +80,7 @@ class PIDAuto: CommandOpMode() {
                 ParallelCommandGroup(
                     AlignPIDToPosition(drive, Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))),
                     SequentialCommandGroup(
-                        WaitCommand(100),
+                        WaitCommand(500),
                         ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP-0.5),
                     )
                 ),
