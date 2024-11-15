@@ -9,6 +9,7 @@ import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.util.ElapsedTime
+import dev.frozenmilk.mercurial.Mercurial
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
@@ -16,12 +17,14 @@ import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import kotlin.math.pow
 
+@Mercurial.Attach
+@BulkReads.Attach
 @TeleOp
 class TeleOp: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime
     private lateinit var drive: SwerveDrivetrain
-    private lateinit var gamepad: GamepadEx
+    //private lateinit var gamepad: GamepadEx
     private lateinit var elevator: Elevator
     private lateinit var verticalArm: VerticalArm
 
@@ -42,7 +45,7 @@ class TeleOp: OpMode() {
         drive = SwerveDrivetrain(hardwareMap)
         elevator = Elevator(hardwareMap)
         verticalArm = VerticalArm(hardwareMap)
-        gamepad = GamepadEx(gamepad1)
+        //gamepad = GamepadEx(gamepad1)
 
         elapsedtime.reset()
     }
@@ -142,7 +145,7 @@ class TeleOp: OpMode() {
          */
 
         //CommandScheduler.getInstance().run()
-        drive.periodic()
+        //drive.periodic()
 
         val schedulerTime = elapsedtime.milliseconds()
         telemetry.addData("ms scheduler", schedulerTime-poseTime)

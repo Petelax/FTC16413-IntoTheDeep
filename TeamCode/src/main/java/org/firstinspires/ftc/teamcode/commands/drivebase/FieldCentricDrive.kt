@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.commands.drivebase
 
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
+import dev.frozenmilk.dairy.core.wrapper.Wrapper
+import dev.frozenmilk.mercurial.commands.Command
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import java.util.function.BooleanSupplier
@@ -15,7 +17,7 @@ class FieldCentricDrive(drivebase: SwerveDrivetrain, /*gamepad: GamepadEx*/
                         halfSpeed: BooleanSupplier,
                         fieldCentric: BooleanSupplier
 
-): CommandBase() {
+): Command() {
     private var drivebase: SwerveDrivetrain
     private var strafeSpeed: DoubleSupplier
     private var forwardSpeed: DoubleSupplier
@@ -36,10 +38,6 @@ class FieldCentricDrive(drivebase: SwerveDrivetrain, /*gamepad: GamepadEx*/
         this.fieldCentric = fieldCentric
         //this.gamepad = gamepad
 
-        addRequirements(drivebase)
-    }
-
-    override fun initialize() {
     }
 
     override fun execute() {
@@ -52,12 +50,25 @@ class FieldCentricDrive(drivebase: SwerveDrivetrain, /*gamepad: GamepadEx*/
         )
     }
 
-    override fun end(interrupted: Boolean) {
-
+    override fun finished(): Boolean {
+        return false
     }
 
-    override fun isFinished(): Boolean {
-        return false
+    override fun initialise() {
+        TODO("Not yet implemented")
+    }
+
+    override fun toString(): String {
+        return "field-centric-drive"
+    }
+
+    override val requirements: Set<Any> = setOf(drivebase)
+
+    override val runStates: Set<Wrapper.OpModeState>
+        get() = TODO("Not yet implemented")
+
+    override fun end(interrupted: Boolean) {
+
     }
 
 }
