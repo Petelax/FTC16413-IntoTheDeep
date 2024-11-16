@@ -19,18 +19,21 @@ object DeviceIDs {
 
     const val OTOS = "otos"
 
-    const val ODOMETRY_POD_PARA = LR_DRIVE_MOTOR // 0
-    const val ODOMETRY_POD_PERP = RR_DRIVE_MOTOR // 3
-
     const val ELEVATOR_LEFT = "elevatorLeft"
     const val ELEVATOR_RIGHT = "elevatorRight"
 
-    const val ARM = "arm"
-    const val INTAKE = "intake"
+    const val DEPOSIT = "deposit"
+    const val VERTICAL_ARM = "verticalArm"
+    const val VERTICAL_WRIST = "verticalWrist"
 
-    const val WRIST = "wrist"
-    const val CLAW_LEFT = "clawLeft"
-    const val CLAW_RIGHT = "clawRight"
+    const val HORIZONTAL_EXTENSION = "horizontalExtension"
+    const val INTAKE_LEFT = "intakeLeft"
+    const val INTAKE_RIGHT = "intakeRight"
+    const val HORIZONTAL_ARM = "horizontalArm"
+    const val HORIZONTAL_WRIST = "horizontalWrist"
+
+    const val HORIZONTAL_LIMIT = "horizontalLimit"
+    const val VERTICAL_LIMIT = "verticalLimit"
 
     /*
     Control Hub:
@@ -44,6 +47,8 @@ object DeviceIDs {
             1: RF
             2: LR
             3: RR
+            4: intakeLeft
+            5: intakeRight
         Analog Input:
             0: LF
             1: RF
@@ -52,6 +57,8 @@ object DeviceIDs {
         I2C bus 0:
             0: imu
             1: otos
+        Digital Input:
+            1: verticalLimit
 
      Expansion Hub:
         Motor:

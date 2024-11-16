@@ -12,20 +12,16 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.TouchSensor
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
+import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
 import kotlin.math.abs
 
-class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
-    //private var motorLeft: Motor
-    //private var motorRight: Motor
-
-    private var motorLeft: DcMotorEx
-    private var motorRight: DcMotorEx
+class HorizontalExtension(hardwareMap: HardwareMap): SubsystemBase() {
+    private var motor: DcMotorEx
 
     private var limit: TouchSensor
 
-    //private var elevator: MotorGroup
     private var currentPosition: Double = 0.0
     private var positionOffset = 0.0
     private var lastSpeed = 0.0
@@ -35,45 +31,26 @@ class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
     private var currentRight = 0.0
     private var speed = 0.0
 
-    private val positions = VerticalConstants.ElevatorPositions
-    private val coefficients = VerticalConstants.ElevatorCoefficients
-    private val constants = VerticalConstants.ElevatorConstants
+    private val positions = HorizontalConstants.ElevatorPositions
+    private val coefficients = HorizontalConstants.ElevatorCoefficients
+    private val constants = HorizontalConstants.ElevatorConstants
 
     init {
-        //motorLeft = Motor(hardwareMap, DeviceIDs.ELEVATOR_LEFT, Motor.GoBILDA.RPM_435)
-        //motorRight = Motor(hardwareMap, DeviceIDs.ELEVATOR_RIGHT, Motor.GoBILDA.RPM_435)
-        motorLeft = hardwareMap.get(DcMotorEx::class.java, DeviceIDs.ELEVATOR_LEFT)
-        motorRight = hardwareMap.get(DcMotorEx::class.java, DeviceIDs.ELEVATOR_RIGHT)
-        limit = hardwareMap.touchSensor.get(DeviceIDs.VERTICAL_LIMIT)
+        motor = hardwareMap.get(DcMotorEx::class.java, DeviceIDs.HORIZONTAL_EXTENSION)
+        limit = hardwareMap.touchSensor.get(DeviceIDs.HORIZONTAL_LIMIT)
 
-        motorLeft.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        motorRight.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
 
-        motorLeft.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-        motorRight.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
-        motorLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-        motorRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
-
-        motorRight.direction = DcMotorSimple.Direction.REVERSE
-
-        //motorLeft.stopAndResetEncoder()
-        //motorRight.stopAndResetEncoder()
-
-        //motorLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE)
-        //motorRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE)
-
-        //motorRight.inverted = true
-
-        //elevator = MotorGroup(motorLeft, motorRight)
+        motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
     }
 
     override fun periodic() {
-        currentPosition = (motorLeft.currentPosition * constants.TICKS_TO_INCHES) - positionOffset
-        speed = motorLeft.velocity * constants.TICKS_TO_INCHES
-        currentLeft = motorLeft.getCurrent(CurrentUnit.AMPS)
-        currentRight = motorRight.getCurrent(CurrentUnit.AMPS)
+        currentPosition = (motor.currentPosition * constants.TICKS_TO_INCHES) - positionOffset
+        speed = motor.velocity * constants.TICKS_TO_INCHES
+        currentLeft = motor.getCurrent(CurrentUnit.AMPS)
         atBottom = limit.isPressed
         if (atBottom && !lastAtBottom) {
             positionOffset += currentPosition
@@ -85,8 +62,7 @@ class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
         val corrected = speed.coerceIn(-1.0..1.0)
         if (Cache.shouldUpdate(lastSpeed, corrected)) {
             //elevator.set(corrected)
-            motorLeft.power = corrected
-            motorRight.power = corrected
+            motor.power = corrected
             lastSpeed = corrected
         }
     }

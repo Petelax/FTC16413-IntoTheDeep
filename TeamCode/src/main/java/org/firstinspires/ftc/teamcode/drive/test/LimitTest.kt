@@ -7,24 +7,24 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import com.qualcomm.robotcore.hardware.CRServo
-import com.qualcomm.robotcore.hardware.CRServoImpl
-import com.qualcomm.robotcore.hardware.CRServoImplEx
+import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
+import com.qualcomm.robotcore.hardware.TouchSensor
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 
 @TeleOp(group = "test")
-class Melonbotics: OpMode() {
+class LimitTest: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime
     private lateinit var gamepad: GamepadEx
-    private lateinit var servo: CRServoImplEx
-    private lateinit var servo1: CRServoImplEx
+    private lateinit var limit: TouchSensor
 
     override fun init() {
         elapsedtime = ElapsedTime()
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+        limit = hardwareMap.touchSensor.get(DeviceIDs.VERTICAL_LIMIT)
 
         // this just sets the bulk reading mode for each hub
         hubs = hardwareMap.getAll(LynxModule::class.java)
@@ -36,20 +36,13 @@ class Melonbotics: OpMode() {
 
         gamepad = GamepadEx(gamepad1)
 
-        servo = hardwareMap.get(CRServoImplEx::class.java, "intakeLeft")
-        servo1 = hardwareMap.get(CRServoImplEx::class.java, "intakeRight")
-
-        servo.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
-        servo1.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
-
-        //servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
-
         elapsedtime.reset()
     }
 
     override fun loop() {
-        servo.power = gamepad.leftY
-        servo1.power = -gamepad.leftY
+        val state = limit.isPressed
+
+        telemetry.addData("state", state)
 
         telemetry.update()
     }

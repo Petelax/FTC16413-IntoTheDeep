@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 
-class VerticalArm(hardwareMap: HardwareMap): SubsystemBase() {
-    private var servo: ServoImplEx = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.VERTICAL_ARM)
+class Deposit(hardwareMap: HardwareMap): SubsystemBase() {
+    private var servo: ServoImplEx = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.DEPOSIT)
 
     init {
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)

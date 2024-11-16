@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.drive
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
-import com.arcrobotics.ftclib.command.CommandScheduler
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.qualcomm.hardware.lynx.LynxModule
@@ -69,17 +68,25 @@ class TeleOp: OpMode() {
         elevator.setSpeed(-gamepad2.left_stick_y.toDouble())
 
         if (gamepad2.a) {
-            verticalArm.setPosition(VerticalConstants.DepositPositions.INTAKE)
+            verticalArm.setPosition(VerticalConstants.VerticalArmPositions.INTAKE)
         }
         if (gamepad2.y) {
-            verticalArm.setPosition(VerticalConstants.DepositPositions.SAMPLE)
+            verticalArm.setPosition(VerticalConstants.VerticalArmPositions.SAMPLE)
         }
         if (gamepad2.b) {
-            verticalArm.setPosition(VerticalConstants.DepositPositions.SPECIMEN)
+            verticalArm.setPosition(VerticalConstants.VerticalArmPositions.SPECIMEN)
         }
+
+        telemetry.addData("elevator limit", elevator.atBottom())
+        telemetry.addData("elevator pos", elevator.getPosition())
+        telemetry.addData("elevator velo", elevator.getSpeed())
+        telemetry.addData("elevator current left", elevator.getCurrentLeft())
+        telemetry.addData("elevator current right", elevator.getCurrentRight())
+        telemetry.addData("elevator current total", elevator.getCurrent())
 
         val subsystemTime = elapsedtime.milliseconds()
         telemetry.addData("ms subsystem", subsystemTime-driveTime)
+
 
         /*
         drive.drive(ChassisSpeeds(
