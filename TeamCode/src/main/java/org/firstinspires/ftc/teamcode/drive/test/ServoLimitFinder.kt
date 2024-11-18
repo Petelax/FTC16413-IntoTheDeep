@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.drive.test.ServoLimitFinder.ServoPositions.mid
 import org.firstinspires.ftc.teamcode.drive.test.ServoLimitFinder.ServoPositions.min
 import org.firstinspires.ftc.teamcode.drive.test.ServoLimitFinder.ServoPositions.max
@@ -35,7 +36,7 @@ class ServoLimitFinder: OpMode() {
 
         gamepad = GamepadEx(gamepad1)
 
-        servo = hardwareMap.get(ServoImplEx::class.java, "test")
+        servo = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.HORIZONTAL_ARM)
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
 
         elapsedtime.reset()

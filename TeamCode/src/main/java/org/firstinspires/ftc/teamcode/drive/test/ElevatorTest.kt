@@ -13,13 +13,14 @@ import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
 
 @TeleOp(group = "test")
 class ElevatorTest: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime
     private lateinit var gamepad: GamepadEx
-    private lateinit var elevator: Elevator
+    private lateinit var elevator: HorizontalExtension
     private lateinit var motor: DcMotor
 
     override fun init() {
@@ -34,7 +35,7 @@ class ElevatorTest: OpMode() {
 
         //voltage = hardwareMap.getAll(PhotonLynxVoltageSensor::class.java).iterator().next()
 
-        elevator = Elevator(hardwareMap)
+        elevator = HorizontalExtension(hardwareMap)
         //motor = hardwareMap.dcMotor.get("elevatorLeft")
 
         gamepad = GamepadEx(gamepad1)
@@ -49,6 +50,9 @@ class ElevatorTest: OpMode() {
         telemetry.addData("speed", gamepad.leftY)
         //telemetry.addData("raw position", elevator.getRawPosition())
         telemetry.addData("position", elevator.getPosition())
+        telemetry.addData("current", elevator.getCurrent())
+
+        elevator.periodic()
 
         telemetry.update()
     }

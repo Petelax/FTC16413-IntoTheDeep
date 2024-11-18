@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
 import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import kotlin.math.pow
@@ -22,6 +23,7 @@ class TeleOp: OpMode() {
     private lateinit var drive: SwerveDrivetrain
     private lateinit var gamepad: GamepadEx
     private lateinit var elevator: Elevator
+    private lateinit var horizontalExtension: HorizontalExtension
     private lateinit var verticalArm: VerticalArm
 
     //private lateinit var voltage: PhotonLynxVoltageSensor
@@ -40,6 +42,7 @@ class TeleOp: OpMode() {
 
         drive = SwerveDrivetrain(hardwareMap)
         elevator = Elevator(hardwareMap)
+        horizontalExtension = HorizontalExtension(hardwareMap)
         verticalArm = VerticalArm(hardwareMap)
         gamepad = GamepadEx(gamepad1)
 
@@ -77,12 +80,17 @@ class TeleOp: OpMode() {
             verticalArm.setPosition(VerticalConstants.VerticalArmPositions.SPECIMEN)
         }
 
+        horizontalExtension.setSpeed(-gamepad2.right_stick_y.toDouble())
+        telemetry.addData("horizontalExtension pos", horizontalExtension.getPosition())
+        //telemetry.addData("horizontalExtension current", horizontalExtension.getCurrent())
+        //telemetry.addData("horizontalExtension velo", horizontalExtension.getSpeed())
+
         telemetry.addData("elevator limit", elevator.atBottom())
         telemetry.addData("elevator pos", elevator.getPosition())
-        telemetry.addData("elevator velo", elevator.getSpeed())
-        telemetry.addData("elevator current left", elevator.getCurrentLeft())
-        telemetry.addData("elevator current right", elevator.getCurrentRight())
-        telemetry.addData("elevator current total", elevator.getCurrent())
+        //telemetry.addData("elevator velo", elevator.getSpeed())
+        //telemetry.addData("elevator current left", elevator.getCurrentLeft())
+        //telemetry.addData("elevator current right", elevator.getCurrentRight())
+        //telemetry.addData("elevator current total", elevator.getCurrent())
 
         val subsystemTime = elapsedtime.milliseconds()
         telemetry.addData("ms subsystem", subsystemTime-driveTime)
@@ -155,6 +163,7 @@ class TeleOp: OpMode() {
         telemetry.addData("ms scheduler", schedulerTime-poseTime)
 
         elevator.periodic()
+        horizontalExtension.periodic()
 
         val scheduler1Time = elapsedtime.milliseconds()
         telemetry.addData("ms scheduler 1", scheduler1Time-schedulerTime)

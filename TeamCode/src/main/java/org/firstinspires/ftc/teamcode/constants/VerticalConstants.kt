@@ -3,12 +3,6 @@ package org.firstinspires.ftc.teamcode.constants
 import com.acmerobotics.dashboard.config.Config
 
 class VerticalConstants {
-    @Config
-    object VerticalArmPositions {
-        @JvmField var INTAKE = 0.0
-        @JvmField var SAMPLE = 0.6
-        @JvmField var SPECIMEN = 0.93
-    }
 
     @Config
     object ElevatorCoefficients {
@@ -40,27 +34,40 @@ class VerticalConstants {
     }
 
     @Config
-    object DepositPositions {
-        @JvmField var IN = 0.0
-        @JvmField var OUT = 1.00
-
-        /**
-         * axon micro
-         * was set to max pwm 50
-         */
+    object VerticalArmPositions {
+        @JvmField var INTAKE = 0.0
+        @JvmField var SAMPLE = 0.6
+        @JvmField var SPECIMEN = 0.93
     }
 
     @Config
-    object WristPositions {
-        @JvmField var PLACING = 0.65
-        @JvmField var SAMPLE = 0.0
-        @JvmField var SPECIMEN = 0.9
+    object DepositPositions {
+        @JvmField var IN = 0.0
+        @JvmField var OUT = 1.00
+    }
+
+    @Config
+    object VerticalWristPositions {
+        @JvmField var ONE = 0.02
+        @JvmField var TWO = 0.45
+        @JvmField var THREE = 0.65
+        @JvmField var FOUR = 0.935
     }
 
     /**
-     * Wrist
-     * range: 100
+     * vertical arm
+     * angle 210 units
+     * pwm power 74.9%
+     * sensitivity ultra high
      *
+     * vertical wrist
+     * angle 135 units
+     * pwm power 74.9%
+     *
+     * deposit
+     * angle 50 units
+     * pwm power 94.1%
+     * sensitivity high
      */
 
 }

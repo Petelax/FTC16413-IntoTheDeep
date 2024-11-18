@@ -71,9 +71,12 @@ class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
 
     override fun periodic() {
         currentPosition = (motorLeft.currentPosition * constants.TICKS_TO_INCHES) - positionOffset
+        /*
         speed = motorLeft.velocity * constants.TICKS_TO_INCHES
         currentLeft = motorLeft.getCurrent(CurrentUnit.AMPS)
         currentRight = motorRight.getCurrent(CurrentUnit.AMPS)
+
+         */
         atBottom = limit.isPressed
         if (atBottom && !lastAtBottom) {
             positionOffset += currentPosition

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PwmControl
@@ -17,4 +18,19 @@ class HorizontalArm(hardwareMap: HardwareMap): SubsystemBase() {
         servo.position = position
     }
 
+}
+
+class HorizontalArmCommand(private val horizontalArm: HorizontalArm, private val position: Double): CommandBase() {
+    override fun initialize() {
+        horizontalArm.setPosition(position)
+    }
+    override fun execute() {
+        super.execute()
+    }
+    override fun isFinished(): Boolean {
+        return true
+    }
+    override fun end(interrupted: Boolean) {
+        super.end(interrupted)
+    }
 }

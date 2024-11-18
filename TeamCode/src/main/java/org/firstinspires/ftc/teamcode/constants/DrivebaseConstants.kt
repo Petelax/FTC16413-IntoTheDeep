@@ -92,6 +92,12 @@ class DrivebaseConstants {
 
         @JvmField var RotationPositionTolerance = 0.025
         @JvmField var RotationVelocityTolerance = 1.0
+
+        @JvmField var MaxAcceleration = 120.0
+        @JvmField var MaxVelocity = 60.0
+
+        @JvmField var MaxAngularAcceleration = 120.0
+        @JvmField var MaxAngularVelocity = 60.0
     }
 
 

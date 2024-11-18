@@ -11,8 +11,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.commands.drivebase.FieldCentricDrive
 import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorCommand
 import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorPIDCommand
+import org.firstinspires.ftc.teamcode.commands.subsystems.HorizontalArmExtend
+import org.firstinspires.ftc.teamcode.commands.subsystems.HorizontalArmRetract
+import org.firstinspires.ftc.teamcode.commands.subsystems.HorizontalExtensionCommand
+import org.firstinspires.ftc.teamcode.commands.subsystems.HorizontalExtensionPIDCommand
+import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalArm
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.Drawing
 
@@ -21,6 +28,8 @@ class CommandTeleOp: CommandOpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var drive: SwerveDrivetrain
     private lateinit var elevator: Elevator
+    private lateinit var horizontalExtension: HorizontalExtension
+    private lateinit var horizontalArm: HorizontalArm
     private lateinit var dashboard: FtcDashboard
     private var lastTime = System.nanoTime()
     private lateinit var driveOp: GamepadEx
@@ -29,6 +38,8 @@ class CommandTeleOp: CommandOpMode() {
     override fun initialize() {
         drive = SwerveDrivetrain(hardwareMap)
         elevator = Elevator(hardwareMap)
+        horizontalExtension = HorizontalExtension(hardwareMap)
+        horizontalArm = HorizontalArm(hardwareMap)
         dashboard = FtcDashboard.getInstance()
         driveOp = GamepadEx(gamepad1)
         toolOp = GamepadEx(gamepad2)
@@ -53,6 +64,8 @@ class CommandTeleOp: CommandOpMode() {
 
         elevator.defaultCommand = ElevatorCommand(elevator) { toolOp.leftY }
 
+        horizontalExtension.defaultCommand = HorizontalExtensionCommand(horizontalExtension) { -toolOp.rightY }
+
     }
 
     override fun run() {
@@ -74,10 +87,16 @@ class CommandTeleOp: CommandOpMode() {
         packet.fieldOverlay().setStroke("#3F51B5")
         Drawing.drawRobot(packet.fieldOverlay(), pose)
 
-        GamepadButton(toolOp, GamepadKeys.Button.A).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM))
-        GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(ElevatorPIDCommand(elevator, 12.0))
-        GamepadButton(toolOp, GamepadKeys.Button.Y).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP))
          */
+
+        GamepadButton(toolOp, GamepadKeys.Button.A).whenPressed(HorizontalArmRetract(horizontalExtension, horizontalArm))
+        //GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(HorizontalExtensionPIDCommand(horizontalExtension, 6.0))
+        GamepadButton(toolOp, GamepadKeys.Button.Y).whenPressed(HorizontalArmExtend(horizontalExtension, horizontalArm))
+
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_DOWN).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM))
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_RIGHT).whenPressed(ElevatorPIDCommand(elevator, 12.0))
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_UP).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP))
+
 
         super.run()
 
