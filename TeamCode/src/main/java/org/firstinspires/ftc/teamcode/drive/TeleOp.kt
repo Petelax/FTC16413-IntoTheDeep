@@ -2,30 +2,56 @@ package org.firstinspires.ftc.teamcode.drive
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
+import com.arcrobotics.ftclib.command.CommandScheduler
+import com.arcrobotics.ftclib.command.button.GamepadButton
 import com.arcrobotics.ftclib.gamepad.GamepadEx
+import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.commands.drivebase.FieldCentricDrive
+import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorCommand
+import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorPIDCommand
+import org.firstinspires.ftc.teamcode.commands.subsystems.HorizontalExtend
+import org.firstinspires.ftc.teamcode.commands.subsystems.HorizontalExtensionCommand
+import org.firstinspires.ftc.teamcode.commands.subsystems.IntakeRun
+import org.firstinspires.ftc.teamcode.commands.subsystems.IntakeStop
+import org.firstinspires.ftc.teamcode.commands.subsystems.PlaceSample
+import org.firstinspires.ftc.teamcode.commands.subsystems.VerticalRetract
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
+import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
+import org.firstinspires.ftc.teamcode.subsystems.Deposit
+import org.firstinspires.ftc.teamcode.subsystems.DepositCommand
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalArm
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalWrist
+import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
+import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import kotlin.math.pow
 
 @TeleOp
 class TeleOp: OpMode() {
     private lateinit var hubs: List<LynxModule>
-    private lateinit var elapsedtime: ElapsedTime
     private lateinit var drive: SwerveDrivetrain
-    private lateinit var gamepad: GamepadEx
     private lateinit var elevator: Elevator
     private lateinit var horizontalExtension: HorizontalExtension
+    private lateinit var horizontalArm: HorizontalArm
+    private lateinit var horizontalWrist: HorizontalWrist
+    private lateinit var intake: Intake
     private lateinit var verticalArm: VerticalArm
+    private lateinit var verticalWrist: VerticalWrist
+    private lateinit var deposit: Deposit
 
+    private lateinit var elapsedtime: ElapsedTime
+
+    private lateinit var driveOp: GamepadEx
+    private lateinit var toolOp: GamepadEx
     //private lateinit var voltage: PhotonLynxVoltageSensor
 
     override fun init() {
@@ -40,11 +66,36 @@ class TeleOp: OpMode() {
 
         //voltage = hardwareMap.getAll(PhotonLynxVoltageSensor::class.java).iterator().next()
 
-        drive = SwerveDrivetrain(hardwareMap)
+        drive = SwerveDrivetrain(hardwareMap, 12.0)
+
         elevator = Elevator(hardwareMap)
-        horizontalExtension = HorizontalExtension(hardwareMap)
         verticalArm = VerticalArm(hardwareMap)
-        gamepad = GamepadEx(gamepad1)
+        verticalWrist = VerticalWrist(hardwareMap)
+        deposit = Deposit(hardwareMap)
+
+        horizontalExtension = HorizontalExtension(hardwareMap)
+        horizontalArm = HorizontalArm(hardwareMap)
+        horizontalWrist = HorizontalWrist(hardwareMap)
+        intake = Intake(hardwareMap)
+
+        driveOp = GamepadEx(gamepad1)
+        toolOp = GamepadEx(gamepad2)
+
+        drive.defaultCommand = FieldCentricDrive(
+            drive,
+            { driveOp.leftX },
+            { driveOp.leftY },
+            { driveOp.rightX },
+            { false },
+            { true }
+        )
+
+        elevator.defaultCommand = ElevatorCommand(elevator) { toolOp.leftY }
+
+        horizontalExtension.defaultCommand = HorizontalExtensionCommand(horizontalExtension) { -toolOp.rightY }
+
+        telemetry.addLine("init")
+        telemetry.update()
 
         elapsedtime.reset()
     }
@@ -59,61 +110,37 @@ class TeleOp: OpMode() {
         val cacheTime = elapsedtime.milliseconds()
         telemetry.addData("ms cache", cacheTime)
 
+        /*
         drive.firstOrderFieldCentricDrive(ChassisSpeeds(
             -gamepad.leftY.pow(1) *DrivebaseConstants.Measurements.MAX_VELOCITY,
             gamepad.leftX.pow(1)*DrivebaseConstants.Measurements.MAX_VELOCITY,
             gamepad.rightX.pow(1)*DrivebaseConstants.Measurements.MAX_ANGULAR_VELOCITY
         ))
+         */
+
 
         val driveTime = elapsedtime.milliseconds()
         telemetry.addData("ms drive", driveTime-cacheTime)
 
-        elevator.setSpeed(-gamepad2.left_stick_y.toDouble())
+        GamepadButton(toolOp, GamepadKeys.Button.A).whenPressed(IntakeRun(intake))
+        GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(IntakeStop(intake))
+        GamepadButton(toolOp, GamepadKeys.Button.Y).whenPressed(PlaceSample(horizontalExtension, horizontalArm, horizontalWrist, intake, elevator, verticalArm, verticalWrist, deposit))
+        GamepadButton(toolOp, GamepadKeys.Button.X).whenPressed(HorizontalExtend(horizontalExtension, horizontalArm, horizontalWrist))
+        GamepadButton(toolOp, GamepadKeys.Button.LEFT_BUMPER).whenPressed(DepositCommand(deposit, VerticalConstants.DepositPositions.OUT))
+        GamepadButton(toolOp, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(DepositCommand(deposit, VerticalConstants.DepositPositions.IN))
 
-        if (gamepad2.a) {
-            verticalArm.setPosition(VerticalConstants.VerticalArmPositions.INTAKE)
-        }
-        if (gamepad2.y) {
-            verticalArm.setPosition(VerticalConstants.VerticalArmPositions.SAMPLE)
-        }
-        if (gamepad2.b) {
-            verticalArm.setPosition(VerticalConstants.VerticalArmPositions.SPECIMEN)
-        }
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_DOWN).whenPressed(VerticalRetract(elevator, verticalArm, verticalWrist, deposit))
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_RIGHT).whenPressed(ElevatorPIDCommand(elevator, 12.0))
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_UP).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP))
 
-        horizontalExtension.setSpeed(-gamepad2.right_stick_y.toDouble())
+
         telemetry.addData("horizontalExtension pos", horizontalExtension.getPosition())
-        //telemetry.addData("horizontalExtension current", horizontalExtension.getCurrent())
-        //telemetry.addData("horizontalExtension velo", horizontalExtension.getSpeed())
 
         telemetry.addData("elevator limit", elevator.atBottom())
         telemetry.addData("elevator pos", elevator.getPosition())
-        //telemetry.addData("elevator velo", elevator.getSpeed())
-        //telemetry.addData("elevator current left", elevator.getCurrentLeft())
-        //telemetry.addData("elevator current right", elevator.getCurrentRight())
-        //telemetry.addData("elevator current total", elevator.getCurrent())
 
         val subsystemTime = elapsedtime.milliseconds()
         telemetry.addData("ms subsystem", subsystemTime-driveTime)
-
-
-        /*
-        drive.drive(ChassisSpeeds(
-            -gamepad.leftY.pow(1)*DrivebaseConstants.Measurements.MAX_VELOCITY,
-            -gamepad.leftX.pow(1)*DrivebaseConstants.Measurements.MAX_VELOCITY,
-            -gamepad.rightX.pow(1)*DrivebaseConstants.Measurements.MAX_ANGULAR_VELOCITY
-        ))
-         */
-
-        /*
-        if(gamepad.wasJustPressed(GamepadKeys.Button.A)) {
-            drive.resetHeading()
-        }
-
-         */
-
-        //telemetry.addData("voltage", voltage.cachedVoltage)
-
-
 
         val pose = drive.getPose()
         telemetry.addData("x", pose.x)
@@ -156,14 +183,15 @@ class TeleOp: OpMode() {
 
          */
 
-        //CommandScheduler.getInstance().run()
-        drive.periodic()
+        CommandScheduler.getInstance().run()
+        //drive.periodic()
+
 
         val schedulerTime = elapsedtime.milliseconds()
         telemetry.addData("ms scheduler", schedulerTime-poseTime)
 
-        elevator.periodic()
-        horizontalExtension.periodic()
+        //elevator.periodic()
+        //horizontalExtension.periodic()
 
         val scheduler1Time = elapsedtime.milliseconds()
         telemetry.addData("ms scheduler 1", scheduler1Time-schedulerTime)

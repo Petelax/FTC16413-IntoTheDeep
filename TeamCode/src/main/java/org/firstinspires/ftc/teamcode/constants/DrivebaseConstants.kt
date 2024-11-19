@@ -11,7 +11,7 @@ class DrivebaseConstants {
     object ModuleCoefficients {
         @JvmField var KS = 0.0
         @JvmField var KV = 6.82 //7.0
-        @JvmField var KA = 0.30 //0.5
+        @JvmField var KA = 0.48 //0.5
 
         @JvmField var KP = 0.47
         @JvmField var KI = 0.0

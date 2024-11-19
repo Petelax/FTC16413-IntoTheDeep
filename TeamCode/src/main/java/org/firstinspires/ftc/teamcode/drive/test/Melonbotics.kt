@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
+import kotlin.math.abs
 
 @TeleOp(group = "test")
 class Melonbotics: OpMode() {
@@ -21,6 +23,10 @@ class Melonbotics: OpMode() {
     private lateinit var gamepad: GamepadEx
     private lateinit var servo: CRServoImplEx
     private lateinit var servo1: CRServoImplEx
+
+    private var lastPos: Double = Double.NaN
+    private var requested: Double = HorizontalConstants.IntakeSpeeds.STOP
+    private var count = 0
 
     override fun init() {
         elapsedtime = ElapsedTime()
@@ -43,13 +49,38 @@ class Melonbotics: OpMode() {
         servo1.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
 
         //servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
+        servo.power = 0.0
+        servo1.power = 0.0
 
         elapsedtime.reset()
     }
 
     override fun loop() {
-        servo.power = gamepad.leftY
-        servo1.power = -gamepad.leftY
+
+        if(gamepad1.a) {
+            requested = 1.0
+        }
+        if(gamepad1.b) {
+            requested = 0.0
+        }
+        if(gamepad1.x) {
+            requested = 0.5
+        }
+
+        if ((abs(lastPos-requested) >= 0.005) || (lastPos != 0.0 && requested == 0.0) || (requested != 0.0 && lastPos == 0.0)) {
+            //servo.power = requested
+            //servo1.power = requested
+            servo.power = requested
+            servo1.power = requested
+            lastPos = requested
+            count++
+        }
+        //servo.power = requested
+        //servo1.power = requested
+
+        telemetry.addData("last", lastPos)
+        telemetry.addData("current", requested)
+        telemetry.addData("count", count)
 
         telemetry.update()
     }

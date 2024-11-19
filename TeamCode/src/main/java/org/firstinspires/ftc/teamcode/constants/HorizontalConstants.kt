@@ -40,8 +40,14 @@ class HorizontalConstants {
 
     @Config
     object HorizontalArmPositions {
-        @JvmField var OUT = 0.07
+        @JvmField var OUT = 0.10 //0.07
         @JvmField var IN = 1.0
+    }
+
+    @Config
+    object HorizontalWristPositions {
+        @JvmField var IN = 1.0
+        @JvmField var OUT = 0.0
     }
 
     /**
@@ -49,13 +55,20 @@ class HorizontalConstants {
      * angle 135 units
      * pwm power 74.9%
      *
-     * TODO:
      * horizontal wrist
      * angle 85 units
      * 110deg
-     * pwm power 100%
+     * pwm power 74.9%
+     * ulta high sens
      *
-     * TODO: intake
+     * intake left
+     * pwm power 100.0%
+     * no inversion
+     *
+     * intake right
+     * pwm power 100.0%
+     * no inversion
+     *
      */
 
 

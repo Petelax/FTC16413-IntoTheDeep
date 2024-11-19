@@ -15,7 +15,7 @@ class VerticalConstants {
         @JvmField var KD = 0.006
         @JvmField var KF = 0.0
 
-        @JvmField var KG = 0.042
+        @JvmField var KG = 0.08 //0.042
     }
 
     @Config
@@ -48,10 +48,10 @@ class VerticalConstants {
 
     @Config
     object VerticalWristPositions {
-        @JvmField var ONE = 0.02
-        @JvmField var TWO = 0.45
-        @JvmField var THREE = 0.65
-        @JvmField var FOUR = 0.935
+        @JvmField var INTAKE = 0.02 //home
+        @JvmField var SAMPLE = 0.45 //straight
+        @JvmField var SPECIMEN_PICKUP = 0.65 //wall
+        @JvmField var SPECIMEN_PLACE = 0.935 //specimen place
     }
 
     /**

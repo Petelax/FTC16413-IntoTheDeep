@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.arcrobotics.ftclib.command.CommandScheduler
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.qualcomm.hardware.rev.RevColorSensorV3
 import com.qualcomm.robotcore.hardware.CRServoImplEx
@@ -9,7 +10,9 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA
 import com.qualcomm.robotcore.hardware.PwmControl
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
+import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -25,27 +28,38 @@ class Intake(hardwareMap: HardwareMap): SubsystemBase() {
 
     private var distance = 0.0
 
-    private var lastSpeed = 0.0
+    private var lastSpeed = 100.0
+
+    private var count = 0
+    private var countsPerPeriodic = 2
 
     init {
         left.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
         right.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
         right.direction = DcMotorSimple.Direction.REVERSE
+        left.setPwmEnable()
+        right.setPwmEnable()
+        left.power = 0.0
+        right.power = 0.0
         color.initialize()
     }
 
     override fun periodic() {
-        red = color.red().toDouble()
-        green = color.green().toDouble()
-        blue = color.blue().toDouble()
+        if (count % countsPerPeriodic == 0) {
+            count = 0
+            red = color.red().toDouble()
+            green = color.green().toDouble()
+            blue = color.blue().toDouble()
 
-        max = max(red, max(green, blue))
+            max = max(red, max(green, blue))
 
-        red /= max
-        blue /= max
-        green /= max
+            red /= max
+            blue /= max
+            green /= max
 
-        distance = color.getDistance(DistanceUnit.MM)
+            distance = color.getDistance(DistanceUnit.MM)
+        }
+        ++count
     }
 
     fun getRed(): Double {
@@ -67,8 +81,12 @@ class Intake(hardwareMap: HardwareMap): SubsystemBase() {
         return distance
     }
 
+    fun getSpeed(): Double {
+        return lastSpeed
+    }
+
     fun getGamePiece(): Sample {
-        if (distance >= 15.0) {
+        if (distance >= 20.0) {
             return Sample.NONE
         }
         if (getRed() > 0.95 && getBlue() < 0.5) {
@@ -84,11 +102,14 @@ class Intake(hardwareMap: HardwareMap): SubsystemBase() {
 
     fun setSpeed(speed: Double) {
         val corrected = speed.coerceIn(-1.0..1.0)
-        if (Cache.shouldUpdate(lastSpeed, corrected)) {
+        //if ((lastSpeed != corrected)) {
+        if (Cache.shouldUpdate(lastSpeed, corrected, 0.005)) {
+        //if (lastSpeed.isNaN() || (abs(lastSpeed-corrected) >= 0.005) || (lastSpeed != 0.0 && corrected == 0.0) || (corrected != 0.0 && lastSpeed == 0.0)) {
             left.power = corrected
             right.power = corrected
             lastSpeed = corrected
         }
+        //}
     }
 
     fun stop() {

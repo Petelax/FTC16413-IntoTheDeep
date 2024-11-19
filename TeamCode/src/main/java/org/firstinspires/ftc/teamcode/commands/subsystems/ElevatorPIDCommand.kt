@@ -19,11 +19,12 @@ class ElevatorPIDCommand(private var elevator: Elevator, private val setPoint: D
     }
 
     override fun execute() {
-        elevator.setSpeed(controller.calculate(elevator.getPosition(), setPoint))
+        val goingDown = if (setPoint <= ElevatorPositions.LOWER_LIMIT) { -ElevatorCoefficients.KG } else { 0.0 }
+        elevator.setSpeed(controller.calculate(elevator.getPosition(), setPoint) + goingDown)
     }
 
     override fun isFinished(): Boolean {
-        return controller.atSetPoint()
+        return if(setPoint <= ElevatorPositions.LOWER_LIMIT) { elevator.atBottom() } else {controller.atSetPoint()}
     }
 
     override fun end(interrupted: Boolean) {

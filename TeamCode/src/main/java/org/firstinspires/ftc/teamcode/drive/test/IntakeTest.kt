@@ -7,20 +7,23 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.hardware.CRServo
+import com.qualcomm.robotcore.hardware.CRServoImpl
+import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.constants.DeviceIDs
-import org.firstinspires.ftc.teamcode.drive.test.ServoLimitFinder.ServoPositions.mid
-import org.firstinspires.ftc.teamcode.drive.test.ServoLimitFinder.ServoPositions.min
-import org.firstinspires.ftc.teamcode.drive.test.ServoLimitFinder.ServoPositions.max
+import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
+import org.firstinspires.ftc.teamcode.subsystems.Intake
+import kotlin.math.abs
 
 @TeleOp(group = "test")
-class ServoLimitFinder: OpMode() {
+class IntakeTest: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime
     private lateinit var gamepad: GamepadEx
-    private lateinit var servo: ServoImplEx
+    private lateinit var intake: Intake
+    private var requested = 0.0
 
     override fun init() {
         elapsedtime = ElapsedTime()
@@ -36,35 +39,30 @@ class ServoLimitFinder: OpMode() {
 
         gamepad = GamepadEx(gamepad1)
 
-        servo = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.HORIZONTAL_WRIST)
-        servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
+        intake = Intake(hardwareMap)
 
         elapsedtime.reset()
     }
 
     override fun loop() {
-        if (gamepad1.a) {
-            telemetry.addData("middle", mid)
-            servo.position = mid
+        for (hub in hubs) {
+            hub.clearBulkCache()
         }
 
-        if (gamepad1.b) {
-            telemetry.addData("max", max)
-            servo.position = max
+        if(gamepad1.a) {
+            requested = 1.0
+        } else if(gamepad1.b) {
+            requested = 0.0
+        } else if(gamepad1.x) {
+            requested = 0.5
         }
-        if (gamepad1.x) {
-            telemetry.addData("min", min)
-            servo.position = min
-        }
+        intake.setSpeed(requested)
+
+        telemetry.addData("last", intake.getSpeed())
+        telemetry.addData("current", requested)
 
         telemetry.update()
     }
 
-    @Config
-    object ServoPositions {
-        @JvmField var min = 0.0
-        @JvmField var mid = 0.5
-        @JvmField var max = 1.0
-    }
 }
 

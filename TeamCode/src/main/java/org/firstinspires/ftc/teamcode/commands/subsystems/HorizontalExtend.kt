@@ -7,18 +7,18 @@ import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalArm
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalArmCommand
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalWrist
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalWristCommand
 
-class HorizontalArmExtend(private val horizontalExtension: HorizontalExtension, private val horizontalArm: HorizontalArm) : SequentialCommandGroup() {
+class HorizontalExtend(private val horizontalExtension: HorizontalExtension, private val horizontalArm: HorizontalArm, private val horizontalWrist: HorizontalWrist) : SequentialCommandGroup() {
     init {
-        addRequirements(horizontalExtension, horizontalArm)
+        addRequirements(horizontalExtension, horizontalArm, horizontalWrist)
 
         addCommands(
             ParallelCommandGroup(
                 HorizontalExtensionPIDCommand(horizontalExtension, HorizontalConstants.HorizontalExtensionPositions.TOP),
-                SequentialCommandGroup(
-                    WaitCommand(10),
-                    HorizontalArmCommand(horizontalArm, HorizontalConstants.HorizontalArmPositions.OUT)
-                )
+                HorizontalArmCommand(horizontalArm, HorizontalConstants.HorizontalArmPositions.OUT),
+                HorizontalWristCommand(horizontalWrist, HorizontalConstants.HorizontalWristPositions.OUT)
             )
         )
     }

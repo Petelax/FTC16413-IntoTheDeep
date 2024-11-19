@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.swerve
 
+import com.arcrobotics.ftclib.command.CommandScheduler
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
@@ -20,7 +21,8 @@ import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sin
 
-class SwerveDrivetrain: SubsystemBase {
+class SwerveDrivetrain//imu = hardwareMap.get(IMU::class.java, "imu")
+    (hardwareMap: HardwareMap, private var voltage: Double = 12.0) : SubsystemBase() {
     private var lf: SwerveModule
     private var rf: SwerveModule
     private var lr: SwerveModule
@@ -47,13 +49,13 @@ class SwerveDrivetrain: SubsystemBase {
         arrayOf(-k, j), // LR
     )
 
-    constructor(hardwareMap: HardwareMap) {
+    init {
+        CommandScheduler.getInstance().registerSubsystem(this)
         val id = DeviceIDs
         lf = SwerveModule(hardwareMap, id.LF_DRIVE_MOTOR, id.LF_TURN_MOTOR, id.LF_ENCODER, DrivebaseConstants.Measurements.LF_OFFSET)
         rf = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET)
         lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET)
         rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
-        //imu = hardwareMap.get(IMU::class.java, "imu")
         odo = hardwareMap.get(SparkFunOTOS::class.java, id.OTOS)
         configureOtos()
     }

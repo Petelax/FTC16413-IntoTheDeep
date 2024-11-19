@@ -10,6 +10,7 @@
             <Servo name="verticalArm" port="2" />
             <Servo name="verticalWrist" port="3" />
             <Servo name="deposit" port="4" />
+            <RevColorSensorV3 name="color" port="0" bus="0" />
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <goBILDA5202SeriesMotor name="motorLF" port="0" />
@@ -29,7 +30,6 @@
             <RevTouchSensor name="verticalLimit" port="1" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
             <SparkFunOTOS name="otos" port="1" bus="0" />
-            <RevColorSensorV3 name="color" port="0" bus="1" />
         </LynxModule>
     </LynxUsbDevice>
     <EthernetDevice name="Ethernet Device" serialNumber="EthernetOverUsb:eth0:172.29.0.24" port="0" ipAddress="172.29.0.1" />
