@@ -1,10 +1,7 @@
-package org.firstinspires.ftc.teamcode.commands.subsystems
+package org.firstinspires.ftc.teamcode.commands.ftclib.subsystems
 
 import com.arcrobotics.ftclib.command.CommandBase
-import com.arcrobotics.ftclib.controller.PIDFController
-import org.firstinspires.ftc.teamcode.constants.VerticalConstants.*
-import org.firstinspires.ftc.teamcode.subsystems.Elevator
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalExtension
 import java.util.function.DoubleSupplier
 
 class HorizontalExtensionCommand(private var elevator: HorizontalExtension, private val speed: DoubleSupplier): CommandBase() {

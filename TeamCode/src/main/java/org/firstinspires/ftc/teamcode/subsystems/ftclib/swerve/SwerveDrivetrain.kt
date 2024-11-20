@@ -1,26 +1,19 @@
-package org.firstinspires.ftc.teamcode.subsystems.swerve
+package org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve
 
+import com.arcrobotics.ftclib.command.CommandScheduler
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS
-import dev.frozenmilk.dairy.core.FeatureRegistrar
-import dev.frozenmilk.dairy.core.dependency.Dependency
-import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
-import dev.frozenmilk.dairy.core.wrapper.Wrapper
-import dev.frozenmilk.mercurial.commands.Command
-import dev.frozenmilk.mercurial.commands.Lambda
-import dev.frozenmilk.mercurial.subsystems.Subsystem
+import com.qualcomm.robotcore.hardware.HardwareMap
 import org.ejml.simple.SimpleMatrix
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.WHEEL_BASE
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
-import java.lang.annotation.Inherited
-import java.util.function.DoubleSupplier
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -28,28 +21,26 @@ import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sin
 
-object SwerveDrivetrain : Subsystem {
-    @Target(AnnotationTarget.CLASS)
-    @Retention(AnnotationRetention.RUNTIME)
-    @MustBeDocumented
-    @Inherited
-    annotation class Attach
-
-    override var dependency: Dependency<*> = Subsystem.DEFAULT_DEPENDENCY and SingleAnnotation(Attach::class.java)
-
-    private lateinit var lf: SwerveModule
-    private lateinit var rf: SwerveModule
-    private lateinit var lr: SwerveModule
-    private lateinit var rr: SwerveModule
-
+class SwerveDrivetrain//imu = hardwareMap.get(IMU::class.java, "imu")
+    (hardwareMap: HardwareMap, private var voltage: Double = 12.0) : SubsystemBase() {
+    private var lf: SwerveModule
+    private var rf: SwerveModule
+    private var lr: SwerveModule
+    private var rr: SwerveModule
     private var kinematics: SwerveDriveKinematics = SwerveDriveKinematics(
         DrivebaseConstants.Measurements.LF_POS,
         DrivebaseConstants.Measurements.RF_POS,
         DrivebaseConstants.Measurements.LR_POS,
         DrivebaseConstants.Measurements.RR_POS
     )
-    private const val k = TRACK_WIDTH /2
-    private const val j = WHEEL_BASE /2
+    //private var imu: IMU
+    private var odo: SparkFunOTOS
+    private var pose = Pose2d()
+
+    /* Define the offsets from the center of the robot to each wheel */
+
+    private val k = TRACK_WIDTH /2
+    private val j = WHEEL_BASE /2
 
     private val r = arrayOf(
         arrayOf(k, -j), // RF
@@ -58,28 +49,18 @@ object SwerveDrivetrain : Subsystem {
         arrayOf(-k, j), // LR
     )
 
-    private var odo by subsystemCell {
-        FeatureRegistrar.activeOpMode.hardwareMap.get(SparkFunOTOS::class.java, DeviceIDs.OTOS)
-    }
-
-    private var pose = Pose2d()
-
-    override fun preUserInitHook(opMode: Wrapper) {
+    init {
+        CommandScheduler.getInstance().registerSubsystem(this)
         val id = DeviceIDs
-        val hardwareMap = opMode.opMode.hardwareMap
         lf = SwerveModule(hardwareMap, id.LF_DRIVE_MOTOR, id.LF_TURN_MOTOR, id.LF_ENCODER, DrivebaseConstants.Measurements.LF_OFFSET)
         rf = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET)
         lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET)
         rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
+        odo = hardwareMap.get(SparkFunOTOS::class.java, id.OTOS)
         configureOtos()
-
-        defaultCommand = fieldCentricDrive(
-            { opMode.opMode.gamepad1.left_stick_x.toDouble() },
-            { -opMode.opMode.gamepad1.left_stick_y.toDouble() },
-            { opMode.opMode.gamepad1.right_stick_x.toDouble() })
     }
 
-    override fun preUserLoopHook(opMode: Wrapper) {
+    override fun periodic() {
         val tempPose = odo.position
         pose = Pose2d(tempPose.x, tempPose.y, Rotation2d.fromDegrees(tempPose.h))
 
@@ -87,6 +68,7 @@ object SwerveDrivetrain : Subsystem {
         rf.periodic()
         lr.periodic()
         rr.periodic()
+
     }
 
     /**
@@ -207,34 +189,18 @@ object SwerveDrivetrain : Subsystem {
 
 
     fun fieldCentricDrive(speeds: ChassisSpeeds) {
-        drive(
-            ChassisSpeeds.fromFieldRelativeSpeeds(speeds.vxMetersPerSecond,
+        drive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds.vxMetersPerSecond,
             speeds.vyMetersPerSecond,
             speeds.omegaRadiansPerSecond,
             Rotation2d(getHeading())))
     }
 
     fun firstOrderFieldCentricDrive(speeds: ChassisSpeeds) {
-        firstOrderDrive(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
+        firstOrderDrive(ChassisSpeeds.fromFieldRelativeSpeeds(
             speeds.vxMetersPerSecond,
             speeds.vyMetersPerSecond,
             speeds.omegaRadiansPerSecond,
             Rotation2d(getHeading())))
-    }
-
-    fun fieldCentricDrive( strafeSpeed: DoubleSupplier, forwardSpeed: DoubleSupplier, turnSpeed: DoubleSupplier) : Lambda {
-        return Lambda("field-centric-drive").addRequirements(SwerveDrivetrain)
-            .setExecute{
-                firstOrderFieldCentricDrive(
-                    ChassisSpeeds(
-                        -forwardSpeed.asDouble.pow(1) * DrivebaseConstants.Measurements.MAX_VELOCITY,
-                        strafeSpeed.asDouble.pow(1)*DrivebaseConstants.Measurements.MAX_VELOCITY,
-                        turnSpeed.asDouble.pow(1)*DrivebaseConstants.Measurements.MAX_ANGULAR_VELOCITY
-                    )
-                )}
-            .setFinish{false}
-
     }
 
     fun setModuleStates(moduleStates: Array<SwerveModuleState>) {
@@ -404,7 +370,5 @@ object SwerveDrivetrain : Subsystem {
         val fwVersion = SparkFunOTOS.Version()
         odo.getVersionInfo(hwVersion, fwVersion)
     }
-
-
 
 }

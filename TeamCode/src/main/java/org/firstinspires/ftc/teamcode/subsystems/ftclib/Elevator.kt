@@ -1,43 +1,23 @@
-package org.firstinspires.ftc.teamcode.subsystems
+package org.firstinspires.ftc.teamcode.subsystems.ftclib
 
-import com.arcrobotics.ftclib.controller.PIDFController
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.TouchSensor
-import dev.frozenmilk.dairy.core.FeatureRegistrar
-import dev.frozenmilk.dairy.core.dependency.Dependency
-import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
-import dev.frozenmilk.dairy.core.wrapper.Wrapper
-import dev.frozenmilk.mercurial.commands.Lambda
-import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda
-import dev.frozenmilk.mercurial.subsystems.Subsystem
-import dev.frozenmilk.util.cell.RefCell
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
-import java.lang.annotation.Inherited
-import java.util.function.DoubleSupplier
 
-object Elevator : Subsystem {
-    @Target(AnnotationTarget.CLASS)
-    @Retention(AnnotationRetention.RUNTIME)
-    @MustBeDocumented
-    @Inherited
-    annotation class Attach
+class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
+    //private var motorLeft: Motor
+    //private var motorRight: Motor
 
-    override var dependency: Dependency<*> = Subsystem.DEFAULT_DEPENDENCY and SingleAnnotation(Attach::class.java)
+    private var motorLeft: DcMotorEx
+    private var motorRight: DcMotorEx
 
-    private var motorLeft by subsystemCell{
-        FeatureRegistrar.activeOpMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.ELEVATOR_LEFT)
-    }
-    private var motorRight by subsystemCell{
-        FeatureRegistrar.activeOpMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.ELEVATOR_RIGHT)
-    }
-
-    private var limit by subsystemCell {
-        FeatureRegistrar.activeOpMode.hardwareMap.touchSensor.get(DeviceIDs.VERTICAL_LIMIT)
-    }
+    private var limit: TouchSensor
 
     //private var elevator: MotorGroup
     private var currentPosition: Double = 0.0
@@ -53,7 +33,13 @@ object Elevator : Subsystem {
     private val coefficients = VerticalConstants.ElevatorCoefficients
     private val constants = VerticalConstants.ElevatorConstants
 
-    override fun preUserInitHook(opMode: Wrapper) {
+    init {
+        //motorLeft = Motor(hardwareMap, DeviceIDs.ELEVATOR_LEFT, Motor.GoBILDA.RPM_435)
+        //motorRight = Motor(hardwareMap, DeviceIDs.ELEVATOR_RIGHT, Motor.GoBILDA.RPM_435)
+        motorLeft = hardwareMap.get(DcMotorEx::class.java, DeviceIDs.ELEVATOR_LEFT)
+        motorRight = hardwareMap.get(DcMotorEx::class.java, DeviceIDs.ELEVATOR_RIGHT)
+        limit = hardwareMap.touchSensor.get(DeviceIDs.VERTICAL_LIMIT)
+
         motorLeft.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         motorRight.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
 
@@ -65,41 +51,32 @@ object Elevator : Subsystem {
 
         motorRight.direction = DcMotorSimple.Direction.REVERSE
 
-        defaultCommand = drive{-opMode.opMode.gamepad2.left_stick_y.toDouble()}
+        //motorLeft.stopAndResetEncoder()
+        //motorRight.stopAndResetEncoder()
+
+        //motorLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE)
+        //motorRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE)
+
+        //motorRight.inverted = true
+
+        //elevator = MotorGroup(motorLeft, motorRight)
+
     }
 
-    override fun preUserLoopHook(opMode: Wrapper) {
+    override fun periodic() {
         currentPosition = (motorLeft.currentPosition * constants.TICKS_TO_INCHES) - positionOffset
+        /*
+        speed = motorLeft.velocity * constants.TICKS_TO_INCHES
+        currentLeft = motorLeft.getCurrent(CurrentUnit.AMPS)
+        currentRight = motorRight.getCurrent(CurrentUnit.AMPS)
 
+         */
         atBottom = limit.isPressed
         if (atBottom && !lastAtBottom) {
             positionOffset += currentPosition
         }
         lastAtBottom = atBottom
-
     }
-
-    fun drive(speed: DoubleSupplier): Lambda {
-        return Lambda("elevator-default").addRequirements(Elevator)
-            .setExecute{setSpeed(speed.asDouble)}
-            .setFinish{false}
-            .setInterruptible(true)
-            .setEnd{ interrupted -> if(!interrupted) {setSpeed(0.0)} }
-    }
-
-    fun pid(setPoint: Double): StatefulLambda<RefCell<PIDFController>> {
-        return StatefulLambda("elevator-pid",
-            RefCell(PIDFController(
-                VerticalConstants.ElevatorCoefficients.KP,
-                VerticalConstants.ElevatorCoefficients.KI,
-                VerticalConstants.ElevatorCoefficients.KD,
-                VerticalConstants.ElevatorCoefficients.KF))).addRequirements(Elevator)
-            .setInit { state -> state.get().calculate(getPosition(), setPoint)}
-            .setExecute { state -> setSpeed(state.get().calculate(getPosition(), setPoint))}
-            .setFinish {state -> if(setPoint <= VerticalConstants.ElevatorPositions.LOWER_LIMIT) { atBottom() } else {state.get().atSetPoint()}}
-            .setEnd {interrupted -> { setSpeed((0.0)) }}
-    }
-
 
     fun setRawSpeed(speed: Double) {
         val corrected = speed.coerceIn(-1.0..1.0)

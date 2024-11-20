@@ -1,14 +1,12 @@
-package org.firstinspires.ftc.teamcode.commands.drivebase
+package org.firstinspires.ftc.teamcode.commands.ftclib.drivebase
 
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.controller.PIDFController
 import com.arcrobotics.ftclib.geometry.Pose2d
-import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.PIDController
-import kotlin.math.atan2
 import kotlin.math.sign
 
 class AlignPIDToPosition(private val drive: SwerveDrivetrain, private val setpoint: Pose2d): SequentialCommandGroup() {
@@ -32,8 +30,11 @@ class AlignPIDToPosition(private val drive: SwerveDrivetrain, private val setpoi
         val desiredSpeeds = ChassisSpeeds(xFeedback, yFeedback, headingFeedback)
 
         addCommands(
-            AlignModules(drive, desiredSpeeds).withTimeout(800),
-            PIDToPosition(drive, setpoint)
+            org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignModules(
+                drive,
+                desiredSpeeds
+            ).withTimeout(800),
+            org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.PIDToPosition(drive, setpoint)
         )
         addRequirements(drive)
     }

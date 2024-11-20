@@ -10,15 +10,12 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
-import org.firstinspires.ftc.teamcode.commands.drivebase.AlignModules
-import org.firstinspires.ftc.teamcode.commands.drivebase.AlignPIDToPosition
-import org.firstinspires.ftc.teamcode.commands.drivebase.PIDToPosition
-import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorPIDCommand
+import org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
-import org.firstinspires.ftc.teamcode.subsystems.Elevator
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.Drawing
 
 @Config
@@ -52,42 +49,78 @@ class PIDAuto: CommandOpMode() {
                 WaitCommand(10),
                 //PIDToPosition(drive, pose),
                 ParallelCommandGroup(
-                    AlignPIDToPosition(drive, Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))),
+                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                        drive,
+                        Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))
+                    ),
                     SequentialCommandGroup(
                         WaitCommand(600),
-                        ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP-0.5),
+                        org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                            elevator,
+                            VerticalConstants.ElevatorPositions.TOP - 0.5
+                        ),
                     )
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    AlignPIDToPosition(drive, Pose2d(-24.0, -12.0, Rotation2d.fromDegrees(0.0))),
-                    ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM),
+                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                        drive,
+                        Pose2d(-24.0, -12.0, Rotation2d.fromDegrees(0.0))
+                    ),
+                    org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                        elevator,
+                        VerticalConstants.ElevatorPositions.BOTTOM
+                    ),
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    AlignPIDToPosition(drive, Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))),
+                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                        drive,
+                        Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))
+                    ),
                     SequentialCommandGroup(
                         WaitCommand(500),
-                        ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP-0.5),
+                        org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                            elevator,
+                            VerticalConstants.ElevatorPositions.TOP - 0.5
+                        ),
                     )
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    AlignPIDToPosition(drive, Pose2d(-24.0, -24.0, Rotation2d.fromDegrees(0.0))),
-                    ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM),
+                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                        drive,
+                        Pose2d(-24.0, -24.0, Rotation2d.fromDegrees(0.0))
+                    ),
+                    org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                        elevator,
+                        VerticalConstants.ElevatorPositions.BOTTOM
+                    ),
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    AlignPIDToPosition(drive, Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))),
+                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                        drive,
+                        Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))
+                    ),
                     SequentialCommandGroup(
                         WaitCommand(500),
-                        ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP-0.5),
+                        org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                            elevator,
+                            VerticalConstants.ElevatorPositions.TOP - 0.5
+                        ),
                     )
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    AlignPIDToPosition(drive, Pose2d(-24.0, -36.0, Rotation2d.fromDegrees(0.0))),
-                    ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM),
+                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                        drive,
+                        Pose2d(-24.0, -36.0, Rotation2d.fromDegrees(0.0))
+                    ),
+                    org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                        elevator,
+                        VerticalConstants.ElevatorPositions.BOTTOM
+                    ),
                 ),
                 //AlignPIDToPosition(drive, Pose2d(24.0, 0.0, Rotation2d.fromDegrees(0.0))),
 

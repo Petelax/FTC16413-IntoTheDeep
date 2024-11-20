@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.util.ElapsedTime
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 
 @Photon
 @Autonomous(group = "test")

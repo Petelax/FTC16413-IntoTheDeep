@@ -10,27 +10,27 @@ import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.teamcode.commands.drivebase.FieldCentricDrive
-import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorCommand
-import org.firstinspires.ftc.teamcode.commands.subsystems.HorizontalExtensionCommand
-import org.firstinspires.ftc.teamcode.commands.subsystems.IntakeArmExtend
-import org.firstinspires.ftc.teamcode.commands.subsystems.IntakeArmRetract
-import org.firstinspires.ftc.teamcode.commands.subsystems.PlaceSample
-import org.firstinspires.ftc.teamcode.commands.subsystems.VerticalRetract
-import org.firstinspires.ftc.teamcode.commands.subsystems.VerticalSample
-import org.firstinspires.ftc.teamcode.commands.subsystems.VerticalSpecimenPickup
-import org.firstinspires.ftc.teamcode.commands.subsystems.VerticalSpecimenPlace
+import org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.FieldCentricDrive
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorCommand
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.HorizontalExtensionCommand
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.IntakeArmExtend
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.IntakeArmRetract
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.PlaceSample
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalRetract
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSample
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSpecimenPickup
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSpecimenPlace
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
-import org.firstinspires.ftc.teamcode.subsystems.Deposit
-import org.firstinspires.ftc.teamcode.subsystems.DepositCommand
-import org.firstinspires.ftc.teamcode.subsystems.Elevator
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalArm
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalWrist
-import org.firstinspires.ftc.teamcode.subsystems.Intake
-import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
-import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.Deposit
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.DepositCommand
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalArm
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalExtension
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalWrist
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.Intake
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalArm
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalWrist
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 
 @TeleOp
 class DriveTeleOp: OpMode() {
@@ -86,18 +86,23 @@ class DriveTeleOp: OpMode() {
         driveOp = GamepadEx(gamepad1)
         toolOp = GamepadEx(gamepad2)
 
-        drive.defaultCommand = FieldCentricDrive(
-            drive,
-            { driveOp.leftX },
-            { driveOp.leftY },
-            { driveOp.rightX },
-            { false },
-            { true }
-        )
+        drive.defaultCommand =
+            org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.FieldCentricDrive(
+                drive,
+                { driveOp.leftX },
+                { driveOp.leftY },
+                { driveOp.rightX },
+                { false },
+                { true }
+            )
 
-        elevator.defaultCommand = ElevatorCommand(elevator) { toolOp.leftY }
+        elevator.defaultCommand =
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorCommand(elevator) { toolOp.leftY }
 
-        horizontalExtension.defaultCommand = HorizontalExtensionCommand(horizontalExtension) { -toolOp.rightY }
+        horizontalExtension.defaultCommand =
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.HorizontalExtensionCommand(
+                horizontalExtension
+            ) { -toolOp.rightY }
 
         telemetry.addLine("init")
         telemetry.update()
@@ -129,19 +134,67 @@ class DriveTeleOp: OpMode() {
 
         //GamepadButton(toolOp, GamepadKeys.Button.A).whenPressed(IntakeRun(intake))
         //GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(IntakeStop(intake))
-        GamepadButton(toolOp, GamepadKeys.Button.Y).whenPressed(PlaceSample(horizontalExtension, horizontalArm, horizontalWrist, intake, elevator, verticalArm, verticalWrist, deposit))
+        GamepadButton(toolOp, GamepadKeys.Button.Y).whenPressed(
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.PlaceSample(
+                horizontalExtension,
+                horizontalArm,
+                horizontalWrist,
+                intake,
+                elevator,
+                verticalArm,
+                verticalWrist,
+                deposit
+            )
+        )
         //GamepadButton(toolOp, GamepadKeys.Button.X).whenPressed(HorizontalExtend(horizontalExtension, horizontalArm, horizontalWrist))
-        GamepadButton(toolOp, GamepadKeys.Button.X).whenPressed(IntakeArmRetract(horizontalArm, horizontalWrist, intake))
-        GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(IntakeArmExtend(horizontalArm, horizontalWrist, intake))
+        GamepadButton(toolOp, GamepadKeys.Button.X).whenPressed(
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.IntakeArmRetract(
+                horizontalArm,
+                horizontalWrist,
+                intake
+            )
+        )
+        GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.IntakeArmExtend(
+                horizontalArm,
+                horizontalWrist,
+                intake
+            )
+        )
 
         GamepadButton(toolOp, GamepadKeys.Button.LEFT_BUMPER).whenPressed(DepositCommand(deposit, VerticalConstants.DepositPositions.OUT))
         GamepadButton(toolOp, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(DepositCommand(deposit, VerticalConstants.DepositPositions.IN))
 
-        GamepadButton(toolOp, GamepadKeys.Button.DPAD_DOWN).whenPressed(VerticalRetract(elevator, verticalArm, verticalWrist, deposit))
-        GamepadButton(toolOp, GamepadKeys.Button.DPAD_RIGHT).whenPressed(VerticalSpecimenPlace(elevator, verticalArm, verticalWrist))
-        GamepadButton(toolOp, GamepadKeys.Button.DPAD_LEFT).whenPressed(VerticalSpecimenPickup(elevator, verticalArm, verticalWrist))
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_DOWN).whenPressed(
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalRetract(
+                elevator,
+                verticalArm,
+                verticalWrist,
+                deposit
+            )
+        )
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_RIGHT).whenPressed(
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSpecimenPlace(
+                elevator,
+                verticalArm,
+                verticalWrist
+            )
+        )
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_LEFT).whenPressed(
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSpecimenPickup(
+                elevator,
+                verticalArm,
+                verticalWrist
+            )
+        )
         //GamepadButton(toolOp, GamepadKeys.Button.DPAD_UP).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP))
-        GamepadButton(toolOp, GamepadKeys.Button.DPAD_UP).whenPressed(VerticalSample(elevator, verticalArm, verticalWrist))
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_UP).whenPressed(
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSample(
+                elevator,
+                verticalArm,
+                verticalWrist
+            )
+        )
 
 
         telemetry.addData("horizontalExtension pos", horizontalExtension.getPosition())

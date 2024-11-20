@@ -1,42 +1,69 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.arcrobotics.ftclib.command.CommandBase
-import com.arcrobotics.ftclib.command.SubsystemBase
-import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
+import dev.frozenmilk.dairy.core.FeatureRegistrar
+import dev.frozenmilk.dairy.core.dependency.Dependency
+import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
+import dev.frozenmilk.dairy.core.wrapper.Wrapper
+import dev.frozenmilk.mercurial.commands.Lambda
+import dev.frozenmilk.mercurial.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
+import java.lang.annotation.Inherited
 
-class HorizontalWrist(hardwareMap: HardwareMap): SubsystemBase() {
-    private var servo: ServoImplEx = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.HORIZONTAL_WRIST)
-    private var lastPosition = -1.0
+object HorizontalWrist : Subsystem {
+    @Target(AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.RUNTIME)
+    @MustBeDocumented
+    @Inherited
+    annotation class Attach
 
-    init {
+    override var dependency: Dependency<*> = Subsystem.DEFAULT_DEPENDENCY and SingleAnnotation(Attach::class.java)
+    private var cachedPosition = 100.0
+
+    private val servo by subsystemCell {
+        FeatureRegistrar.activeOpMode.hardwareMap.get(ServoImplEx::class.java, DeviceIDs.HORIZONTAL_WRIST)
+    }
+
+    override fun preUserInitHook(opMode: Wrapper) {
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
         servo.position = HorizontalConstants.HorizontalWristPositions.IN
     }
 
     fun setPosition(position: Double) {
-        if (Cache.shouldUpdate(lastPosition, position, 0.005)) {
-            servo.position = position
-            lastPosition = position
+        val corrected = position.coerceIn(0.0..1.0)
+        if (Cache.shouldUpdate(cachedPosition, corrected)) {
+            servo.position = corrected
+            cachedPosition = corrected
         }
     }
 
-}
-class HorizontalWristCommand(private val horizontalWrist: HorizontalWrist, private val position: Double): CommandBase() {
-    override fun initialize() {
-        horizontalWrist.setPosition(position)
+    fun up() {
+        setPosition(HorizontalConstants.HorizontalWristPositions.IN)
     }
-    override fun execute() {
-        super.execute()
+
+    fun down() {
+        setPosition(HorizontalConstants.HorizontalWristPositions.OUT)
     }
-    override fun isFinished(): Boolean {
-        return true
+
+    fun inHorizontalWrist(): Lambda {
+        return Lambda("horizontal-wrist-in").addRequirements(HorizontalWrist)
+            .setInit{up()}
+            .setFinish{true}
     }
-    override fun end(interrupted: Boolean) {
-        super.end(interrupted)
+
+    fun outHorizontalWrist(): Lambda {
+        return Lambda("horizontal-wrist-out").addRequirements(HorizontalWrist)
+            .setInit{down()}
+            .setFinish{true}
     }
+
+    fun setHorizontalWrist(position: Double): Lambda {
+        return Lambda("horizontal-wrist-set").addRequirements(HorizontalWrist)
+            .setInit{ setPosition(position)}
+            .setFinish{true}
+    }
+
 }

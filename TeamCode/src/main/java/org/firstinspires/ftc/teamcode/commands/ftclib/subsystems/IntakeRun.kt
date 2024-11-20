@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.commands.subsystems
+package org.firstinspires.ftc.teamcode.commands.ftclib.subsystems
 
 import com.arcrobotics.ftclib.command.CommandBase
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
-import org.firstinspires.ftc.teamcode.subsystems.Intake
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.Intake
 import org.firstinspires.ftc.teamcode.utils.AllianceColours
 import org.firstinspires.ftc.teamcode.utils.Globals
 

@@ -1,9 +1,8 @@
-package org.firstinspires.ftc.teamcode.commands.drivebase
+package org.firstinspires.ftc.teamcode.commands.ftclib.drivebase
 
 import com.arcrobotics.ftclib.command.CommandBase
-import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 
 class AlignModules(private val drive: SwerveDrivetrain, private val speeds: ChassisSpeeds): CommandBase() {
     init {

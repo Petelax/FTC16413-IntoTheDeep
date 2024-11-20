@@ -1,24 +1,17 @@
-package org.firstinspires.ftc.teamcode.commands.subsystems
+package org.firstinspires.ftc.teamcode.commands.ftclib.subsystems
 
-import com.arcrobotics.ftclib.command.InstantCommand
-import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
 import com.arcrobotics.ftclib.command.WaitCommand
-import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
-import org.firstinspires.ftc.teamcode.subsystems.Deposit
-import org.firstinspires.ftc.teamcode.subsystems.DepositCommand
-import org.firstinspires.ftc.teamcode.subsystems.Elevator
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalArm
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalArmCommand
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalWrist
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalWristCommand
-import org.firstinspires.ftc.teamcode.subsystems.Intake
-import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
-import org.firstinspires.ftc.teamcode.subsystems.VerticalArmCommand
-import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
-import org.firstinspires.ftc.teamcode.subsystems.VerticalWristCommand
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.Deposit
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.DepositCommand
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalArm
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalExtension
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalWrist
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.Intake
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalArm
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalWrist
 
 class PlaceSample(private val horizontalExtension: HorizontalExtension,
                   private val horizontalArm: HorizontalArm,
@@ -27,12 +20,18 @@ class PlaceSample(private val horizontalExtension: HorizontalExtension,
                   private val elevator: Elevator,
                   private val verticalArm: VerticalArm,
                   private val verticalWrist: VerticalWrist,
-                  private val deposit: Deposit) : SequentialCommandGroup() {
+                  private val deposit: Deposit
+) : SequentialCommandGroup() {
     init {
         addRequirements(horizontalExtension, horizontalArm, horizontalWrist, elevator, verticalArm, verticalWrist, deposit)
 
         addCommands(
-            VerticalRetract(elevator, verticalArm, verticalWrist, deposit),
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalRetract(
+                elevator,
+                verticalArm,
+                verticalWrist,
+                deposit
+            ),
                 //ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.BOTTOM),
                 //VerticalArmCommand(verticalArm, VerticalConstants.VerticalArmPositions.INTAKE),
                 //VerticalWristCommand(verticalWrist, VerticalConstants.VerticalWristPositions.INTAKE),
@@ -41,12 +40,20 @@ class PlaceSample(private val horizontalExtension: HorizontalExtension,
                 //DepositCommand(deposit, VerticalConstants.DepositPositions.OUT)
             //HorizontalExtensionPIDCommand(horizontalExtension, HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
             //DepositCommand(deposit, VerticalConstants.DepositPositions.IN)
-            HorizontalRetract(horizontalExtension, horizontalArm, horizontalWrist),
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.HorizontalRetract(
+                horizontalExtension,
+                horizontalArm,
+                horizontalWrist
+            ),
             WaitCommand(100),
             DepositCommand(deposit, VerticalConstants.DepositPositions.IN+0.08),
-            IntakeRelease(intake),
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.IntakeRelease(intake),
             DepositCommand(deposit, VerticalConstants.DepositPositions.IN),
-            VerticalSample(elevator, verticalArm, verticalWrist)
+            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSample(
+                elevator,
+                verticalArm,
+                verticalWrist
+            )
 
         )
     }

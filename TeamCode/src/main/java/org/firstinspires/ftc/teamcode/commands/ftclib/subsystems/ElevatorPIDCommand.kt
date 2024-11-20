@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.commands.subsystems
+package org.firstinspires.ftc.teamcode.commands.ftclib.subsystems
 
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.controller.PIDFController
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants.*
-import org.firstinspires.ftc.teamcode.subsystems.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.Elevator
 
 class ElevatorPIDCommand(private var elevator: Elevator, private val setPoint: Double): CommandBase() {
     private var controller: PIDFController

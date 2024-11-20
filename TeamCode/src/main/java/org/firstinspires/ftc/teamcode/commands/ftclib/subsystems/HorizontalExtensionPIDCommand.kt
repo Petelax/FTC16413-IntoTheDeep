@@ -1,11 +1,9 @@
-package org.firstinspires.ftc.teamcode.commands.subsystems
+package org.firstinspires.ftc.teamcode.commands.ftclib.subsystems
 
 import com.arcrobotics.ftclib.command.CommandBase
 import com.arcrobotics.ftclib.controller.PIDFController
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
-import org.firstinspires.ftc.teamcode.constants.VerticalConstants.*
-import org.firstinspires.ftc.teamcode.subsystems.Elevator
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
+import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalExtension
 
 class HorizontalExtensionPIDCommand(private var elevator: HorizontalExtension, private val setPoint: Double): CommandBase() {
     private var controller: PIDFController
