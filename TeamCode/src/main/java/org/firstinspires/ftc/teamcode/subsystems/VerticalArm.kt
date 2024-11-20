@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.arcrobotics.ftclib.command.CommandBase
-import com.arcrobotics.ftclib.command.CommandScheduler
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PwmControl
@@ -16,7 +15,6 @@ class VerticalArm(hardwareMap: HardwareMap): SubsystemBase() {
 
     init {
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
-        servo.setPwmEnable()
         servo.position = VerticalConstants.VerticalArmPositions.INTAKE
     }
 

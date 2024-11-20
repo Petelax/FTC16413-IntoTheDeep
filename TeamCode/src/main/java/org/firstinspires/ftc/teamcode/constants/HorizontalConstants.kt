@@ -40,7 +40,7 @@ class HorizontalConstants {
 
     @Config
     object HorizontalArmPositions {
-        @JvmField var OUT = 0.10 //0.07
+        @JvmField var OUT = 0.075 //0.07
         @JvmField var IN = 1.0
     }
 

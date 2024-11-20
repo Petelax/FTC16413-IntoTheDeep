@@ -20,12 +20,34 @@ class VerticalSample(private val elevator: Elevator, private val verticalArm: Ve
     init {
         addRequirements(elevator, verticalArm, verticalWrist)
 
-        addCommands(
-            ParallelCommandGroup(
-                ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP),
-                VerticalArmCommand(verticalArm, VerticalConstants.VerticalArmPositions.SAMPLE),
-                VerticalWristCommand(verticalWrist, VerticalConstants.VerticalWristPositions.SAMPLE)
+        if (elevator.getPosition() < VerticalConstants.ElevatorPositions.ARM) {
+            addCommands(
+                ParallelCommandGroup(
+                    ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP),
+                    SequentialCommandGroup(
+                        WaitCommand(250),
+                        ParallelCommandGroup(
+                            VerticalArmCommand(
+                                verticalArm,
+                                VerticalConstants.VerticalArmPositions.SAMPLE
+                            ),
+                            VerticalWristCommand(
+                                verticalWrist,
+                                VerticalConstants.VerticalWristPositions.SAMPLE
+                            )
+                        )
+                    )
+                )
             )
-        )
+        } else {
+            addCommands(
+                ParallelCommandGroup(
+                    ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP),
+                    VerticalArmCommand(verticalArm, VerticalConstants.VerticalArmPositions.SAMPLE),
+                    VerticalWristCommand(verticalWrist, VerticalConstants.VerticalWristPositions.SAMPLE)
+                )
+            )
+
+        }
     }
 }

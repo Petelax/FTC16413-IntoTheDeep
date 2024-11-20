@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 
 @Photon
-@Autonomous
+@Autonomous(group = "test")
 class FFAuto: LinearOpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime

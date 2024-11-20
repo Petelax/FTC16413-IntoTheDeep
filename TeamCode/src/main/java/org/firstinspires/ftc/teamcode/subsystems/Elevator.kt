@@ -1,21 +1,14 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.arcrobotics.ftclib.command.CommandScheduler
 import com.arcrobotics.ftclib.command.SubsystemBase
-import com.arcrobotics.ftclib.controller.wpilibcontroller.ElevatorFeedforward
-import com.arcrobotics.ftclib.hardware.motors.Motor
-import com.arcrobotics.ftclib.hardware.motors.MotorGroup
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.TouchSensor
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
-import kotlin.math.abs
 
 class Elevator(hardwareMap: HardwareMap): SubsystemBase() {
     //private var motorLeft: Motor

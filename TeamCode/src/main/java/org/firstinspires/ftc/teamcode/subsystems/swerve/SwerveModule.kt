@@ -138,7 +138,7 @@ class SwerveModule
         turnPower += if (abs(turnPID.positionError) > 0.02) 0.035 else 0.0 * sign(turnPower)
 
         if (drive) {
-            drivePower = driveFeedForward.calculate(desiredState.speedMetersPerSecond) / voltage // * abs(delta.cos)
+            drivePower = driveFeedForward.calculate(desiredState.speedMetersPerSecond) / 12.0 // * abs(delta.cos)
             if (abs(drivePower) < 0.0001) {
                 turnPower = 0.0
             }

@@ -1,10 +1,8 @@
-package org.firstinspires.ftc.teamcode.drive
+package org.firstinspires.ftc.teamcode.drive.test
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.command.CommandOpMode
-import com.arcrobotics.ftclib.command.CommandScheduler
-import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.button.GamepadButton
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
@@ -16,10 +14,15 @@ import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorCommand
 import org.firstinspires.ftc.teamcode.commands.subsystems.ElevatorPIDCommand
 import org.firstinspires.ftc.teamcode.commands.subsystems.HorizontalExtend
 import org.firstinspires.ftc.teamcode.commands.subsystems.HorizontalExtensionCommand
+import org.firstinspires.ftc.teamcode.commands.subsystems.IntakeArmExtend
+import org.firstinspires.ftc.teamcode.commands.subsystems.IntakeArmRetract
 import org.firstinspires.ftc.teamcode.commands.subsystems.IntakeRun
 import org.firstinspires.ftc.teamcode.commands.subsystems.IntakeStop
 import org.firstinspires.ftc.teamcode.commands.subsystems.PlaceSample
 import org.firstinspires.ftc.teamcode.commands.subsystems.VerticalRetract
+import org.firstinspires.ftc.teamcode.commands.subsystems.VerticalSample
+import org.firstinspires.ftc.teamcode.commands.subsystems.VerticalSpecimenPickup
+import org.firstinspires.ftc.teamcode.commands.subsystems.VerticalSpecimenPlace
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.Deposit
 import org.firstinspires.ftc.teamcode.subsystems.DepositCommand
@@ -32,7 +35,7 @@ import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 
-@TeleOp
+@TeleOp(group = "test")
 class CommandTeleOp: CommandOpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var drive: SwerveDrivetrain
@@ -116,19 +119,17 @@ class CommandTeleOp: CommandOpMode() {
          */
 
 
-        GamepadButton(toolOp, GamepadKeys.Button.A).whenPressed(IntakeRun(intake))
-        GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(IntakeStop(intake))
         GamepadButton(toolOp, GamepadKeys.Button.Y).whenPressed(PlaceSample(horizontalExtension, horizontalArm, horizontalWrist, intake, elevator, verticalArm, verticalWrist, deposit))
-        GamepadButton(toolOp, GamepadKeys.Button.X).whenPressed(HorizontalExtend(horizontalExtension, horizontalArm, horizontalWrist))
+        GamepadButton(toolOp, GamepadKeys.Button.X).whenPressed(IntakeArmRetract(horizontalArm, horizontalWrist, intake))
+        GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(IntakeArmExtend(horizontalArm, horizontalWrist, intake))
+
         GamepadButton(toolOp, GamepadKeys.Button.LEFT_BUMPER).whenPressed(DepositCommand(deposit, VerticalConstants.DepositPositions.OUT))
         GamepadButton(toolOp, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(DepositCommand(deposit, VerticalConstants.DepositPositions.IN))
 
-        packet.put("game piece", intake.getGamePiece())
-        packet.put("distance", intake.getDistance())
-
         GamepadButton(toolOp, GamepadKeys.Button.DPAD_DOWN).whenPressed(VerticalRetract(elevator, verticalArm, verticalWrist, deposit))
-        GamepadButton(toolOp, GamepadKeys.Button.DPAD_RIGHT).whenPressed(ElevatorPIDCommand(elevator, 12.0))
-        GamepadButton(toolOp, GamepadKeys.Button.DPAD_UP).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP))
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_RIGHT).whenPressed(VerticalSpecimenPlace(elevator, verticalArm, verticalWrist))
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_LEFT).whenPressed(VerticalSpecimenPickup(elevator, verticalArm, verticalWrist))
+        GamepadButton(toolOp, GamepadKeys.Button.DPAD_UP).whenPressed(VerticalSample(elevator, verticalArm, verticalWrist))
 
 
         super.run()

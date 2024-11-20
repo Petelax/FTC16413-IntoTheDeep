@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.arcrobotics.ftclib.command.CommandBase
-import com.arcrobotics.ftclib.command.CommandScheduler
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PwmControl
@@ -12,11 +11,10 @@ import org.firstinspires.ftc.teamcode.utils.Cache
 
 class HorizontalArm(hardwareMap: HardwareMap): SubsystemBase() {
     private var servo: ServoImplEx = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.HORIZONTAL_ARM)
-    private var lastPosition = 0.0
+    private var lastPosition = 100.0
 
     init {
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
-        servo.setPwmEnable()
         servo.position = HorizontalConstants.HorizontalArmPositions.IN
     }
 

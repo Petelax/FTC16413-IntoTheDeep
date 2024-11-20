@@ -24,6 +24,7 @@ class VerticalConstants {
         @JvmField var LOWER_LIMIT = 0.1 //28.2
         @JvmField var TOP = 27.0 //28.2
         @JvmField var BOTTOM = 0.20
+        @JvmField var ARM = 3.5
     }
 
     @Config

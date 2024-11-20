@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.commands.subsystems
 import com.arcrobotics.ftclib.command.InstantCommand
 import com.arcrobotics.ftclib.command.ParallelCommandGroup
 import com.arcrobotics.ftclib.command.SequentialCommandGroup
+import com.arcrobotics.ftclib.command.WaitCommand
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.Deposit
@@ -41,6 +42,7 @@ class PlaceSample(private val horizontalExtension: HorizontalExtension,
             //HorizontalExtensionPIDCommand(horizontalExtension, HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
             //DepositCommand(deposit, VerticalConstants.DepositPositions.IN)
             HorizontalRetract(horizontalExtension, horizontalArm, horizontalWrist),
+            WaitCommand(100),
             DepositCommand(deposit, VerticalConstants.DepositPositions.IN+0.08),
             IntakeRelease(intake),
             DepositCommand(deposit, VerticalConstants.DepositPositions.IN),

@@ -33,9 +33,10 @@ import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 
 @TeleOp
-class TeleOp: OpMode() {
+class DriveTeleOp: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var drive: SwerveDrivetrain
+
     private lateinit var elevator: Elevator
     private lateinit var horizontalExtension: HorizontalExtension
     private lateinit var horizontalArm: HorizontalArm
@@ -45,6 +46,7 @@ class TeleOp: OpMode() {
     private lateinit var verticalWrist: VerticalWrist
     private lateinit var deposit: Deposit
 
+
     private lateinit var elapsedtime: ElapsedTime
 
     private lateinit var driveOp: GamepadEx
@@ -52,7 +54,6 @@ class TeleOp: OpMode() {
     //private lateinit var voltage: PhotonLynxVoltageSensor
 
     override fun init() {
-        CommandScheduler.getInstance().reset()
         elapsedtime = ElapsedTime()
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
 
@@ -66,6 +67,12 @@ class TeleOp: OpMode() {
 
         drive = SwerveDrivetrain(hardwareMap, 12.0)
 
+        /*
+        elevator = Elevator(hardwareMap)
+        horizontalExtension = HorizontalExtension(hardwareMap)
+        intake = Intake(hardwareMap)
+
+         */
         elevator = Elevator(hardwareMap)
         verticalArm = VerticalArm(hardwareMap)
         verticalWrist = VerticalWrist(hardwareMap)
@@ -95,7 +102,6 @@ class TeleOp: OpMode() {
         telemetry.addLine("init")
         telemetry.update()
 
-
         elapsedtime.reset()
     }
 
@@ -107,7 +113,7 @@ class TeleOp: OpMode() {
         }
 
         val cacheTime = elapsedtime.milliseconds()
-        //telemetry.addData("ms cache", cacheTime)
+        telemetry.addData("ms cache", cacheTime)
 
         /*
         drive.firstOrderFieldCentricDrive(ChassisSpeeds(
@@ -119,7 +125,7 @@ class TeleOp: OpMode() {
 
 
         val driveTime = elapsedtime.milliseconds()
-        //telemetry.addData("ms drive", driveTime-cacheTime)
+        telemetry.addData("ms drive", driveTime-cacheTime)
 
         //GamepadButton(toolOp, GamepadKeys.Button.A).whenPressed(IntakeRun(intake))
         //GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(IntakeStop(intake))
@@ -140,9 +146,8 @@ class TeleOp: OpMode() {
 
         telemetry.addData("horizontalExtension pos", horizontalExtension.getPosition())
 
-        //telemetry.addData("elevator limit", elevator.atBottom())
+        telemetry.addData("elevator limit", elevator.atBottom())
         telemetry.addData("elevator pos", elevator.getPosition())
-        //telemetry.addData("colour", intake.getGamePiece().name)
 
         val subsystemTime = elapsedtime.milliseconds()
         telemetry.addData("ms subsystem", subsystemTime-driveTime)
@@ -198,8 +203,8 @@ class TeleOp: OpMode() {
         //elevator.periodic()
         //horizontalExtension.periodic()
 
-        //val scheduler1Time = elapsedtime.milliseconds()
-        //telemetry.addData("ms scheduler 1", scheduler1Time-schedulerTime)
+        val scheduler1Time = elapsedtime.milliseconds()
+        telemetry.addData("ms scheduler 1", scheduler1Time-schedulerTime)
 
         telemetry.addData("ms", elapsedtime.milliseconds())
 

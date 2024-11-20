@@ -22,13 +22,32 @@ class VerticalRetract(private val elevator: Elevator, private val verticalArm: V
     init {
         addRequirements(elevator, verticalArm, verticalWrist, deposit)
 
-        addCommands(
-            ParallelCommandGroup(
-                ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.LOWER_LIMIT),
-                VerticalArmCommand(verticalArm, VerticalConstants.VerticalArmPositions.INTAKE),
-                VerticalWristCommand(verticalWrist, VerticalConstants.VerticalWristPositions.INTAKE),
-                DepositCommand(deposit, VerticalConstants.DepositPositions.OUT)
+        if (elevator.getPosition() > VerticalConstants.ElevatorPositions.ARM) {
+            addCommands(
+                ParallelCommandGroup(
+                    ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.LOWER_LIMIT),
+                    VerticalArmCommand(verticalArm, VerticalConstants.VerticalArmPositions.INTAKE),
+                    VerticalWristCommand(
+                        verticalWrist,
+                        VerticalConstants.VerticalWristPositions.INTAKE
+                    ),
+                    DepositCommand(deposit, VerticalConstants.DepositPositions.OUT)
+                )
             )
-        )
+        } else {
+            addCommands(
+                ParallelCommandGroup(
+                    WaitCommand(250),
+                    VerticalArmCommand(verticalArm, VerticalConstants.VerticalArmPositions.INTAKE),
+                    VerticalWristCommand(
+                        verticalWrist,
+                        VerticalConstants.VerticalWristPositions.INTAKE
+                    ),
+                    DepositCommand(deposit, VerticalConstants.DepositPositions.OUT)
+                ),
+                ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.LOWER_LIMIT),
+            )
+
+        }
     }
 }
