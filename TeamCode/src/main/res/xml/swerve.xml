@@ -4,6 +4,13 @@
         <LynxModule name="Expansion Hub 2" port="2">
             <goBILDA5202SeriesMotor name="elevatorLeft" port="0" />
             <goBILDA5202SeriesMotor name="elevatorRight" port="1" />
+            <goBILDA5202SeriesMotor name="horizontalExtension" port="2" />
+            <Servo name="horizontalArm" port="0" />
+            <Servo name="horizontalWrist" port="1" />
+            <Servo name="verticalArm" port="2" />
+            <Servo name="verticalWrist" port="3" />
+            <Servo name="deposit" port="4" />
+            <RevColorSensorV3 name="color" port="0" bus="0" />
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <goBILDA5202SeriesMotor name="motorLF" port="0" />
@@ -14,12 +21,13 @@
             <ContinuousRotationServo name="servoRF" port="1" />
             <ContinuousRotationServo name="servoLR" port="2" />
             <ContinuousRotationServo name="servoRR" port="3" />
-            <ContinuousRotationServo name="test" port="4" />
-            <ContinuousRotationServo name="melon" port="5" />
+            <ContinuousRotationServo name="intakeLeft" port="4" />
+            <ContinuousRotationServo name="intakeRight" port="5" />
             <AnalogInput name="encoderLF" port="0" />
             <AnalogInput name="encoderRF" port="1" />
             <AnalogInput name="encoderLR" port="2" />
             <AnalogInput name="encoderRR" port="3" />
+            <RevTouchSensor name="verticalLimit" port="1" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
             <SparkFunOTOS name="otos" port="1" bus="0" />
         </LynxModule>

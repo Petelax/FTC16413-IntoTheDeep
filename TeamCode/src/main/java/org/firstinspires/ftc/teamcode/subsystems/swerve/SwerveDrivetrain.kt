@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.swerve
 
+import com.arcrobotics.ftclib.command.CommandScheduler
 import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
@@ -83,7 +84,6 @@ class SwerveDrivetrain: Subsystem {
         rf = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET)
         lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET)
         rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
-
         configureOtos()
     }
 

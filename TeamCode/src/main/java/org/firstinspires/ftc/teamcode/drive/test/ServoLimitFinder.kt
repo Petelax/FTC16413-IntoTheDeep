@@ -10,6 +10,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.constants.DeviceIDs
+import org.firstinspires.ftc.teamcode.drive.test.ServoLimitFinder.ServoPositions.mid
+import org.firstinspires.ftc.teamcode.drive.test.ServoLimitFinder.ServoPositions.min
+import org.firstinspires.ftc.teamcode.drive.test.ServoLimitFinder.ServoPositions.max
 
 @TeleOp(group = "test")
 class ServoLimitFinder: OpMode() {
@@ -32,7 +36,7 @@ class ServoLimitFinder: OpMode() {
 
         gamepad = GamepadEx(gamepad1)
 
-        servo = hardwareMap.get(ServoImplEx::class.java, "test")
+        servo = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.HORIZONTAL_WRIST)
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
 
         elapsedtime.reset()
@@ -57,9 +61,9 @@ class ServoLimitFinder: OpMode() {
     }
 
     @Config
-    companion object ServoPositions {
-        @JvmField var min = -1.0
-        @JvmField var mid = 0.0
+    object ServoPositions {
+        @JvmField var min = 0.0
+        @JvmField var mid = 0.5
         @JvmField var max = 1.0
     }
 }

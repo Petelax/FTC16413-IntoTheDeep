@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveModule
 
 @Photon
-@TeleOp
+@TeleOp(group = "test")
 class TestModule: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime

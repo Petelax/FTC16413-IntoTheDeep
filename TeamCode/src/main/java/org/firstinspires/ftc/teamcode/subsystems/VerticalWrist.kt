@@ -9,13 +9,13 @@ import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
 
-class VerticalArm(hardwareMap: HardwareMap): SubsystemBase() {
-    private var servo: ServoImplEx = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.VERTICAL_ARM)
+class VerticalWrist(hardwareMap: HardwareMap): SubsystemBase() {
+    private var servo: ServoImplEx = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.VERTICAL_WRIST)
     private var lastPosition = 0.0
 
     init {
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
-        servo.position = VerticalConstants.VerticalArmPositions.INTAKE
+        servo.position = VerticalConstants.VerticalWristPositions.INTAKE
     }
 
     fun setPosition(position: Double) {
@@ -27,9 +27,9 @@ class VerticalArm(hardwareMap: HardwareMap): SubsystemBase() {
 
 }
 
-class VerticalArmCommand(private val verticalArm: VerticalArm, private val position: Double): CommandBase() {
+class VerticalWristCommand(private val verticalWrist: VerticalWrist, private val position: Double): CommandBase() {
     override fun initialize() {
-        verticalArm.setPosition(position)
+        verticalWrist.setPosition(position)
     }
     override fun execute() {
         super.execute()

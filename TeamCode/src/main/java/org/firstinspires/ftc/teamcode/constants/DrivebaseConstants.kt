@@ -11,7 +11,7 @@ class DrivebaseConstants {
     object ModuleCoefficients {
         @JvmField var KS = 0.0
         @JvmField var KV = 6.82 //7.0
-        @JvmField var KA = 0.30 //0.5
+        @JvmField var KA = 0.48 //0.5
 
         @JvmField var KP = 0.47
         @JvmField var KI = 0.0
@@ -92,6 +92,12 @@ class DrivebaseConstants {
 
         @JvmField var RotationPositionTolerance = 0.025
         @JvmField var RotationVelocityTolerance = 1.0
+
+        @JvmField var MaxAcceleration = 120.0
+        @JvmField var MaxVelocity = 60.0
+
+        @JvmField var MaxAngularAcceleration = 120.0
+        @JvmField var MaxAngularVelocity = 60.0
     }
 
 

@@ -32,7 +32,7 @@ class AlignPIDToPosition(private val drive: SwerveDrivetrain, private val setpoi
         val desiredSpeeds = ChassisSpeeds(xFeedback, yFeedback, headingFeedback)
 
         addCommands(
-            AlignModules(drive, desiredSpeeds),
+            AlignModules(drive, desiredSpeeds).withTimeout(800),
             PIDToPosition(drive, setpoint)
         )
         addRequirements(drive)

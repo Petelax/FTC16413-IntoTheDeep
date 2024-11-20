@@ -6,16 +6,16 @@ import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PwmControl
 import com.qualcomm.robotcore.hardware.ServoImplEx
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
-import org.firstinspires.ftc.teamcode.constants.VerticalConstants
+import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
 
-class VerticalArm(hardwareMap: HardwareMap): SubsystemBase() {
-    private var servo: ServoImplEx = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.VERTICAL_ARM)
-    private var lastPosition = 0.0
+class HorizontalArm(hardwareMap: HardwareMap): SubsystemBase() {
+    private var servo: ServoImplEx = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.HORIZONTAL_ARM)
+    private var lastPosition = 100.0
 
     init {
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
-        servo.position = VerticalConstants.VerticalArmPositions.INTAKE
+        servo.position = HorizontalConstants.HorizontalArmPositions.IN
     }
 
     fun setPosition(position: Double) {
@@ -27,9 +27,9 @@ class VerticalArm(hardwareMap: HardwareMap): SubsystemBase() {
 
 }
 
-class VerticalArmCommand(private val verticalArm: VerticalArm, private val position: Double): CommandBase() {
+class HorizontalArmCommand(private val horizontalArm: HorizontalArm, private val position: Double): CommandBase() {
     override fun initialize() {
-        verticalArm.setPosition(position)
+        horizontalArm.setPosition(position)
     }
     override fun execute() {
         super.execute()

@@ -16,7 +16,22 @@ import org.firstinspires.ftc.teamcode.utils.PIDController
 import kotlin.math.abs
 import kotlin.math.sign
 
-class SwerveModule {
+class SwerveModule
+/**
+ * @param hardwareMap hardwareMap
+ * @param m drive motor id
+ * @param s steer servo id
+ * @param e analog encoder id
+ * @param encoderOffset offset for analog encoder
+ * @param voltage robot idle voltage
+ */(
+    hardwareMap: HardwareMap,
+    m: String,
+    s: String,
+    e: String,
+    encoderOffset: Double,
+    private var voltage: Double = 12.0
+) {
     private var motor: DcMotorEx
     private var servo: CRServoImplEx
     private var encoder: AbsoluteAnalogEncoder
@@ -31,28 +46,10 @@ class SwerveModule {
     private var maxTurnPower = 0.863
     private var currentHeading = 0.0
 
-    /**
-     * @param hardwareMap hardwareMap
-     * @param m drive motor id
-     * @param s steer servo id
-     * @param e analog encoder id
-     * @param encoderOffset offset for analog encoder
-     */
-    constructor(hardwareMap: HardwareMap, m: String, s: String, e: String, encoderOffset: Double) {
+    init {
         this.motor = hardwareMap.get(DcMotorEx::class.java, m)
         this.servo = hardwareMap.get(CRServoImplEx::class.java, s)
         this.encoder = AbsoluteAnalogEncoder(hardwareMap, e, encoderOffset, true)
-        this.desiredState = SwerveModuleState()
-        val c = DrivebaseConstants.ModuleCoefficients
-        this.driveFeedForward = SimpleMotorFeedforward(c.KS, c.KV, c.KA)
-        this.turnPID = PIDController(c.KP, c.KI, c.KD)
-        initialize()
-    }
-
-    constructor(m: DcMotorEx, s: CRServoImplEx, e: AbsoluteAnalogEncoder) {
-        this.motor = m
-        this.servo = s
-        this.encoder = e
         this.desiredState = SwerveModuleState()
         val c = DrivebaseConstants.ModuleCoefficients
         this.driveFeedForward = SimpleMotorFeedforward(c.KS, c.KV, c.KA)
