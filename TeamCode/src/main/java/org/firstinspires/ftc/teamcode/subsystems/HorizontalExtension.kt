@@ -1,19 +1,29 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.arcrobotics.ftclib.controller.PIDFController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.dependency.Dependency
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
+import dev.frozenmilk.dairy.core.util.controller.calculation.pid.DoubleComponent
+import dev.frozenmilk.dairy.core.util.controller.implementation.DoubleController
+import dev.frozenmilk.dairy.core.util.supplier.numeric.CachedMotionComponentSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponentSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.mercurial.commands.Lambda
+import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda
 import dev.frozenmilk.mercurial.subsystems.Subsystem
+import dev.frozenmilk.util.cell.RefCell
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
+import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
 import java.lang.annotation.Inherited
 import java.util.function.DoubleSupplier
+import kotlin.math.abs
 
 object HorizontalExtension : Subsystem {
     @Target(AnnotationTarget.CLASS)
@@ -41,6 +51,9 @@ object HorizontalExtension : Subsystem {
     private val coefficients = HorizontalConstants.HorizontalExtensionCoefficients
     private val constants = HorizontalConstants.HorizontalExtensionConstants
 
+    private var targetPosition = 0.0
+    lateinit var controller: DoubleController
+
     override fun preUserInitHook(opMode: Wrapper) {
         motor = opMode.opMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.HORIZONTAL_EXTENSION)
 
@@ -50,7 +63,32 @@ object HorizontalExtension : Subsystem {
 
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
-        defaultCommand = drive{-opMode.opMode.gamepad2.right_stick_y.toDouble()}
+        controller = DoubleController(
+            targetSupplier = MotionComponentSupplier {
+                if (it == MotionComponents.STATE) {
+                    return@MotionComponentSupplier targetPosition
+                }
+                0.0
+            },
+            stateSupplier = {getPosition()},
+            toleranceEpsilon = CachedMotionComponentSupplier(
+                MotionComponentSupplier {
+                    return@MotionComponentSupplier when (it) {
+                        MotionComponents.STATE -> HorizontalConstants.HorizontalExtensionConstants.POSITION_TOLERANCE
+                        MotionComponents.VELOCITY -> HorizontalConstants.HorizontalExtensionConstants.VELOCITY_TOLERANCE
+                        else -> Double.NaN
+                    }
+                }
+            ),
+            outputConsumer = ::setSpeed,
+            controllerCalculation = DoubleComponent.P(MotionComponents.STATE, HorizontalConstants.HorizontalExtensionCoefficients.KP)
+                .plus(DoubleComponent.D(MotionComponents.STATE, HorizontalConstants.HorizontalExtensionCoefficients.KD)),
+        )
+
+        targetPosition = 0.0
+        controller.enabled = false
+
+        //defaultCommand = drive{-opMode.opMode.gamepad2.right_stick_y.toDouble()}
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {
@@ -59,10 +97,36 @@ object HorizontalExtension : Subsystem {
 
     fun drive(speed: DoubleSupplier): Lambda {
         return Lambda("horizontal-extension-default").addRequirements(HorizontalExtension)
-            .setExecute{setSpeed(speed.asDouble)}
-            .setFinish{false}
+            .setInit{
+                controller.enabled = false
+                setSpeed(speed.asDouble)
+            }
             .setInterruptible(true)
-            .setEnd{ interrupted -> if(!interrupted) {setSpeed(0.0)} }
+            //.setEnd{ interrupted -> if(!interrupted) {setSpeed(0.0)} }
+    }
+
+    fun pid(setPoint: Double): Lambda {
+        return Lambda("horizontal-extension-pid").addRequirements(HorizontalExtension)
+            .setInit{
+                targetPosition = setPoint
+                controller.enabled = true
+            }
+            .setInterruptible(true)
+    }
+
+    fun waitUntilSetPoint(setPoint: Double): Lambda {
+        return Lambda("waiting-for-setpoint")
+            .setInit{targetPosition=setPoint}
+            .setFinish{ atSetPoint() }
+    }
+
+    fun waitUntilSetPoint(): Lambda {
+        return Lambda("waiting-for-setpoint").setFinish{ atSetPoint() }
+    }
+
+    fun atSetPoint(): Boolean {
+        return abs(targetPosition - getPosition()) <= HorizontalConstants.HorizontalExtensionConstants.POSITION_TOLERANCE
+                && abs(controller.velocity) <= HorizontalConstants.HorizontalExtensionConstants.VELOCITY_TOLERANCE
     }
 
     fun setRawSpeed(speed: Double) {

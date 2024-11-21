@@ -48,6 +48,14 @@ object Deposit : Subsystem {
             .setFinish{true}
     }
 
+    fun halfClose(): Lambda {
+        return Lambda("deposit-in").addRequirements(Deposit)
+            .setInit{
+                setPosition(VerticalConstants.DepositPositions.MID)
+            }
+            .setFinish{true}
+    }
+
     fun open(): Lambda {
         return Lambda("deposit-out").addRequirements(Deposit)
             .setInit{

@@ -18,6 +18,7 @@ object DeviceIDs {
     const val RR_ENCODER = "encoderRR"
 
     const val OTOS = "otos"
+    const val COLOUR = "color"
 
     const val ELEVATOR_LEFT = "elevatorLeft"
     const val ELEVATOR_RIGHT = "elevatorRight"

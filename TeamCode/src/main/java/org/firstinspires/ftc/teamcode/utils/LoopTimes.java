@@ -72,6 +72,7 @@ public class LoopTimes implements Feature {
     @Override
     public void postUserInitHook(@NotNull Wrapper opMode) {
         startTime = System.nanoTime();
+        loops=0;
         lastTime = startTime;
         time(opMode.getOpMode().telemetry);
     }
@@ -83,6 +84,9 @@ public class LoopTimes implements Feature {
 
     @Override
     public void postUserStartHook(@NotNull Wrapper opMode) {
+        startTime = System.nanoTime();
+        loops=0;
+        lastTime = startTime;
         time(opMode.getOpMode().telemetry);
     }
 

@@ -40,6 +40,11 @@ object HorizontalArm : Subsystem {
         }
     }
 
+    fun setPositionCommand(position: Double): Lambda {
+        return Lambda("horizontal-arm-set-position").addRequirements(HorizontalArm)
+            .setInit{ setPosition(position) }
+    }
+
     fun up() {
         setPosition(HorizontalConstants.HorizontalArmPositions.IN)
     }

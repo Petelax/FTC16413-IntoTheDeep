@@ -9,9 +9,9 @@ class HorizontalConstants {
         @JvmField var KV = 0.0
         @JvmField var KA = 0.0
 
-        @JvmField var KP = 0.4
+        @JvmField var KP = 0.22
         @JvmField var KI = 0.0
-        @JvmField var KD = 0.006
+        @JvmField var KD = 0.001
         @JvmField var KF = 0.0
 
         @JvmField var KG = 0.0
@@ -23,25 +23,29 @@ class HorizontalConstants {
         @JvmField var LOWER_LIMIT = 0.1
         @JvmField var TOP = 13.5
         @JvmField var BOTTOM = 0.2
+        @JvmField var CLEAR = 4.25
     }
 
     @Config
     object HorizontalExtensionConstants {
         @JvmField var TICKS_TO_INCHES = 0.04487179487
-        @JvmField var POSITION_TOLERANCE = 0.5
+        @JvmField var POSITION_TOLERANCE = 0.25
         @JvmField var VELOCITY_TOLERANCE = 5.0
     }
 
     @Config
     object IntakeSpeeds {
-        @JvmField var MAX = 1.0
+        @JvmField var MAX = 0.2
         @JvmField var STOP = 0.0
+        @JvmField var BACK = -0.1
+        @JvmField var BACK_TIME = 0.050
     }
 
     @Config
     object HorizontalArmPositions {
         @JvmField var OUT = 0.075 //0.07
         @JvmField var IN = 1.0
+        @JvmField var MID = 0.5
     }
 
     @Config

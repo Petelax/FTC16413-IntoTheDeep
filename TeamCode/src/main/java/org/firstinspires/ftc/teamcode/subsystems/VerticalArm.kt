@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
 import java.lang.annotation.Inherited
+import kotlin.math.abs
 
 object VerticalArm : Subsystem {
     @Target(AnnotationTarget.CLASS)
@@ -38,6 +39,22 @@ object VerticalArm : Subsystem {
             servo.position = corrected
             cachedPosition = corrected
         }
+    }
+
+    fun getPosition(): Double {
+        return cachedPosition
+    }
+
+    fun timeNeeded(deltaPosition: Double): Double {
+        return abs(deltaPosition * VerticalConstants.VerticalArmConstants.unitsToSeconds)
+    }
+
+    fun isArmIntake(): Boolean {
+        return cachedPosition < 0.5
+    }
+
+    fun isArmSpecimen(): Boolean {
+        return cachedPosition > 0.9
     }
 
     fun sample(): Lambda {

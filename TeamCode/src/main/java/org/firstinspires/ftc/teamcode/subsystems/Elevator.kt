@@ -8,9 +8,17 @@ import com.qualcomm.robotcore.hardware.TouchSensor
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.dependency.Dependency
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
+import dev.frozenmilk.dairy.core.util.controller.calculation.pid.DoubleComponent
+import dev.frozenmilk.dairy.core.util.controller.implementation.DoubleController
+import dev.frozenmilk.dairy.core.util.controller.implementation.UnitController
+import dev.frozenmilk.dairy.core.util.supplier.numeric.CachedMotionComponentSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedDoubleSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponentSupplier
+import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.mercurial.commands.Lambda
 import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda
+import dev.frozenmilk.mercurial.commands.util.StateMachine
 import dev.frozenmilk.mercurial.subsystems.Subsystem
 import dev.frozenmilk.util.cell.RefCell
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
@@ -18,6 +26,8 @@ import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
 import java.lang.annotation.Inherited
 import java.util.function.DoubleSupplier
+import kotlin.math.abs
+import kotlin.math.max
 
 object Elevator : Subsystem {
     @Target(AnnotationTarget.CLASS)
@@ -48,10 +58,15 @@ object Elevator : Subsystem {
     private var currentLeft = 0.0
     private var currentRight = 0.0
     private var speed = 0.0
+    //val c = VerticalConstants.ElevatorCoefficients
+    //var pidfController = PIDFController(c.KP, c.KI, c.KD, c.KF)
 
     private val positions = VerticalConstants.ElevatorPositions
     private val coefficients = VerticalConstants.ElevatorCoefficients
     private val constants = VerticalConstants.ElevatorConstants
+
+    private var targetPosition = 0.0
+    lateinit var controller: DoubleController
 
     override fun preUserInitHook(opMode: Wrapper) {
         motorLeft.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
@@ -65,7 +80,41 @@ object Elevator : Subsystem {
 
         motorRight.direction = DcMotorSimple.Direction.REVERSE
 
+        //pidfController.setPIDF(c.KP, c.KI, c.KD, c.KF)
+
+        controller = DoubleController(
+            targetSupplier = MotionComponentSupplier {
+                if (it == MotionComponents.STATE) {
+                    return@MotionComponentSupplier targetPosition
+                }
+                0.0
+            },
+            stateSupplier = {getPosition()},
+            toleranceEpsilon = CachedMotionComponentSupplier(
+                MotionComponentSupplier {
+                    return@MotionComponentSupplier when (it) {
+                        MotionComponents.STATE -> VerticalConstants.ElevatorConstants.POSITION_TOLERANCE
+                        MotionComponents.VELOCITY -> VerticalConstants.ElevatorConstants.VELOCITY_TOLERANCE
+                        else -> Double.NaN
+                    }
+                }
+            ),
+            outputConsumer = ::setSpeed,
+            controllerCalculation = DoubleComponent.P(MotionComponents.STATE, VerticalConstants.ElevatorCoefficients.KP)
+                .plus(DoubleComponent.D(MotionComponents.STATE, VerticalConstants.ElevatorCoefficients.KD)),
+        )
+
+        targetPosition = 0.0
+        controller.enabled = false
+
         defaultCommand = drive{-opMode.opMode.gamepad2.left_stick_y.toDouble()}
+        //defaultCommand = fsm
+    }
+
+    override fun preUserStartHook(opMode: Wrapper) {
+        if (limit.isPressed) {
+            positionOffset += currentPosition
+        }
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {
@@ -79,14 +128,46 @@ object Elevator : Subsystem {
 
     }
 
+    /*
+    val fsm: StateMachine<States> = StateMachine(States.MANUAL)
+        .withState(States.MANUAL) { state: RefCell<States>, name: String ->
+            Lambda("nothing").addRequirements(Elevator)
+                .setInit{
+                    controller.enabled = true
+                }
+        }
+        .withState(States.PID) { state: RefCell<States>, name: String ->
+            Lambda("pid").addRequirements(Elevator)
+                .setInit{
+                    controller.enabled = false
+                    controller.controllerCalculation.reset()
+                }
+        }
+     */
+
     fun drive(speed: DoubleSupplier): Lambda {
         return Lambda("elevator-default").addRequirements(Elevator)
-            .setExecute{setSpeed(speed.asDouble)}
-            .setFinish{false}
+            .setInit{
+                controller.enabled = false
+                setSpeed(speed.asDouble)
+                //fsm.schedule(States.MANUAL)
+            }
+            //.setExecute{setSpeed(speed.asDouble)}
+            //.setFinish{false}
             .setInterruptible(true)
-            .setEnd{ interrupted -> if(!interrupted) {setSpeed(0.0)} }
+            //.setEnd{ interrupted -> if(!interrupted) {setSpeed(0.0)} }
     }
 
+    fun disableController(): Lambda {
+        return Lambda("cancel").addRequirements(Elevator)
+            .setInit{
+                controller.enabled = false
+            }
+    }
+
+    //fun pid(setPoint: Double): Lambda {return Lambda("hi")}
+
+    /*
     fun pid(setPoint: Double): StatefulLambda<RefCell<PIDFController>> {
         return StatefulLambda("elevator-pid",
             RefCell(PIDFController(
@@ -97,8 +178,63 @@ object Elevator : Subsystem {
             .setInit { state -> state.get().calculate(getPosition(), setPoint)}
             .setExecute { state -> setSpeed(state.get().calculate(getPosition(), setPoint))}
             .setFinish {state -> if(setPoint <= VerticalConstants.ElevatorPositions.LOWER_LIMIT) { atBottom() } else {state.get().atSetPoint()}}
-            .setEnd {interrupted -> { setSpeed((0.0)) }}
+            //.setEnd {interrupted -> setSpeed((0.0)) }
     }
+
+     */
+
+    fun pid(setPoint: Double): Lambda {
+        return Lambda("elevator-pid").addRequirements(Elevator)
+            .setInit{
+                targetPosition = setPoint
+                controller.controllerCalculation.reset()
+                controller.enabled = true
+                //fsm.schedule(States.PID)
+            }
+            //.setFinish{ controller.finished() }
+            //.setEnd{ controller.enabled = false }
+            .setInterruptible(true)
+    }
+
+    fun waitUntilAboveArm(): Lambda {
+        return Lambda("waiting-for-arm")
+            .setFinish{ getPosition()>VerticalConstants.ElevatorPositions.ARM }
+    }
+
+    fun waitUntilSetPoint(setPoint: Double): Lambda {
+        return Lambda("waiting-for-setpoint")
+            .setInit{targetPosition=setPoint}
+            .setFinish{ atSetPoint() }
+    }
+
+    fun waitUntilSetPoint(): Lambda {
+        return Lambda("waiting-for-setpoint").setFinish{ atSetPoint() }
+    }
+
+    fun atSetPoint(): Boolean {
+        return abs(targetPosition - getPosition()) <= VerticalConstants.ElevatorConstants.POSITION_TOLERANCE
+                && abs(controller.velocity) <= VerticalConstants.ElevatorConstants.VELOCITY_TOLERANCE
+    }
+
+    /*
+    fun pidCalculate(sp: Double): Double {
+        return pidfController.calculate(getPosition(), sp)
+    }
+     */
+
+    /*
+    fun pid(setPoint: Double): Lambda {
+        return Lambda("elevator-pid").addRequirements(Elevator)
+            .setInit {
+                controller.reset()
+                pidCalculate(setPoint)
+            }
+            .setExecute { setSpeed(pidCalculate(setPoint))}
+            .setFinish {if(setPoint <= VerticalConstants.ElevatorPositions.LOWER_LIMIT) { atBottom() } else {controller.atSetPoint()}}
+            //.setEnd { setSpeed((0.0)) }
+    }
+
+     */
 
 
     fun setRawSpeed(speed: Double) {
@@ -117,7 +253,7 @@ object Elevator : Subsystem {
         if ((currentPosition < positions.LOWER_LIMIT && speed <= 0.0) || (currentPosition > positions.UPPER_LIMIT && speed > 0.0)) {
             setRawSpeed(0.0)
         } else {
-            setRawSpeed(speed + coefficients.KG)
+            setRawSpeed(speed + coefficients.KG + (coefficients.KE * max((currentPosition - 5.0), 0.0)) )
         }
 
     }
@@ -146,6 +282,11 @@ object Elevator : Subsystem {
     }
     fun getCurrent(): Double {
         return currentRight + currentLeft
+    }
+
+    enum class States {
+        PID,
+        MANUAL
     }
 
 }
