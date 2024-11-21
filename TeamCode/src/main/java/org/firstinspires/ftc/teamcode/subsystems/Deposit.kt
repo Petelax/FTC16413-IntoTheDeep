@@ -32,6 +32,11 @@ object Deposit : Subsystem {
         servo.position = VerticalConstants.DepositPositions.OUT
     }
 
+    fun kill(): Lambda {
+        return Lambda("deposit-kill").addRequirements(Deposit)
+            .setInit{servo.setPwmDisable() }
+    }
+
     fun setPosition(position: Double) {
         val corrected = position.coerceIn(0.0..1.0)
         if (Cache.shouldUpdate(cachedPosition, corrected)) {

@@ -45,6 +45,11 @@ object HorizontalArm : Subsystem {
             .setInit{ setPosition(position) }
     }
 
+    fun kill(): Lambda {
+        return Lambda("horizontal-arm-kill").addRequirements(HorizontalArm)
+            .setInit{servo.setPwmDisable() }
+    }
+
     fun up() {
         setPosition(HorizontalConstants.HorizontalArmPositions.IN)
     }

@@ -21,10 +21,12 @@ import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.utils.AllianceColours
 import org.firstinspires.ftc.teamcode.utils.Cache
 import org.firstinspires.ftc.teamcode.utils.Globals
+import java.lang.Math.pow
 import java.lang.annotation.Inherited
 import java.util.concurrent.atomic.LongAdder
 import java.util.function.DoubleSupplier
 import kotlin.math.max
+import kotlin.math.pow
 
 object Intake : Subsystem {
     @Target(AnnotationTarget.CLASS)
@@ -55,6 +57,8 @@ object Intake : Subsystem {
         FeatureRegistrar.activeOpMode.hardwareMap.get(RevColorSensorV3::class.java, DeviceIDs.COLOUR)
     }
 
+    var readColours = true
+
     override fun preUserInitHook(opMode: Wrapper) {
         left.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
         right.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
@@ -65,21 +69,38 @@ object Intake : Subsystem {
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {
-        colors = colour.normalizedColors
+        if (readColours) {
+            colors = colour.normalizedColors
 
-        red = colors.red.toDouble()
-        blue = colors.blue.toDouble()
-        max = max(red, blue)
+            red = colors.red.toDouble()
+            blue = colors.blue.toDouble()
+            max = max(red, blue)
 
-        red /= max
-        blue /= max
+            red /= max
+            blue /= max
 
-        distance = colour.getDistance(DistanceUnit.MM)
+            distance = colour.getDistance(DistanceUnit.MM)
 
-        opMode.opMode.telemetry.addData("game piece", getGamePiece().name)
+            opMode.opMode.telemetry.addData("game piece", getGamePiece().name)
+        }
 
-        defaultCommand = setSpeedSupplier { opMode.opMode.gamepad2.right_trigger.toDouble() - opMode.opMode.gamepad2.left_trigger }
+        defaultCommand = setSpeedSupplier { opMode.opMode.gamepad2.right_trigger.toDouble().pow(3) - opMode.opMode.gamepad2.left_trigger.pow(3) }
 
+    }
+
+    fun kill(): Lambda {
+        return Lambda("intake-kill").addRequirements(Intake)
+            .setInit{ left.setPwmDisable(); right.setPwmDisable() }
+    }
+
+    fun stopColourSensor(): Lambda {
+        return Lambda("stop-colour-sensor").setRequirements(Intake)
+            .setInit{ readColours = false }
+    }
+
+    fun startColourSensor(): Lambda {
+        return Lambda("start-colour-sensor").setRequirements(Intake)
+            .setInit{ readColours = true }
     }
 
     private fun setPower(power: Double) {
@@ -149,7 +170,7 @@ object Intake : Subsystem {
 
     fun runIntakeStopping(): Lambda {
         return Lambda("intake-run-stopping").addRequirements(Intake)
-            .setInit{ setPower(HorizontalConstants.IntakeSpeeds.MAX) }
+            .setInit{ readColours = true; setPower(HorizontalConstants.IntakeSpeeds.MAX) }
             /*
             .setExecute {
                 if (Globals.AllianceColour == AllianceColours.Red) {

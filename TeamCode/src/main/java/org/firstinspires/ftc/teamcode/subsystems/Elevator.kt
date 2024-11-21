@@ -65,7 +65,12 @@ object Elevator : Subsystem {
     private val coefficients = VerticalConstants.ElevatorCoefficients
     private val constants = VerticalConstants.ElevatorConstants
 
-    private var targetPosition = 0.0
+    public var targetPosition = 0.0
+        public get
+        private set
+
+    var limitless = false
+
     lateinit var controller: DoubleController
 
     override fun preUserInitHook(opMode: Wrapper) {
@@ -189,16 +194,24 @@ object Elevator : Subsystem {
                 targetPosition = setPoint
                 controller.controllerCalculation.reset()
                 controller.enabled = true
-                //fsm.schedule(States.PID)
             }
-            //.setFinish{ controller.finished() }
-            //.setEnd{ controller.enabled = false }
+            .setInterruptible(true)
+    }
+
+    fun pidLimitless(setPoint: Double): Lambda {
+        return Lambda("elevator-pid").addRequirements(Elevator)
+            .setInit{
+                targetPosition = setPoint
+                controller.controllerCalculation.reset()
+                controller.enabled = true
+                limitless = true
+            }
             .setInterruptible(true)
     }
 
     fun waitUntilAboveArm(): Lambda {
         return Lambda("waiting-for-arm")
-            .setFinish{ getPosition()>VerticalConstants.ElevatorPositions.ARM }
+            .setFinish{ getPosition()>=VerticalConstants.ElevatorPositions.ARM }
     }
 
     fun waitUntilSetPoint(setPoint: Double): Lambda {
@@ -253,7 +266,13 @@ object Elevator : Subsystem {
         if ((currentPosition < positions.LOWER_LIMIT && speed <= 0.0) || (currentPosition > positions.UPPER_LIMIT && speed > 0.0)) {
             setRawSpeed(0.0)
         } else {
-            setRawSpeed(speed + coefficients.KG + (coefficients.KE * max((currentPosition - 5.0), 0.0)) )
+            if (limitless) {
+                setRawSpeed( speed )
+            } else {
+                setRawSpeed(
+                    speed + coefficients.KG + (coefficients.KE * max( (currentPosition - 5.0), 0.0 ))
+                )
+            }
         }
 
     }

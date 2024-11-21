@@ -40,6 +40,11 @@ object VerticalWrist : Subsystem {
         }
     }
 
+    fun kill(): Lambda {
+        return Lambda("vertical-wrist-kill").addRequirements(VerticalWrist)
+            .setInit{servo.setPwmDisable() }
+    }
+
     fun sample(): Lambda {
         return Lambda("vertical-wrist-sample").addRequirements(VerticalWrist)
             .setInit{

@@ -232,6 +232,11 @@ class SwerveModule
         return delta.degrees
     }
 
+    fun kill() {
+        motor.setMotorDisable()
+        servo.setPwmDisable()
+    }
+
     class SwerveModuleStateAccel {
         constructor() {}
 

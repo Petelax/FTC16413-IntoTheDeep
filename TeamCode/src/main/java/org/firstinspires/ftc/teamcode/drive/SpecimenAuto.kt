@@ -1,192 +1,67 @@
 package org.firstinspires.ftc.teamcode.drive
 
 import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.arcrobotics.ftclib.command.CommandScheduler
-import com.arcrobotics.ftclib.command.ParallelCommandGroup
-import com.arcrobotics.ftclib.command.SequentialCommandGroup
-import com.arcrobotics.ftclib.command.WaitCommand
-import com.arcrobotics.ftclib.geometry.Pose2d
-import com.arcrobotics.ftclib.geometry.Rotation2d
-import com.qualcomm.hardware.lynx.LynxModule
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
-import org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition
-import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import dev.frozenmilk.mercurial.Mercurial
+import dev.frozenmilk.mercurial.commands.Lambda
+import dev.frozenmilk.mercurial.commands.groups.Parallel
+import dev.frozenmilk.mercurial.commands.groups.Sequential
+import dev.frozenmilk.mercurial.commands.util.IfElse
+import dev.frozenmilk.mercurial.commands.util.Wait
+import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.Deposit
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.Elevator
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalArm
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalExtension
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.HorizontalWrist
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.Intake
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalArm
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalWrist
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
-import org.firstinspires.ftc.teamcode.utils.Drawing
+import org.firstinspires.ftc.teamcode.subsystems.Deposit
+import org.firstinspires.ftc.teamcode.subsystems.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalArm
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalWrist
+import org.firstinspires.ftc.teamcode.subsystems.Intake
+import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
+import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
+import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.utils.BulkReads
+import org.firstinspires.ftc.teamcode.utils.LoopTimes
 
-@Config
-@Autonomous
-class SpecimenAuto: OpMode() {
-    private lateinit var hubs: List<LynxModule>
-    private lateinit var drive: SwerveDrivetrain
-    private lateinit var elevator: Elevator
-    private lateinit var horizontalExtension: HorizontalExtension
-    private lateinit var horizontalArm: HorizontalArm
-    private lateinit var horizontalWrist: HorizontalWrist
-    private lateinit var intake: Intake
-    private lateinit var verticalArm: VerticalArm
-    private lateinit var verticalWrist: VerticalWrist
-    private lateinit var deposit: Deposit
-    private lateinit var dashboard: FtcDashboard
+@Mercurial.Attach
+@BulkReads.Attach
+@LoopTimes.Attach
 
-    private var lastTime = System.nanoTime()
-    //@JvmField var pose = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(90.0))
-    @JvmField var startPose = Pose2d(78.0, 6.0, Rotation2d.fromDegrees(0.0))
+@SwerveDrivetrain.Attach
 
+@HorizontalExtension.Attach
+@HorizontalArm.Attach
+@HorizontalWrist.Attach
+@Intake.Attach
+
+@Elevator.Attach
+@VerticalArm.Attach
+@VerticalWrist.Attach
+@Deposit.Attach
+
+@TeleOp
+class SpecimenAuto : OpMode() {
     override fun init() {
-        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
+        val auto = Sequential(
 
-        // this just sets the bulk reading mode for each hub
-        hubs = hardwareMap.getAll(LynxModule::class.java)
-        for (hub in hubs) {
-            hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
-        }
-
-        //voltage = hardwareMap.getAll(PhotonLynxVoltageSensor::class.java).iterator().next()
-
-        drive = SwerveDrivetrain(hardwareMap, 12.0)
-
-        elevator = Elevator(hardwareMap)
-        verticalArm = VerticalArm(hardwareMap)
-        verticalWrist = VerticalWrist(hardwareMap)
-        deposit = Deposit(hardwareMap)
-
-        horizontalExtension = HorizontalExtension(hardwareMap)
-        horizontalArm = HorizontalArm(hardwareMap)
-        horizontalWrist = HorizontalWrist(hardwareMap)
-        intake = Intake(hardwareMap)
-
-        dashboard = FtcDashboard.getInstance()
-
-        telemetry.addLine("init")
-
-        CommandScheduler.getInstance().schedule(
-            SequentialCommandGroup(
-                SequentialCommandGroup(),
-                WaitCommand(10),
-                //PIDToPosition(drive, pose),
-                ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
-                        drive,
-                        Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))
-                    ),
-                    SequentialCommandGroup(
-                        WaitCommand(600),
-                        org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
-                            elevator,
-                            VerticalConstants.ElevatorPositions.TOP - 0.5
-                        ),
-                    )
-                ),
-                WaitCommand(100),
-                ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
-                        drive,
-                        Pose2d(-24.0, -12.0, Rotation2d.fromDegrees(0.0))
-                    ),
-                    org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
-                        elevator,
-                        VerticalConstants.ElevatorPositions.BOTTOM
-                    ),
-                ),
-                WaitCommand(100),
-                ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
-                        drive,
-                        Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))
-                    ),
-                    SequentialCommandGroup(
-                        WaitCommand(500),
-                        org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
-                            elevator,
-                            VerticalConstants.ElevatorPositions.TOP - 0.5
-                        ),
-                    )
-                ),
-                WaitCommand(100),
-                ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
-                        drive,
-                        Pose2d(-24.0, -24.0, Rotation2d.fromDegrees(0.0))
-                    ),
-                    org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
-                        elevator,
-                        VerticalConstants.ElevatorPositions.BOTTOM
-                    ),
-                ),
-                WaitCommand(100),
-                ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
-                        drive,
-                        Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))
-                    ),
-                    SequentialCommandGroup(
-                        WaitCommand(500),
-                        org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
-                            elevator,
-                            VerticalConstants.ElevatorPositions.TOP - 0.5
-                        ),
-                    )
-                ),
-                WaitCommand(100),
-                ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
-                        drive,
-                        Pose2d(-24.0, -36.0, Rotation2d.fromDegrees(0.0))
-                    ),
-                    org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
-                        elevator,
-                        VerticalConstants.ElevatorPositions.BOTTOM
-                    ),
-                ),
-
-                WaitCommand(100)
-            ),
         )
+
 
     }
 
     override fun loop() {
-        val currentTime = System.nanoTime()
-        val pose = drive.getPose()
-        //val deltas = drive.getDelta()
         val packet = TelemetryPacket()
+        val pose = SwerveDrivetrain.getPose()
         packet.put("x", pose.x)
         packet.put("y", pose.y)
         packet.put("heading", pose.heading)
-        packet.put("elevator height", elevator.getPosition())
+        packet.put("elevator pos", Elevator.getPosition())
+        packet.put("elevator target", Elevator.targetPosition)
+        packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
+        FtcDashboard.getInstance().sendTelemetryPacket(packet)
 
-        /*
-        packet.put("lf", deltas[0])
-        packet.put("rf", deltas[1])
-        packet.put("lr", deltas[2])
-        packet.put("rr", deltas[3])
-         */
-
-        packet.put("ms", (currentTime-lastTime)/1E6)
-        packet.fieldOverlay().setStroke("#3F51B5")
-        Drawing.drawRobot(packet.fieldOverlay(), pose)
-        dashboard.sendTelemetryPacket(packet)
-        telemetry.update()
-
-        //drive.drive(ChassisSpeeds(1.0, 0.0, 0.0))
-
-        CommandScheduler.getInstance().run()
-
-        lastTime = currentTime
     }
 
 }

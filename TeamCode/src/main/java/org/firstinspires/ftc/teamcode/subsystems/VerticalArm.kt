@@ -22,7 +22,7 @@ object VerticalArm : Subsystem {
     annotation class Attach
 
     override var dependency: Dependency<*> = Subsystem.DEFAULT_DEPENDENCY and SingleAnnotation(Attach::class.java)
-    private var cachedPosition = 100.0
+    private var cachedPosition = -100.0
 
     private val servo by subsystemCell {
         FeatureRegistrar.activeOpMode.hardwareMap.get(ServoImplEx::class.java, DeviceIDs.VERTICAL_ARM)
@@ -39,6 +39,11 @@ object VerticalArm : Subsystem {
             servo.position = corrected
             cachedPosition = corrected
         }
+    }
+
+    fun kill(): Lambda {
+        return Lambda("kill-vert-arm").addRequirements(VerticalArm)
+            .setInit{ servo.setPwmDisable() }
     }
 
     fun getPosition(): Double {

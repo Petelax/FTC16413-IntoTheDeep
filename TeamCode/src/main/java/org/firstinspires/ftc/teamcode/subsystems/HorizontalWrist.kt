@@ -40,6 +40,11 @@ object HorizontalWrist : Subsystem {
         }
     }
 
+    fun kill(): Lambda {
+        return Lambda("horizontal-wrist-kill").addRequirements(HorizontalWrist)
+            .setInit{servo.setPwmDisable(); }
+    }
+
     fun up() {
         setPosition(HorizontalConstants.HorizontalWristPositions.IN)
     }

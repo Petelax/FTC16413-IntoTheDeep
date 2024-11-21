@@ -63,6 +63,7 @@ object SwerveDrivetrain : Subsystem {
     }
 
     private var pose = Pose2d()
+    private var headingOffset = Rotation2d()
 
     override fun preUserInitHook(opMode: Wrapper) {
         val id = DeviceIDs
@@ -81,7 +82,7 @@ object SwerveDrivetrain : Subsystem {
 
     override fun preUserLoopHook(opMode: Wrapper) {
         val tempPose = odo.position
-        pose = Pose2d(tempPose.x, tempPose.y, Rotation2d.fromDegrees(tempPose.h))
+        pose = Pose2d(tempPose.x, tempPose.y, Rotation2d.fromDegrees(tempPose.h).minus(headingOffset))
 
         lf.periodic()
         rf.periodic()
@@ -97,10 +98,12 @@ object SwerveDrivetrain : Subsystem {
         //return imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
     }
 
-    fun resetHeading() {
-        val currentPose = getPose()
-        odo.position = SparkFunOTOS.Pose2D(currentPose.x, currentPose.y, 0.0)
+    fun resetHeading(): Lambda {
+        return Lambda("reset-heading")
+            .setInit{ headingOffset = headingOffset.plus(getPose().rotation) }
     }
+
+
 
     fun getPose(): Pose2d {
         //val pose = odo.position
@@ -235,6 +238,11 @@ object SwerveDrivetrain : Subsystem {
                 )}
             .setFinish{false}
 
+    }
+
+    fun kill(): Lambda {
+        return Lambda("kill-drivetrain").addRequirements(SwerveDrivetrain)
+            .setInit{lf.kill(); lr.kill(); rf.kill(); rr.kill()}
     }
 
     fun setModuleStates(moduleStates: Array<SwerveModuleState>) {

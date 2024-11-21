@@ -83,16 +83,20 @@ class MercurialTeleOp : OpMode() {
             Sequential(
                 Parallel(
                     Elevator.waitUntilAboveArm(),
-                    Elevator.pid(VerticalConstants.ElevatorPositions.ARM)
+                    Elevator.pid(VerticalConstants.ElevatorPositions.ARM_TARGET)
                 ),
                 Parallel(
                     Wait(VerticalConstants.VerticalArmConstants.intakeToSpecimen),
                     VerticalArm.specimen(),
                     VerticalWrist.specimenPickup(),
                 ),
-                Elevator.pid(VerticalConstants.ElevatorPositions.BOTTOM),
+                Parallel(
+                    Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.BOTTOM),
+                    Elevator.pid(VerticalConstants.ElevatorPositions.BOTTOM),
+                )
             ),
             Parallel(
+                Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.BOTTOM),
                 Elevator.pid(VerticalConstants.ElevatorPositions.BOTTOM),
                 VerticalArm.specimen(),
                 VerticalWrist.specimenPickup(),
@@ -103,7 +107,7 @@ class MercurialTeleOp : OpMode() {
             Sequential(
                 IfElse( {Elevator.getPosition() < VerticalConstants.ElevatorPositions.ARM},
                     Sequential(
-                        Elevator.pid(VerticalConstants.ElevatorPositions.ARM),
+                        Elevator.pid(VerticalConstants.ElevatorPositions.ARM_TARGET),
                         Elevator.waitUntilAboveArm(),
                     ),
                     Sequential()
@@ -146,7 +150,7 @@ class MercurialTeleOp : OpMode() {
 
         )
 
-        val horizontalRetract = Parallel(HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake())
+        val horizontalRetract = Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake())
 
         val sample = Sequential(
             horizontalRetract,
@@ -163,27 +167,28 @@ class MercurialTeleOp : OpMode() {
         )
 
         val climb = Sequential(
+            Lambda("climb").setInit{ Elevator.limitless = true },
+            /*
+            Parallel(
+                SwerveDrivetrain.kill(),
+                HorizontalExtension.kill(),
+                HorizontalArm.kill(),
+                HorizontalWrist.kill(),
+                Intake.kill(),
+                VerticalWrist.kill(),
+                Deposit.kill(),
+            ),
+             */
 
-            Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_ONE),
-            Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_ONE),
-
-            Wait(0.250),
-
-            Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_TWO),
-            Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_TWO),
-
-            Wait(0.250),
-
-            Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_THREE),
-            Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_THREE),
-
-            Wait(0.250),
-
-            Elevator.pid(VerticalConstants.ElevatorPositions.BOTTOM),
+            Parallel(
+                Wait(0.100).then(Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_ONE).with(Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_ONE))),
+                VerticalArm.sample()
+            ),
+            Wait(1.0)
 
         )
 
-        mechanismGamepad.dpadUp.onTrue(Sequential(Parallel(Intake.runIntake(), Wait(0.400), Intake.stopIntake()), verticalSample))
+        mechanismGamepad.dpadUp.onTrue(Parallel(Sequential(Intake.runIntake(), Wait(0.400), Intake.stopIntake()), verticalSample))
         mechanismGamepad.dpadDown.onTrue(verticalRetract)
 
         mechanismGamepad.dpadLeft.onTrue(verticalSpecimenPickup)
@@ -191,19 +196,21 @@ class MercurialTeleOp : OpMode() {
 
         mechanismGamepad.y.onTrue(sample)
 
-        mechanismGamepad.x.onTrue(Parallel(HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake()))
+        mechanismGamepad.x.onTrue(horizontalRetract)
         mechanismGamepad.b.onTrue(
-            IfElse ( {HorizontalExtension.getPosition() < 0.5},
-                Parallel(HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
+            IfElse ( {HorizontalExtension.getPosition() < 1.0},
+                Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
                 Parallel(HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
             )
         )
-        mechanismGamepad.b.onTrue(Intake.runIntakeStopping().then(Intake.backDrive()))
+        mechanismGamepad.b.onTrue(Wait(0.100).then(Intake.runIntakeStopping().then(Intake.backDrive())))
 
-        mechanismGamepad.a.onTrue(Parallel(HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.setPositionCommand(HorizontalConstants.HorizontalArmPositions.MID)))
+        mechanismGamepad.a.onTrue(Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.setPositionCommand(HorizontalConstants.HorizontalArmPositions.MID)))
 
-        mechanismGamepad.rightBumper.onTrue(Deposit.open())
-        mechanismGamepad.leftBumper.onTrue(Deposit.close())
+        mechanismGamepad.rightBumper.onTrue(Deposit.close())
+        mechanismGamepad.leftBumper.onTrue(Deposit.open())
+
+        mechanismGamepad.back.onTrue(climb)
 
         //telemetry.addData("state", mechanismGamepad.rightTrigger.state )
         val intakeSpeed = {mechanismGamepad.rightTrigger.state - mechanismGamepad.leftTrigger.state}
@@ -213,13 +220,13 @@ class MercurialTeleOp : OpMode() {
         //mechanismGamepad.rightTrigger.conditionalBindState().greaterThan(0.05).bind()
         //mechanismGamepad.leftTrigger.conditionalBindState().greaterThan(0.05).bind()
 
-        val elevatorSpeed = {mechanismGamepad.leftStickY.state}
         mechanismGamepad.leftStickY.conditionalBindState().lessThan(-0.05).bind().onTrue(Elevator.disableController())
         mechanismGamepad.leftStickY.conditionalBindState().greaterThan(0.05).bind().onTrue(Elevator.disableController())
 
-        val hev = {mechanismGamepad.rightStickY.state}
-        mechanismGamepad.rightStickY.conditionalBindState().lessThan(-0.05).bind().whileTrue(HorizontalExtension.drive(hev)).onFalse(HorizontalExtension.drive{0.0})
-        mechanismGamepad.rightStickY.conditionalBindState().greaterThan(0.05).bind().whileTrue(HorizontalExtension.drive(hev)).onFalse(HorizontalExtension.drive{0.0})
+        mechanismGamepad.rightStickY.conditionalBindState().lessThan(-0.05).bind().onTrue(HorizontalExtension.disableController())
+        mechanismGamepad.rightStickY.conditionalBindState().greaterThan(0.05).bind().onTrue(HorizontalExtension.disableController())
+
+        driveGamepad.a.onTrue(SwerveDrivetrain.resetHeading())
 
     }
 
@@ -228,6 +235,7 @@ class MercurialTeleOp : OpMode() {
         //packet.put("elevator pid speed", Elevator.controller.velocity)
         //packet.put("elevator pid state", Elevator.controller.state)
         packet.put("elevator pos", Elevator.getPosition())
+        packet.put("elevator target", Elevator.targetPosition)
         //packet.put("elevator pid atSetPoint", Elevator.controller.finished())
         packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
         FtcDashboard.getInstance().sendTelemetryPacket(packet)

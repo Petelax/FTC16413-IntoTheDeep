@@ -88,7 +88,7 @@ object HorizontalExtension : Subsystem {
         targetPosition = 0.0
         controller.enabled = false
 
-        //defaultCommand = drive{-opMode.opMode.gamepad2.right_stick_y.toDouble()}
+        defaultCommand = drive{-opMode.opMode.gamepad2.right_stick_y.toDouble()}
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {
@@ -109,9 +109,17 @@ object HorizontalExtension : Subsystem {
         return Lambda("horizontal-extension-pid").addRequirements(HorizontalExtension)
             .setInit{
                 targetPosition = setPoint
+                controller.controllerCalculation.reset()
                 controller.enabled = true
             }
             .setInterruptible(true)
+    }
+
+    fun disableController(): Lambda {
+        return Lambda("cancel").addRequirements(HorizontalExtension)
+            .setInit{
+                controller.enabled = false
+            }
     }
 
     fun waitUntilSetPoint(setPoint: Double): Lambda {
@@ -127,6 +135,11 @@ object HorizontalExtension : Subsystem {
     fun atSetPoint(): Boolean {
         return abs(targetPosition - getPosition()) <= HorizontalConstants.HorizontalExtensionConstants.POSITION_TOLERANCE
                 && abs(controller.velocity) <= HorizontalConstants.HorizontalExtensionConstants.VELOCITY_TOLERANCE
+    }
+
+    fun kill(): Lambda {
+        return Lambda("kill-horizontal-extension").addRequirements(HorizontalExtension)
+            .setInit{ motor.setMotorDisable() }
     }
 
     fun setRawSpeed(speed: Double) {
