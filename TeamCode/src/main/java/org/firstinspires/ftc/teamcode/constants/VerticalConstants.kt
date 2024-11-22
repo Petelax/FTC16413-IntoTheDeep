@@ -16,7 +16,7 @@ class VerticalConstants {
         @JvmField var KF = 0.0
 
         @JvmField var KG = 0.042 //0.042
-        @JvmField var KE = 0.0025
+        @JvmField var KE = 0.0027
     }
 
     @Config
@@ -27,7 +27,7 @@ class VerticalConstants {
         @JvmField var BOTTOM = 0.20
         @JvmField var ARM = 3.5
         @JvmField var ARM_TARGET = 3.75
-        @JvmField var SPECIMEN_PLACE = 14.0
+        @JvmField var SPECIMEN_PLACE = 13.5
         @JvmField var CLIMB_ONE = 20.0
         @JvmField var CLIMB_TWO = 8.0
         @JvmField var CLIMB_THREE = 26.5
@@ -46,6 +46,7 @@ class VerticalConstants {
         @JvmField var INTAKE = 0.0
         @JvmField var SAMPLE = 0.6
         @JvmField var SPECIMEN = 0.93
+        @JvmField var AUTO_START = 0.25
     }
 
     @Config

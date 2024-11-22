@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems
 import com.qualcomm.hardware.rev.RevColorSensorV3
 import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
+import com.qualcomm.robotcore.hardware.DigitalChannel
 import com.qualcomm.robotcore.hardware.NormalizedRGBA
 import com.qualcomm.robotcore.hardware.PwmControl
 import dev.frozenmilk.dairy.cachinghardware.CachingCRServo
@@ -39,12 +40,15 @@ object Intake : Subsystem {
 
     private var cachedPower = 100.0
 
+    /*
     private var red = 0.0
     private var blue = 0.0
     private var max = 0.0
     private var colors = NormalizedRGBA()
 
     private var distance = 0.0
+
+     */
 
     private val left by subsystemCell {
         FeatureRegistrar.activeOpMode.hardwareMap.get(CRServoImplEx::class.java, DeviceIDs.INTAKE_LEFT)
@@ -53,11 +57,20 @@ object Intake : Subsystem {
         FeatureRegistrar.activeOpMode.hardwareMap.get(CRServoImplEx::class.java, DeviceIDs.INTAKE_RIGHT)
     }
 
+    /*
     private val colour by subsystemCell {
         FeatureRegistrar.activeOpMode.hardwareMap.get(RevColorSensorV3::class.java, DeviceIDs.COLOUR)
     }
+     */
+    private val pin0 by subsystemCell {
+        FeatureRegistrar.activeOpMode.hardwareMap.digitalChannel.get(DeviceIDs.COLOUR_0)
+    }
+    private val pin1 by subsystemCell {
+        FeatureRegistrar.activeOpMode.hardwareMap.digitalChannel.get(DeviceIDs.COLOUR_1)
+    }
 
-    var readColours = true
+    private var p0 = false //blue
+    private var p1 = false
 
     override fun preUserInitHook(opMode: Wrapper) {
         left.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
@@ -65,27 +78,25 @@ object Intake : Subsystem {
         left.power = 0.0
         right.power = 0.0
         right.direction = DcMotorSimple.Direction.REVERSE
+        pin0.mode = DigitalChannel.Mode.INPUT
+        pin1.mode = DigitalChannel.Mode.INPUT
 
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {
-        if (readColours) {
-            colors = colour.normalizedColors
-
-            red = colors.red.toDouble()
-            blue = colors.blue.toDouble()
-            max = max(red, blue)
-
-            red /= max
-            blue /= max
-
-            distance = colour.getDistance(DistanceUnit.MM)
-
-            opMode.opMode.telemetry.addData("game piece", getGamePiece().name)
-        }
+        p0 = pin0.state
+        p1 = pin1.state
 
         defaultCommand = setSpeedSupplier { opMode.opMode.gamepad2.right_trigger.toDouble().pow(3) - opMode.opMode.gamepad2.left_trigger.pow(3) }
 
+    }
+
+    fun getPin0(): Boolean {
+        return p0
+    }
+
+    fun getPin1(): Boolean {
+        return p1
     }
 
     fun kill(): Lambda {
@@ -93,15 +104,6 @@ object Intake : Subsystem {
             .setInit{ left.setPwmDisable(); right.setPwmDisable() }
     }
 
-    fun stopColourSensor(): Lambda {
-        return Lambda("stop-colour-sensor").setRequirements(Intake)
-            .setInit{ readColours = false }
-    }
-
-    fun startColourSensor(): Lambda {
-        return Lambda("start-colour-sensor").setRequirements(Intake)
-            .setInit{ readColours = true }
-    }
 
     private fun setPower(power: Double) {
         val corrected = power.coerceIn(-1.0..1.0)
@@ -113,26 +115,16 @@ object Intake : Subsystem {
     }
 
     fun getGamePiece(): Sample {
-        if (distance >= 20.0) {
-            return Sample.NONE
+        return if (p0 && p1) {
+            Sample.YELLOW
+        } else if (p0 && !p1) {
+            Sample.BLUE
+        } else if (!p0 && p1) {
+            Sample.RED
+        } else {
+            Sample.NONE
         }
-        if (getRed() > 0.95 && getBlue() < 0.5) {
-            return Sample.RED
-        }
-        if (getRed() < 0.5 && getBlue() > 0.95) {
-            return Sample.BLUE
-        }
 
-        return Sample.YELLOW
-
-    }
-
-    fun getRed(): Double {
-        return red
-    }
-
-    fun getBlue(): Double {
-        return blue
     }
 
     fun stopIntake(): Lambda {
@@ -161,6 +153,7 @@ object Intake : Subsystem {
 
     fun backDrive(): Sequential {
         return Sequential(
+            Wait(HorizontalConstants.IntakeSpeeds.PRE_BACK_TIME),
             setSpeed(HorizontalConstants.IntakeSpeeds.BACK),
             Wait(HorizontalConstants.IntakeSpeeds.BACK_TIME),
             stopIntake()
@@ -170,26 +163,7 @@ object Intake : Subsystem {
 
     fun runIntakeStopping(): Lambda {
         return Lambda("intake-run-stopping").addRequirements(Intake)
-            .setInit{ readColours = true; setPower(HorizontalConstants.IntakeSpeeds.MAX) }
-            /*
-            .setExecute {
-                if (Globals.AllianceColour == AllianceColours.Red) {
-                    if (getGamePiece() != Sample.RED && getGamePiece() != Sample.YELLOW) {
-                        setPower(HorizontalConstants.IntakeSpeeds.MAX)
-                    } else {
-                        //backDrive().schedule()
-                        setPower(0.0)
-                    }
-                } else {
-                    if (getGamePiece() != Sample.BLUE && getGamePiece() != Sample.YELLOW) {
-                        setPower(HorizontalConstants.IntakeSpeeds.MAX)
-                    } else {
-                        //backDrive().schedule()
-                        setPower(0.0)
-                    }
-                }
-            }
-             */
+            .setInit{ setPower(HorizontalConstants.IntakeSpeeds.MAX) }
             .setFinish {
                 if (Globals.AllianceColour == AllianceColours.Red) {
                     getGamePiece() == Sample.RED || getGamePiece() == Sample.YELLOW
@@ -199,6 +173,30 @@ object Intake : Subsystem {
             }
             .setEnd{setSpeed(HorizontalConstants.IntakeSpeeds.BACK)}
             .setInterruptible{true}
+    }
+
+    fun runIntakeStoppingBackwards(): Lambda {
+        return Lambda("intake-run-stopping").addRequirements(Intake)
+            .setInit{ setPower(-HorizontalConstants.IntakeSpeeds.MAX) }
+            .setFinish {
+                if (Globals.AllianceColour == AllianceColours.Red) {
+                    getGamePiece() == Sample.RED || getGamePiece() == Sample.YELLOW
+                } else {
+                    getGamePiece() == Sample.BLUE || getGamePiece() == Sample.YELLOW
+                }
+            }
+            .setEnd{setSpeed(-HorizontalConstants.IntakeSpeeds.BACK_BACK)}
+            .setInterruptible{true}
+    }
+
+    fun backBackDrive(): Sequential {
+        return Sequential(
+            Wait(HorizontalConstants.IntakeSpeeds.PRE_BACK_TIME),
+            setSpeed(-HorizontalConstants.IntakeSpeeds.BACK_BACK),
+            Wait(HorizontalConstants.IntakeSpeeds.BACK_BACK_TIME),
+            stopIntake()
+        )
+
     }
 
     enum class Sample {

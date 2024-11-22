@@ -35,10 +35,13 @@ class HorizontalConstants {
 
     @Config
     object IntakeSpeeds {
-        @JvmField var MAX = 0.2
+        @JvmField var MAX = 1.0
         @JvmField var STOP = 0.0
         @JvmField var BACK = -0.1
+        @JvmField var BACK_BACK = -0.1
         @JvmField var BACK_TIME = 0.050
+        @JvmField var BACK_BACK_TIME = 0.150
+        @JvmField var PRE_BACK_TIME = 0.0
     }
 
     @Config
@@ -51,7 +54,7 @@ class HorizontalConstants {
     @Config
     object HorizontalWristPositions {
         @JvmField var IN = 1.0
-        @JvmField var OUT = 0.0
+        @JvmField var OUT = 0.1
     }
 
     /**

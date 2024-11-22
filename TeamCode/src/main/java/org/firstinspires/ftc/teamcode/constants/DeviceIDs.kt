@@ -19,6 +19,8 @@ object DeviceIDs {
 
     const val OTOS = "otos"
     const val COLOUR = "color"
+    const val COLOUR_0 = "pin0"
+    const val COLOUR_1 = "pin1"
 
     const val ELEVATOR_LEFT = "elevatorLeft"
     const val ELEVATOR_RIGHT = "elevatorRight"

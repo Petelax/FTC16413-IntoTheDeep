@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystems.swerve
 
+import com.arcrobotics.ftclib.controller.PIDFController
+import com.arcrobotics.ftclib.controller.wpilibcontroller.ProfiledPIDController
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
+import com.arcrobotics.ftclib.trajectory.TrapezoidProfile
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.dependency.Dependency
@@ -12,20 +15,29 @@ import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.mercurial.commands.Command
 import dev.frozenmilk.mercurial.commands.Lambda
+import dev.frozenmilk.mercurial.commands.groups.Parallel
+import dev.frozenmilk.mercurial.commands.groups.Race
+import dev.frozenmilk.mercurial.commands.groups.Sequential
+import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda
+import dev.frozenmilk.mercurial.commands.util.Wait
 import dev.frozenmilk.mercurial.subsystems.Subsystem
+import dev.frozenmilk.util.cell.RefCell
 import org.ejml.simple.SimpleMatrix
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.WHEEL_BASE
 import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.utils.PIDController
 import java.lang.annotation.Inherited
 import java.util.function.DoubleSupplier
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.pow
+import kotlin.math.sign
 import kotlin.math.sin
 
 object SwerveDrivetrain : Subsystem {
@@ -65,6 +77,15 @@ object SwerveDrivetrain : Subsystem {
     private var pose = Pose2d()
     private var headingOffset = Rotation2d()
 
+    val c = DrivebaseConstants.PIDToPosition
+    val xController: PIDFController = PIDFController(c.TranslationKP, c.TranslationKI, c.TranslationKD, 0.0)
+    val yController: PIDFController = PIDFController(c.TranslationKP, c.TranslationKI, c.TranslationKD, 0.0)
+    val headingController: PIDController = PIDController(c.RotationKP, c.RotationKI, c.RotationKD)
+
+    val profiledXController: ProfiledPIDController = ProfiledPIDController(c.TranslationKP, c.TranslationKI, c.TranslationKD, TrapezoidProfile.Constraints(c.MaxVelocity, c.MaxAcceleration))
+    val profiledYController: ProfiledPIDController = ProfiledPIDController(c.TranslationKP, c.TranslationKI, c.TranslationKD, TrapezoidProfile.Constraints(c.MaxVelocity, c.MaxAcceleration))
+    val profiledHeadingController: PIDController = PIDController(c.RotationKP, c.RotationKI, c.RotationKD)
+
     override fun preUserInitHook(opMode: Wrapper) {
         val id = DeviceIDs
         val hardwareMap = opMode.opMode.hardwareMap
@@ -74,13 +95,27 @@ object SwerveDrivetrain : Subsystem {
         rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
         configureOtos()
 
+        headingController.enableContinuousInput(-PI, PI)
+
+        xController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
+        yController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
+        headingController.setTolerance(c.RotationPositionTolerance, c.RotationVelocityTolerance)
+
         defaultCommand = fieldCentricDrive(
             { opMode.opMode.gamepad1.left_stick_x.toDouble() },
             { -opMode.opMode.gamepad1.left_stick_y.toDouble() },
             { opMode.opMode.gamepad1.right_stick_x.toDouble() })
     }
 
+    override fun preUserInitLoopHook(opMode: Wrapper) {
+        periodic(opMode)
+    }
+
     override fun preUserLoopHook(opMode: Wrapper) {
+        periodic(opMode)
+    }
+
+    fun periodic(opMode: Wrapper) {
         val tempPose = odo.position
         pose = Pose2d(tempPose.x, tempPose.y, Rotation2d.fromDegrees(tempPose.h).minus(headingOffset))
 
@@ -88,6 +123,151 @@ object SwerveDrivetrain : Subsystem {
         rf.periodic()
         lr.periodic()
         rr.periodic()
+
+    }
+
+    fun p2p(setPoint: Pose2d): Lambda {
+        return Lambda("p2p").addRequirements(SwerveDrivetrain)
+            .setInit{
+                xController.reset()
+                yController.reset()
+                headingController.reset()
+                xController.setPoint = setPoint.x
+                yController.setPoint = setPoint.y
+                headingController.setpoint = setPoint.rotation.radians
+            }
+            .setExecute{
+                val currentPose = getPose()
+                var xFeedback = -xController.calculate(currentPose.x, setPoint.x)
+                xFeedback += xFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var yFeedback = -yController.calculate(currentPose.y, setPoint.y)
+                yFeedback += yFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var headingFeedback = -headingController.calculate(currentPose.rotation.radians, setPoint.rotation.radians)
+                headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+
+                firstOrderFieldCentricDrive(ChassisSpeeds(xFeedback, yFeedback, headingFeedback))
+            }
+            .setFinish{xController.atSetPoint() && yController.atSetPoint() && headingController.atSetpoint()}
+            .setEnd{_ -> stop()}
+
+    }
+
+    fun pp2p(setPoint: Pose2d): Lambda {
+        return Lambda("pp2p").addRequirements(SwerveDrivetrain)
+            .setInit{
+                profiledXController.reset()
+                profiledYController.reset()
+                profiledHeadingController.reset()
+                profiledXController.setGoal(setPoint.x)
+                profiledYController.setGoal(setPoint.y)
+                profiledHeadingController.setpoint = setPoint.rotation.radians
+
+                val currentPose = getPose()
+                var xFeedback = -profiledXController.calculate(currentPose.x, setPoint.x)
+                xFeedback += xFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var yFeedback = -profiledYController.calculate(currentPose.y, setPoint.y)
+                yFeedback += yFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var headingFeedback = -profiledHeadingController.calculate(currentPose.rotation.radians, setPoint.rotation.radians)
+                headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+            }
+            .setExecute{
+                val currentPose = getPose()
+                var xFeedback = -profiledXController.calculate(currentPose.x, setPoint.x)
+                xFeedback += xFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var yFeedback = -profiledYController.calculate(currentPose.y, setPoint.y)
+                yFeedback += yFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var headingFeedback = -profiledHeadingController.calculate(currentPose.rotation.radians, setPoint.rotation.radians)
+                headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+
+                firstOrderFieldCentricDrive(ChassisSpeeds(xFeedback, yFeedback, headingFeedback))
+            }
+            .setFinish{profiledXController.atGoal() && profiledYController.atGoal() && profiledHeadingController.atSetpoint()}
+            .setEnd{_ -> stop()}
+
+    }
+
+    fun bpp2p(setPoint: Pose2d, timeout: Double) : Race {
+        return Race(
+            null,
+            Parallel(
+                pp2p(setPoint),
+                Wait(0.1),
+            ),
+            Wait(timeout)
+        )
+    }
+
+    fun bp2p(setPoint: Pose2d, timeout: Double) : Race {
+        return Race(
+            null,
+            Parallel(
+                p2p(setPoint),
+                Wait(0.1),
+            ),
+            Wait(timeout)
+        )
+    }
+
+    /**
+     * sets drivetrain setpoint by accident
+     */
+    fun alignModules(setPoint: Pose2d): StatefulLambda<RefCell<ChassisSpeeds>> {
+        return StatefulLambda("align-modules", RefCell(ChassisSpeeds())).addRequirements(SwerveDrivetrain)
+            .setInit{
+                state ->
+                val currentPose = getPose()
+
+                xController.reset()
+                yController.reset()
+                headingController.reset()
+
+                xController.setPoint = setPoint.x
+                yController.setPoint = setPoint.y
+                headingController.setpoint = setPoint.rotation.radians
+
+                var xFeedback = -xController.calculate(currentPose.x, setPoint.x)
+                xFeedback += xFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var yFeedback = -yController.calculate(currentPose.y, setPoint.y)
+                yFeedback += yFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var headingFeedback = -headingController.calculate(currentPose.rotation.radians, setPoint.rotation.radians)
+                headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+
+                val speeds = ChassisSpeeds(xFeedback, yFeedback, headingFeedback)
+
+                state.accept(speeds)
+
+                setModuleHeadings(speeds)
+            }
+            .setExecute{
+                state ->
+                setModuleHeadings(state.get())
+            }
+            .setFinish{ state -> setModuleHeadings(state.get()); areModulesAligned() }
+            .setEnd{ state -> stopTurnServo() }
+            //.setFinish{_ -> false}
+
+    }
+
+    fun ap2p(setPoint: Pose2d): Sequential {
+        return Sequential(alignModules(setPoint), p2p(setPoint))
+    }
+
+    fun forward(speed: Double): Lambda {
+        return Lambda("forward").addRequirements(SwerveDrivetrain)
+            .setExecute{ drive(ChassisSpeeds(-speed, 0.0, 0.0)) }
+            .setFinish{ false }
+
+    }
+
+    fun stopCmd(): Lambda {
+        return Lambda("stop").addRequirements(SwerveDrivetrain)
+            .setExecute{ stop() }
+
+    }
+
+    fun setPose(pose: Pose2d) {
+        headingOffset = Rotation2d()
+        odo.position = SparkFunOTOS.Pose2D(pose.x, pose.y, pose.rotation.degrees)
     }
 
     /**
@@ -102,7 +282,6 @@ object SwerveDrivetrain : Subsystem {
         return Lambda("reset-heading")
             .setInit{ headingOffset = headingOffset.plus(getPose().rotation) }
     }
-
 
 
     fun getPose(): Pose2d {
@@ -245,6 +424,7 @@ object SwerveDrivetrain : Subsystem {
             .setInit{lf.kill(); lr.kill(); rf.kill(); rr.kill()}
     }
 
+
     fun setModuleStates(moduleStates: Array<SwerveModuleState>) {
         SwerveDriveKinematics.normalizeWheelSpeeds(moduleStates, DrivebaseConstants.Measurements.MAX_VELOCITY)
         lf.setDesiredState(moduleStates[0])
@@ -315,6 +495,13 @@ object SwerveDrivetrain : Subsystem {
         rf.spin(drive, steer)
         lr.spin(drive, steer)
         rr.spin(drive, steer)
+    }
+
+    fun stopTurnServo() {
+        lf.stopTurnServo()
+        rf.stopTurnServo()
+        lr.stopTurnServo()
+        rr.stopTurnServo()
     }
 
     fun stop() {

@@ -9,15 +9,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit
 class DrivebaseConstants {
     @Config
     object ModuleCoefficients {
-        @JvmField var KS = 0.0
+        @JvmField var KS = 1.5
         @JvmField var KV = 6.82 //7.0
         @JvmField var KA = 0.48 //0.5
 
-        @JvmField var KP = 0.47
+        @JvmField var KP = 0.45
         @JvmField var KI = 0.0
         @JvmField var KD = 0.0
 
-        @JvmField var alignTolerance = 12.0
+        @JvmField var alignTolerance = 15.0
     }
 
     @Config
@@ -69,10 +69,10 @@ class DrivebaseConstants {
         @JvmField var angularUnit = AngleUnit.DEGREES
         @JvmField var linearUnit = DistanceUnit.INCH
 
-        @JvmField var linearScalar = 1.0 // 1.1188 // 1.011 old, 1.024 new
+        @JvmField var linearScalar = 1.004 // 1.1188 // 1.011 old, 1.024 new
         @JvmField var angularScalar = 0.9857
 
-        @JvmField var startPose = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)
+        @JvmField var startPose = SparkFunOTOS.Pose2D(78.0, 7.0, 90.0)
     }
 
     @Config
@@ -93,8 +93,8 @@ class DrivebaseConstants {
         @JvmField var RotationPositionTolerance = 0.025
         @JvmField var RotationVelocityTolerance = 1.0
 
-        @JvmField var MaxAcceleration = 120.0
-        @JvmField var MaxVelocity = 60.0
+        @JvmField var MaxAcceleration = 30.0
+        @JvmField var MaxVelocity = 100.0
 
         @JvmField var MaxAngularAcceleration = 120.0
         @JvmField var MaxAngularVelocity = 60.0

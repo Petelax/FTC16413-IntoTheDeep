@@ -10,6 +10,7 @@ import dev.frozenmilk.mercurial.Mercurial
 import dev.frozenmilk.mercurial.bindings.BoundGamepad
 import dev.frozenmilk.mercurial.commands.Lambda
 import dev.frozenmilk.mercurial.commands.groups.Parallel
+import dev.frozenmilk.mercurial.commands.groups.Race
 import dev.frozenmilk.mercurial.commands.groups.Sequential
 import dev.frozenmilk.mercurial.commands.util.IfElse
 import dev.frozenmilk.mercurial.commands.util.Wait
@@ -181,10 +182,24 @@ class MercurialTeleOp : OpMode() {
              */
 
             Parallel(
-                Wait(0.100).then(Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_ONE).with(Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_ONE))),
+                Sequential(
+                    Wait(0.100),
+                    Parallel(
+                        Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_ONE),
+                        Race(
+                            null,
+                            Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_ONE),
+                            Wait(1.0)
+                        )
+                    )
+                ),
+                //Wait(0.100).then(Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_ONE).with(Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_ONE))),
                 VerticalArm.sample()
             ),
-            Wait(1.0)
+            Wait(0.2),
+            Lambda("delete").addRequirements(Elevator).setInit{Elevator.defaultCommand = null},
+            Elevator.cancel(),
+            Elevator.climb { driveGamepad.rightTrigger.state - driveGamepad.leftTrigger.state }
 
         )
 
@@ -204,16 +219,16 @@ class MercurialTeleOp : OpMode() {
             )
         )
         mechanismGamepad.b.onTrue(Wait(0.100).then(Intake.runIntakeStopping().then(Intake.backDrive())))
+        mechanismGamepad.start.onTrue(Wait(0.100).then(Intake.runIntakeStoppingBackwards().then(Intake.backBackDrive())))
 
         mechanismGamepad.a.onTrue(Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.setPositionCommand(HorizontalConstants.HorizontalArmPositions.MID)))
 
         mechanismGamepad.rightBumper.onTrue(Deposit.close())
         mechanismGamepad.leftBumper.onTrue(Deposit.open())
 
-        mechanismGamepad.back.onTrue(climb)
+        driveGamepad.y.onTrue(climb)
 
         //telemetry.addData("state", mechanismGamepad.rightTrigger.state )
-        val intakeSpeed = {mechanismGamepad.rightTrigger.state - mechanismGamepad.leftTrigger.state}
         mechanismGamepad.rightTrigger.conditionalBindState().greaterThan(0.05).bind().onTrue(Lambda("clear").addRequirements(Intake))
         mechanismGamepad.leftTrigger.conditionalBindState().greaterThan(0.05).bind().onTrue(Lambda("clear").addRequirements(Intake))
 
@@ -238,6 +253,10 @@ class MercurialTeleOp : OpMode() {
         packet.put("elevator target", Elevator.targetPosition)
         //packet.put("elevator pid atSetPoint", Elevator.controller.finished())
         packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
+
+        packet.put("pin0", Intake.getPin0())
+        packet.put("pin1", Intake.getPin1())
+
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
 
     }

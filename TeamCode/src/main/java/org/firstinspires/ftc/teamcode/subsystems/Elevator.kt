@@ -65,8 +65,7 @@ object Elevator : Subsystem {
     private val coefficients = VerticalConstants.ElevatorCoefficients
     private val constants = VerticalConstants.ElevatorConstants
 
-    public var targetPosition = 0.0
-        public get
+    var targetPosition = 0.0
         private set
 
     var limitless = false
@@ -198,6 +197,17 @@ object Elevator : Subsystem {
             .setInterruptible(true)
     }
 
+    fun pidAuto(setPoint: Double): Lambda {
+        return Lambda("elevator-pid-auto").addRequirements(Elevator)
+            .setInit{
+                targetPosition = setPoint
+                controller.controllerCalculation.reset()
+                controller.enabled = true
+            }
+            .setFinish{ atSetPoint() }
+            .setInterruptible(true)
+    }
+
     fun pidLimitless(setPoint: Double): Lambda {
         return Lambda("elevator-pid").addRequirements(Elevator)
             .setInit{
@@ -222,6 +232,18 @@ object Elevator : Subsystem {
 
     fun waitUntilSetPoint(): Lambda {
         return Lambda("waiting-for-setpoint").setFinish{ atSetPoint() }
+    }
+
+    fun climb(speed: DoubleSupplier) : Lambda {
+        return Lambda("elevator-climb").addRequirements(Elevator)
+            .setInit{defaultCommand = null }
+            .setExecute{setRawSpeed(speed.asDouble)}
+            .setFinish{false}
+            .setInterruptible(false)
+    }
+
+    fun cancel(): Lambda {
+        return Lambda("cancel").addRequirements(Elevator)
     }
 
     fun atSetPoint(): Boolean {

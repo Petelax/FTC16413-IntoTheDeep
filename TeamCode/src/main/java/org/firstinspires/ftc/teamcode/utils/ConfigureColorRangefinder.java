@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.utils;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,7 +11,7 @@ public class ConfigureColorRangefinder extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         ColorRangefinder crf =
-                new ColorRangefinder(hardwareMap.get(RevColorSensorV3.class, "Color"));
+                new ColorRangefinder(hardwareMap.get(RevColorSensorV3.class, "color"));
 
         /*
         Using this example configuration, you can detect all three sample colors based on which pin is reading true:
@@ -20,14 +20,19 @@ public class ConfigureColorRangefinder extends LinearOpMode {
         only pin1 --> red
         neither   --> no object
          */
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 180 / 360.0 * 255, 250 / 360.0 * 255); // blue
-        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 55 / 360.0 * 255, 75 / 360.0 * 255); // yellow
-        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 27); // 20mm or closer requirement
 
-        crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 140 / 360.0 * 255, 210 / 360.0 * 255); // inverted red
-        crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 235 / 360.0 * 255, 255 / 360.0 * 255); // inverted yellow
-        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 27); // 20mm or closer requirement
+        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 180 / 360.0 * 255, 250 / 360.0 * 255); // blue
+        crf.setPin0Digital(ColorRangefinder.DigitalMode.HSV, 48 / 360.0 * 255, 82 / 360.0 * 255); // yellow
+        crf.setPin0DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 60); // 20mm or closer requirement
+
+        crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 135 / 360.0 * 255, 215 / 360.0 * 255); // inverted red
+        crf.setPin1Digital(ColorRangefinder.DigitalMode.HSV, 230 / 360.0 * 255, 260 / 360.0 * 255); // inverted yellow
+        crf.setPin1DigitalMaxDistance(ColorRangefinder.DigitalMode.HSV, 60); // 20mm or closer requirement
         crf.setPin1InvertHue(); // invert hue values
+
+        //crf.setPin0Analog(ColorRangefinder.AnalogMode.HSV);
+        //crf.setPin0Analog(ColorRangefinder.AnalogMode.DISTANCE);
+
 
         waitForStart();
 

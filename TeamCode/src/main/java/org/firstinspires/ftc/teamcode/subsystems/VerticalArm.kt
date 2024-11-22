@@ -86,6 +86,13 @@ object VerticalArm : Subsystem {
             .setFinish{true}
     }
 
+    fun autoStart(): Lambda {
+        return Lambda("vertical-arm-auto-start").addRequirements(VerticalArm)
+            .setInit{
+                setPosition(VerticalConstants.VerticalArmPositions.AUTO_START)
+            }
+    }
+
     fun setVerticalArm(position: Double): Lambda {
         return Lambda("vertical-arm-set").addRequirements(VerticalArm)
             .setInit{ setPosition(position)}

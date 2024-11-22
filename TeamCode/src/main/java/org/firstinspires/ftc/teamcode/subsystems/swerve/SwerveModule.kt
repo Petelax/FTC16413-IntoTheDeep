@@ -129,12 +129,10 @@ class SwerveModule
      */
     fun setDesiredState(state: SwerveModuleState, drive: Boolean) {
         desiredState = SwerveModuleState.optimize(state, Rotation2d(getHeading()))
-        // desiredState = state
         delta = desiredState.angle.minus(Rotation2d(getHeading()))
 
         turnPower = turnPID.calculate(getHeading(), desiredState.angle.radians)
 
-        //(Math.abs(error) > 0.02 ? K_STATIC : 0) * Math.signum(power)
         turnPower += if (abs(turnPID.positionError) > 0.02) 0.035 else 0.0 * sign(turnPower)
 
         if (drive) {
@@ -146,23 +144,12 @@ class SwerveModule
             drivePower = 0.0
         }
 
-        //servo.power = turnPower
-        //motor.power = drivePower
         write()
 
     }
 
-    /**
-     * not working
-     */
-    fun setDesiredHeading(rotation: Rotation2d) {
-        val desiredRotation = optimizeHeading(rotation)
-        delta = desiredRotation.minus(Rotation2d(getHeading()))
-        turnPower = turnPID.calculate(getHeading(), desiredRotation.radians)
-        turnPower += if (abs(turnPID.positionError) > 0.02) 0.03 else 0.0 * sign(turnPower)
-
-        //servo.power = turnPower
-        setServoPower(turnPower)
+    fun stopTurnServo() {
+        setServoPower(0.0)
     }
 
     fun setDesiredStateAccel(state: SwerveModuleStateAccel) {

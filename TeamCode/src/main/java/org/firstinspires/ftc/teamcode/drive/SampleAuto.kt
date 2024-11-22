@@ -51,7 +51,7 @@ import org.firstinspires.ftc.teamcode.utils.LoopTimes
 @Deposit.Attach
 
 @Autonomous
-class SpecimenAuto : OpMode() {
+class SampleAuto : OpMode() {
     val verticalSpecimenPickup = Parallel(
         Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.BOTTOM),
         Elevator.pidAuto(VerticalConstants.ElevatorPositions.BOTTOM),
@@ -108,15 +108,7 @@ class SpecimenAuto : OpMode() {
         ),
 
         Wait(10.0)
-        /*
-        Wait(0.050),
-        Deposit.open(),
-        Parallel(
-            SwerveDrivetrain.p2p(Pose2d(78.0, 42.0, Rotation2d())),
-            VerticalArm.specimen()
-        ),
 
-         */
     )
 
     override fun init() {
