@@ -80,11 +80,11 @@ class SpecimenAuto : OpMode() {
         Parallel(
             //SwerveDrivetrain.bp2p(place, 3.0),
             SwerveDrivetrain.bcp2p(place, 1.5),
-            Wait(0.65),
+            Wait(0.75),
             Race( null,
                 Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+1.0), Wait(1.0))
         ),
-        Wait(0.2),
+        Wait(0.25),
 
         /*
         Race(
@@ -165,6 +165,18 @@ class SpecimenAuto : OpMode() {
         Wait(0.1),
         Deposit.open(),
         Wait(0.1),
+
+        Parallel(
+            SwerveDrivetrain.bp2p(Pose2d(120.0, 12.0, Rotation2d.fromDegrees(90.0)), 3.0),
+            Wait(0.6),
+            Sequential(
+                Wait(0.4),
+                VerticalArm.intake(),
+                VerticalWrist.intake(),
+                Wait(0.7),
+                Elevator.pidAuto(VerticalConstants.ElevatorPositions.BOTTOM),
+            )
+        ),
 
         Wait(10.0)
         /*
