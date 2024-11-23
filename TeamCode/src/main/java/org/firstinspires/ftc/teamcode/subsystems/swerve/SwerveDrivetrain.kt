@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.swerve
 
+import com.acmerobotics.dashboard.FtcDashboard
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.controller.PIDFController
 import com.arcrobotics.ftclib.controller.wpilibcontroller.ProfiledPIDController
 import com.arcrobotics.ftclib.geometry.Pose2d
@@ -28,6 +30,7 @@ import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.WHEEL_BASE
 import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
+import org.firstinspires.ftc.teamcode.utils.Drawing
 import org.firstinspires.ftc.teamcode.utils.PIDController
 import java.lang.annotation.Inherited
 import java.util.function.DoubleSupplier
@@ -36,6 +39,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sign
 import kotlin.math.sin
@@ -101,6 +105,12 @@ object SwerveDrivetrain : Subsystem {
         yController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
         headingController.setTolerance(c.RotationPositionTolerance, c.RotationVelocityTolerance)
 
+        profiledHeadingController.enableContinuousInput(-PI, PI)
+
+        profiledXController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
+        profiledYController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
+        profiledHeadingController.setTolerance(c.RotationPositionTolerance, c.RotationVelocityTolerance)
+
         defaultCommand = fieldCentricDrive(
             { opMode.opMode.gamepad1.left_stick_x.toDouble() },
             { -opMode.opMode.gamepad1.left_stick_y.toDouble() },
@@ -124,9 +134,23 @@ object SwerveDrivetrain : Subsystem {
         lr.periodic()
         rr.periodic()
 
+        val packet = TelemetryPacket()
+        packet.put("x", pose.x)
+        packet.put("y", pose.y)
+        packet.put("heading (deg)", pose.rotation.degrees)
+        packet.fieldOverlay().setStroke("#3F51B5")
+        val rrPose = Pose2d(pose.x-72.0, pose.y-72.0, pose.rotation)
+        Drawing.drawRobot(packet.fieldOverlay(), rrPose)
+        FtcDashboard.getInstance().sendTelemetryPacket(packet)
+
     }
 
+
     fun p2p(setPoint: Pose2d): Lambda {
+        return p2p(setPoint, true)
+    }
+
+    fun p2p(setPoint: Pose2d, stop: Boolean): Lambda {
         return Lambda("p2p").addRequirements(SwerveDrivetrain)
             .setInit{
                 xController.reset()
@@ -150,6 +174,58 @@ object SwerveDrivetrain : Subsystem {
             .setFinish{xController.atSetPoint() && yController.atSetPoint() && headingController.atSetpoint()}
             .setEnd{_ -> stop()}
 
+    }
+
+    /**
+     * clamp
+     */
+    fun cp2p(setPoint: Pose2d): Lambda {
+        return Lambda("cp2p").addRequirements(SwerveDrivetrain)
+            .setInit{
+                xController.reset()
+                yController.reset()
+                headingController.reset()
+                xController.setPoint = setPoint.x
+                yController.setPoint = setPoint.y
+                headingController.setpoint = setPoint.rotation.radians
+            }
+            .setExecute{
+                val currentPose = getPose()
+                var xFeedback = -xController.calculate(currentPose.x, setPoint.x)
+                xFeedback += xFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var yFeedback = -yController.calculate(currentPose.y, setPoint.y)
+                yFeedback += yFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+                var headingFeedback = -headingController.calculate(currentPose.rotation.radians, setPoint.rotation.radians)
+                headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+
+                val n = max(xFeedback, max(yFeedback, headingFeedback))
+
+                if (n > DrivebaseConstants.PIDToPosition.MaxVelocity) {
+                    xFeedback /= n
+                    yFeedback /= n
+                    headingFeedback /= n
+
+                    xFeedback *= DrivebaseConstants.PIDToPosition.MaxVelocity
+                    yFeedback *= DrivebaseConstants.PIDToPosition.MaxVelocity
+                    headingFeedback *= DrivebaseConstants.PIDToPosition.MaxVelocity
+                }
+
+                firstOrderFieldCentricDrive(ChassisSpeeds(xFeedback, yFeedback, headingFeedback))
+            }
+            .setFinish{xController.atSetPoint() && yController.atSetPoint() && headingController.atSetpoint()}
+            .setEnd{_ -> FtcDashboard.getInstance().telemetry.addLine("help"); FtcDashboard.getInstance().telemetry.update(); stop()}
+
+    }
+
+
+    fun forwardTime(speed: Double, time: Double): Sequential {
+        return Sequential(
+            Race(
+                Wait(time),
+                forward(DrivebaseConstants.Measurements.MAX_VELOCITY*speed),
+            ),
+            stopCmd()
+        )
     }
 
     fun pp2p(setPoint: Pose2d): Lambda {
@@ -202,6 +278,28 @@ object SwerveDrivetrain : Subsystem {
             null,
             Parallel(
                 p2p(setPoint),
+                Wait(0.1),
+            ),
+            Wait(timeout)
+        )
+    }
+
+    fun bbp2p(setPoint: Pose2d, timeout: Double, stop: Boolean) : Race {
+        return Race(
+            null,
+            Parallel(
+                p2p(setPoint, stop),
+                Wait(0.1),
+            ),
+            Wait(timeout)
+        )
+    }
+
+    fun bcp2p(setPoint: Pose2d, timeout: Double) : Race {
+        return Race(
+            null,
+            Parallel(
+                cp2p(setPoint),
                 Wait(0.1),
             ),
             Wait(timeout)

@@ -49,13 +49,13 @@ class PIDAuto: CommandOpMode() {
                 WaitCommand(10),
                 //PIDToPosition(drive, pose),
                 ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                    AlignPIDToPosition(
                         drive,
                         Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))
                     ),
                     SequentialCommandGroup(
                         WaitCommand(600),
-                        org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                        ElevatorPIDCommand(
                             elevator,
                             VerticalConstants.ElevatorPositions.TOP - 0.5
                         ),
@@ -63,24 +63,24 @@ class PIDAuto: CommandOpMode() {
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                    AlignPIDToPosition(
                         drive,
                         Pose2d(-24.0, -12.0, Rotation2d.fromDegrees(0.0))
                     ),
-                    org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                    ElevatorPIDCommand(
                         elevator,
                         VerticalConstants.ElevatorPositions.BOTTOM
                     ),
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                    AlignPIDToPosition(
                         drive,
                         Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))
                     ),
                     SequentialCommandGroup(
                         WaitCommand(500),
-                        org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                        ElevatorPIDCommand(
                             elevator,
                             VerticalConstants.ElevatorPositions.TOP - 0.5
                         ),
@@ -88,24 +88,24 @@ class PIDAuto: CommandOpMode() {
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                    AlignPIDToPosition(
                         drive,
                         Pose2d(-24.0, -24.0, Rotation2d.fromDegrees(0.0))
                     ),
-                    org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                    ElevatorPIDCommand(
                         elevator,
                         VerticalConstants.ElevatorPositions.BOTTOM
                     ),
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                    AlignPIDToPosition(
                         drive,
                         Pose2d(-6.0, -24.0, Rotation2d.fromDegrees(-45.0))
                     ),
                     SequentialCommandGroup(
                         WaitCommand(500),
-                        org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                        ElevatorPIDCommand(
                             elevator,
                             VerticalConstants.ElevatorPositions.TOP - 0.5
                         ),
@@ -113,11 +113,11 @@ class PIDAuto: CommandOpMode() {
                 ),
                 WaitCommand(100),
                 ParallelCommandGroup(
-                    org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition(
+                    AlignPIDToPosition(
                         drive,
                         Pose2d(-24.0, -36.0, Rotation2d.fromDegrees(0.0))
                     ),
-                    org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand(
+                    ElevatorPIDCommand(
                         elevator,
                         VerticalConstants.ElevatorPositions.BOTTOM
                     ),

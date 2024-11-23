@@ -72,7 +72,8 @@ class DrivebaseConstants {
         @JvmField var linearScalar = 1.004 // 1.1188 // 1.011 old, 1.024 new
         @JvmField var angularScalar = 0.9857
 
-        @JvmField var startPose = SparkFunOTOS.Pose2D(78.0, 7.0, 90.0)
+        //@JvmField var startPose = SparkFunOTOS.Pose2D(78.0, 7.0, 90.0)
+        @JvmField var startPose = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)
     }
 
     @Config
@@ -94,7 +95,7 @@ class DrivebaseConstants {
         @JvmField var RotationVelocityTolerance = 1.0
 
         @JvmField var MaxAcceleration = 30.0
-        @JvmField var MaxVelocity = 100.0
+        @JvmField var MaxVelocity = 0.05
 
         @JvmField var MaxAngularAcceleration = 120.0
         @JvmField var MaxAngularVelocity = 60.0

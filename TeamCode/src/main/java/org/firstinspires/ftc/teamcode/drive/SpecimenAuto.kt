@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive
 
+import androidx.core.os.persistableBundleOf
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
@@ -77,23 +78,28 @@ class SpecimenAuto : OpMode() {
             Wait(0.3)
         ),
         Parallel(
-            SwerveDrivetrain.bp2p(place, 3.0),
+            //SwerveDrivetrain.bp2p(place, 3.0),
+            SwerveDrivetrain.bcp2p(place, 3.0),
+            Wait(0.25),
             Race( null,
-                Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE-0.5), Wait(1.0))
+                Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE), Wait(1.0))
         ),
         Wait(0.1),
 
+        /*
         Race(
-            Wait(1.0),
+            Wait(0.6),
             SwerveDrivetrain.forward(DrivebaseConstants.Measurements.MAX_VELOCITY*0.17),
         ),
         SwerveDrivetrain.stopCmd(),
+         */
 
         Wait(0.1),
         Deposit.open(),
-        Wait(0.1),
+        Wait(0.2),
+
         Parallel(
-            SwerveDrivetrain.bp2p(Pose2d(108.0, 22.0, Rotation2d.fromDegrees(90.0)), 3.0),
+            SwerveDrivetrain.bp2p(Pose2d(104.0, 20.0, Rotation2d.fromDegrees(90.0)), 3.0),
             Sequential(
                 Wait(0.30),
                 verticalSpecimenPickup
@@ -104,9 +110,20 @@ class SpecimenAuto : OpMode() {
         SwerveDrivetrain.bp2p(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 3.0),
         SwerveDrivetrain.bp2p(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 3.0),
         Parallel(
-            SwerveDrivetrain.bp2p(Pose2d(120.0, 24.0, Rotation2d.fromDegrees(-90.0)), 3.0),
+            SwerveDrivetrain.bp2p(Pose2d(120.0, 17.5, Rotation2d.fromDegrees(-90.0)), 3.0),
             Wait(0.8)
         ),
+
+        Race(
+            Wait(1.5),
+            SwerveDrivetrain.forward(DrivebaseConstants.Measurements.MAX_VELOCITY*0.1),
+        ),
+        SwerveDrivetrain.stopCmd(),
+
+        Wait(0.1),
+        Deposit.close(),
+        Wait(0.200),
+        Elevator.pidAuto(VerticalConstants.ElevatorPositions.BOTTOM+5.0),
 
         Wait(10.0)
         /*
@@ -122,6 +139,7 @@ class SpecimenAuto : OpMode() {
 
     override fun init() {
         //SwerveDrivetrain.setPose(startPose)
+        SwerveDrivetrain.setPose(startPose)
 
         VerticalArm.setPosition(VerticalConstants.VerticalArmPositions.AUTO_START)
         Deposit.setPosition(VerticalConstants.DepositPositions.IN)
@@ -137,13 +155,13 @@ class SpecimenAuto : OpMode() {
     }
 
     override fun start() {
-        //SwerveDrivetrain.setPose(startPose)
+        SwerveDrivetrain.setPose(startPose)
 
-        //auto.schedule()
-        Parallel(
-            SwerveDrivetrain.pp2p(place),
-            Wait(3.0)
-        ).schedule()
+        auto.schedule()
+        //Sequential(
+            //SwerveDrivetrain.alignModules(place),
+            //SwerveDrivetrain.p2p(place)
+        //).schedule()
 
     }
 
@@ -151,9 +169,9 @@ class SpecimenAuto : OpMode() {
         val packet = TelemetryPacket()
         val pose = SwerveDrivetrain.getPose()
         val delta = SwerveDrivetrain.getDelta()
-        packet.put("x", pose.x)
-        packet.put("y", pose.y)
-        packet.put("heading", pose.heading)
+        //packet.put("x", pose.x)
+        //packet.put("y", pose.y)
+        //packet.put("heading", pose.heading)
         /*
         packet.put("lf delta", delta[0])
         packet.put("rf delta", delta[1])
@@ -170,8 +188,8 @@ class SpecimenAuto : OpMode() {
 
     @Config
     object specimenAutoPoses {
-        @JvmField var startPose = Pose2d(78.0, 7.5, Rotation2d.fromDegrees(90.0))
-        @JvmField var place = Pose2d(78.0, 100.0, Rotation2d.fromDegrees(90.0))
+        @JvmField var startPose = Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))
+        @JvmField var place = Pose2d(78.0, 35.25, Rotation2d.fromDegrees(90.0))
 
     }
 
