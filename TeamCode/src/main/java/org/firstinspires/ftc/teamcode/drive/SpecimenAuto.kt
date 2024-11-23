@@ -62,7 +62,7 @@ class SpecimenAuto : OpMode() {
     )
 
     val verticalSpecimenPlace = Parallel(
-        Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE),
+        Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+0.5),
         Elevator.waitUntilAboveArm(),
         Parallel(
             VerticalArm.specimen(),
@@ -79,12 +79,12 @@ class SpecimenAuto : OpMode() {
         ),
         Parallel(
             //SwerveDrivetrain.bp2p(place, 3.0),
-            SwerveDrivetrain.bcp2p(place, 3.0),
-            Wait(0.25),
+            SwerveDrivetrain.bcp2p(place, 1.5),
+            Wait(0.65),
             Race( null,
-                Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE), Wait(1.0))
+                Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+1.0), Wait(1.0))
         ),
-        Wait(0.1),
+        Wait(0.2),
 
         /*
         Race(
@@ -99,7 +99,7 @@ class SpecimenAuto : OpMode() {
         Wait(0.2),
 
         Parallel(
-            SwerveDrivetrain.bp2p(Pose2d(104.0, 20.0, Rotation2d.fromDegrees(90.0)), 3.0),
+            SwerveDrivetrain.bp2p(Pose2d(104.0, 18.0, Rotation2d.fromDegrees(90.0)), 3.0),
             Sequential(
                 Wait(0.30),
                 verticalSpecimenPickup
@@ -115,15 +115,56 @@ class SpecimenAuto : OpMode() {
         ),
 
         Race(
-            Wait(1.5),
+            Wait(1.2),
             SwerveDrivetrain.forward(DrivebaseConstants.Measurements.MAX_VELOCITY*0.1),
         ),
         SwerveDrivetrain.stopCmd(),
 
-        Wait(0.1),
+        Wait(0.05),
         Deposit.close(),
         Wait(0.200),
-        Elevator.pidAuto(VerticalConstants.ElevatorPositions.BOTTOM+5.0),
+        Parallel(
+            Elevator.pidAutoTimeout(VerticalConstants.ElevatorPositions.BOTTOM+1.0, 0.5),
+            SwerveDrivetrain.forwardTime(-0.1, 0.5)
+        ),
+        Wait(0.1),
+        Parallel(
+            verticalSpecimenPlace,
+            Sequential(Wait(0.1), SwerveDrivetrain.bp2p(Pose2d(74.0, 34.0, Rotation2d.fromDegrees(90.0)), 3.0)),
+        ),
+        Wait(0.1),
+        Deposit.open(),
+        Wait(0.1),
+
+        Parallel(
+            verticalSpecimenPickup,
+            Sequential(
+                SwerveDrivetrain.bp2p(Pose2d(104.0, 25.0, Rotation2d.fromDegrees(90.0)), 3.0),
+                SwerveDrivetrain.bp2p(Pose2d(120.0, 56.0, Rotation2d.fromDegrees(-90.0)), 3.0).with(Wait(0.25)),
+                SwerveDrivetrain.bp2p(Pose2d(129.0, 56.0, Rotation2d.fromDegrees(-90.0)), 3.0).with(Wait(0.25)),
+            )
+        ),
+
+        SwerveDrivetrain.bp2p(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 3.0).with(Wait(0.25)),
+
+        SwerveDrivetrain.forwardTime(0.1, 1.2),
+
+        Wait(0.05),
+        Deposit.close(),
+        Wait(0.200),
+        Parallel(
+            Elevator.pidAutoTimeout(VerticalConstants.ElevatorPositions.BOTTOM+1.0, 0.5),
+            SwerveDrivetrain.forwardTime(-0.1, 0.25)
+        ),
+        Wait(0.1),
+        Parallel(
+            verticalSpecimenPlace,
+            Sequential(Wait(0.1), SwerveDrivetrain.bp2p(Pose2d(70.0, 32.5, Rotation2d.fromDegrees(90.0)), 3.0)),
+        ),
+
+        Wait(0.1),
+        Deposit.open(),
+        Wait(0.1),
 
         Wait(10.0)
         /*

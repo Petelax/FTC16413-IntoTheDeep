@@ -17,8 +17,11 @@ import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponentSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.mercurial.commands.Lambda
+import dev.frozenmilk.mercurial.commands.groups.Race
+import dev.frozenmilk.mercurial.commands.groups.Sequential
 import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda
 import dev.frozenmilk.mercurial.commands.util.StateMachine
+import dev.frozenmilk.mercurial.commands.util.Wait
 import dev.frozenmilk.mercurial.subsystems.Subsystem
 import dev.frozenmilk.util.cell.RefCell
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
@@ -206,6 +209,13 @@ object Elevator : Subsystem {
             }
             .setFinish{ atSetPoint() }
             .setInterruptible(true)
+    }
+
+    fun pidAutoTimeout(setPoint: Double, timeout: Double): Race {
+        return Race(null,
+            pidAuto(setPoint),
+            Wait(timeout)
+        )
     }
 
     fun pidLimitless(setPoint: Double): Lambda {
