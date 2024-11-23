@@ -75,7 +75,7 @@ class SpecimenAuto : OpMode() {
             VerticalArm.specimen(),
             VerticalWrist.specimenPlace(),
             SwerveDrivetrain.alignModules(place),
-            Wait(0.3)
+            Wait(0.45)
         ),
         Parallel(
             //SwerveDrivetrain.bp2p(place, 3.0),

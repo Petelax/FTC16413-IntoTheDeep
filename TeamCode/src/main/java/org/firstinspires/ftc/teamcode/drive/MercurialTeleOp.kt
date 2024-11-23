@@ -69,7 +69,7 @@ class MercurialTeleOp : OpMode() {
 
         val verticalSpecimenPlace = Parallel(
             Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE),
-            Elevator.pid(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE),
+            Elevator.pid(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+2.0),
             Sequential(
                 Elevator.waitUntilAboveArm(),
                 Parallel(
@@ -84,7 +84,7 @@ class MercurialTeleOp : OpMode() {
             Sequential(
                 Parallel(
                     Elevator.waitUntilAboveArm(),
-                    Elevator.pid(VerticalConstants.ElevatorPositions.ARM_TARGET)
+                    Elevator.pid(VerticalConstants.ElevatorPositions.ARM_TARGET+0.5)
                 ),
                 Parallel(
                     Wait(VerticalConstants.VerticalArmConstants.intakeToSpecimen),
@@ -108,7 +108,7 @@ class MercurialTeleOp : OpMode() {
             Sequential(
                 IfElse( {Elevator.getPosition() < VerticalConstants.ElevatorPositions.ARM},
                     Sequential(
-                        Elevator.pid(VerticalConstants.ElevatorPositions.ARM_TARGET),
+                        Elevator.pid(VerticalConstants.ElevatorPositions.ARM_TARGET+0.5),
                         Elevator.waitUntilAboveArm(),
                     ),
                     Sequential()
