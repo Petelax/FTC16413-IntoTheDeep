@@ -32,7 +32,7 @@ import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 
-@TeleOp
+@TeleOp(group = "test")
 class TeleOp: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var drive: SwerveDrivetrain

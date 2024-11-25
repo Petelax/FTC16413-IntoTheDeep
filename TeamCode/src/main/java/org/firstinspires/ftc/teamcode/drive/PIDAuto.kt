@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.Drawing
 
 @Config
-@Autonomous
+@Autonomous(group = "test")
 class PIDAuto: CommandOpMode() {
     private lateinit var drive: SwerveDrivetrain
     private lateinit var elevator: Elevator

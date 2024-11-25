@@ -62,7 +62,7 @@ class SpecimenAuto : OpMode() {
     )
 
     val verticalSpecimenPlace = Parallel(
-        Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+0.5),
+        Elevator.pidAutoTimeout(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+0.5, 2.0),
         Elevator.waitUntilAboveArm(),
         Parallel(
             VerticalArm.specimen(),
@@ -74,13 +74,22 @@ class SpecimenAuto : OpMode() {
         Parallel(
             VerticalArm.specimen(),
             VerticalWrist.specimenPlace(),
-            SwerveDrivetrain.alignModules(place),
-            Wait(0.45)
+            Race( null,
+                SwerveDrivetrain.alignModules(place),
+                Wait(0.65)
+            ),
+            Wait(0.65)
         ),
         Parallel(
             //SwerveDrivetrain.bp2p(place, 3.0),
-            SwerveDrivetrain.bcp2p(place, 1.5),
-            Wait(0.75),
+            Sequential(
+                Wait(0.1),
+                Parallel(
+                    SwerveDrivetrain.bcp2p(place, 1.5),
+                    Wait(0.90),
+                    //changed
+                )
+            ),
             Race( null,
                 Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+1.0), Wait(1.0))
         ),
@@ -99,7 +108,7 @@ class SpecimenAuto : OpMode() {
         Wait(0.2),
 
         Parallel(
-            SwerveDrivetrain.bp2p(Pose2d(104.0, 18.0, Rotation2d.fromDegrees(90.0)), 3.0),
+            SwerveDrivetrain.bp2p(Pose2d(103.5, 16.0, Rotation2d.fromDegrees(90.0)), 3.0),
             Sequential(
                 Wait(0.30),
                 verticalSpecimenPickup
@@ -110,13 +119,13 @@ class SpecimenAuto : OpMode() {
         SwerveDrivetrain.bp2p(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 3.0),
         SwerveDrivetrain.bp2p(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 3.0),
         Parallel(
-            SwerveDrivetrain.bp2p(Pose2d(120.0, 17.5, Rotation2d.fromDegrees(-90.0)), 3.0),
+            SwerveDrivetrain.bp2p(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 3.0),
             Wait(0.8)
         ),
 
         Race(
             Wait(1.2),
-            SwerveDrivetrain.forward(DrivebaseConstants.Measurements.MAX_VELOCITY*0.1),
+            SwerveDrivetrain.forward(DrivebaseConstants.Measurements.MAX_VELOCITY*0.12),
         ),
         SwerveDrivetrain.stopCmd(),
 
@@ -125,12 +134,13 @@ class SpecimenAuto : OpMode() {
         Wait(0.200),
         Parallel(
             Elevator.pidAutoTimeout(VerticalConstants.ElevatorPositions.BOTTOM+1.0, 0.5),
-            SwerveDrivetrain.forwardTime(-0.1, 0.5)
+            SwerveDrivetrain.forwardTime(-0.13, 0.25)
         ),
         Wait(0.1),
         Parallel(
             verticalSpecimenPlace,
-            Sequential(Wait(0.1), SwerveDrivetrain.bp2p(Pose2d(74.0, 34.0, Rotation2d.fromDegrees(90.0)), 3.0)),
+            Sequential(Wait(0.1), SwerveDrivetrain.bp2p(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 1.5)),
+            //changed
         ),
         Wait(0.1),
         Deposit.open(),
@@ -147,7 +157,8 @@ class SpecimenAuto : OpMode() {
 
         SwerveDrivetrain.bp2p(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 3.0).with(Wait(0.25)),
 
-        SwerveDrivetrain.forwardTime(0.1, 1.2),
+        //changed
+        SwerveDrivetrain.forwardTime(0.13, 1.3),
 
         Wait(0.05),
         Deposit.close(),
@@ -158,8 +169,16 @@ class SpecimenAuto : OpMode() {
         ),
         Wait(0.1),
         Parallel(
-            verticalSpecimenPlace,
-            Sequential(Wait(0.1), SwerveDrivetrain.bp2p(Pose2d(70.0, 32.5, Rotation2d.fromDegrees(90.0)), 3.0)),
+            Sequential(
+                Elevator.pidAutoTimeout(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+0.5, 1.5),
+                Elevator.waitUntilAboveArm(),
+                Parallel(
+                    VerticalArm.specimen(),
+                    VerticalWrist.specimenPlace(),
+                ),
+
+            ),
+            Sequential(Wait(0.1), SwerveDrivetrain.bp2p(Pose2d(69.0, 34.5, Rotation2d.fromDegrees(90.0)), 1.5)),
         ),
 
         Wait(0.1),
@@ -242,7 +261,7 @@ class SpecimenAuto : OpMode() {
     @Config
     object specimenAutoPoses {
         @JvmField var startPose = Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))
-        @JvmField var place = Pose2d(78.0, 35.25, Rotation2d.fromDegrees(90.0))
+        @JvmField var place = Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0))
 
     }
 

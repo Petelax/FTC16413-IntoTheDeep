@@ -50,7 +50,7 @@ import org.firstinspires.ftc.teamcode.utils.LoopTimes
 @VerticalWrist.Attach
 @Deposit.Attach
 
-@Autonomous
+@Autonomous(group = "test")
 class SampleAuto : OpMode() {
     val verticalSpecimenPickup = Parallel(
         Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.BOTTOM),
