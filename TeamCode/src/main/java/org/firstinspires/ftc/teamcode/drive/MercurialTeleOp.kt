@@ -226,7 +226,7 @@ class MercurialTeleOp : OpMode() {
         mechanismGamepad.rightBumper.onTrue(Deposit.close())
         mechanismGamepad.leftBumper.onTrue(Deposit.open())
 
-        driveGamepad.y.onTrue(climb)
+        //driveGamepad.y.onTrue(climb)
 
         //telemetry.addData("state", mechanismGamepad.rightTrigger.state )
         mechanismGamepad.rightTrigger.conditionalBindState().greaterThan(0.05).bind().onTrue(Lambda("clear").addRequirements(Intake))
@@ -241,7 +241,7 @@ class MercurialTeleOp : OpMode() {
         mechanismGamepad.rightStickY.conditionalBindState().lessThan(-0.05).bind().onTrue(HorizontalExtension.disableController())
         mechanismGamepad.rightStickY.conditionalBindState().greaterThan(0.05).bind().onTrue(HorizontalExtension.disableController())
 
-        driveGamepad.a.onTrue(SwerveDrivetrain.resetHeading())
+        driveGamepad.leftStickButton.onTrue(SwerveDrivetrain.resetHeading())
 
     }
 

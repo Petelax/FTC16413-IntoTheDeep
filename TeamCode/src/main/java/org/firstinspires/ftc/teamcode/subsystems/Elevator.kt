@@ -114,7 +114,7 @@ object Elevator : Subsystem {
         targetPosition = 0.0
         controller.enabled = false
 
-        defaultCommand = drive{-opMode.opMode.gamepad2.left_stick_y.toDouble()}
+        defaultCommand = drive{-opMode.opMode.gamepad2.left_stick_y.toDouble() + if(opMode.opMode.gamepad1.right_bumper) {-1000.0} else {0.0} }
         //defaultCommand = fsm
     }
 

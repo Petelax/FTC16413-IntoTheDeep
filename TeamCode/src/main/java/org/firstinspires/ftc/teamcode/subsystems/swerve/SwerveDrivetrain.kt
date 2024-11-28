@@ -11,6 +11,7 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS
+import com.qualcomm.robotcore.hardware.configuration.LynxI2cDeviceConfiguration
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.dependency.Dependency
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
@@ -33,7 +34,9 @@ import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.Drawing
 import org.firstinspires.ftc.teamcode.utils.PIDController
 import java.lang.annotation.Inherited
+import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
+import kotlin.math.IEEErem
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -90,6 +93,8 @@ object SwerveDrivetrain : Subsystem {
     val profiledYController: ProfiledPIDController = ProfiledPIDController(c.TranslationKP, c.TranslationKI, c.TranslationKD, TrapezoidProfile.Constraints(c.MaxVelocity, c.MaxAcceleration))
     val profiledHeadingController: PIDController = PIDController(c.RotationKP, c.RotationKI, c.RotationKD)
 
+    val driveHeadingController: PIDController = PIDController(DrivebaseConstants.DriveHeadingPID.KP, DrivebaseConstants.DriveHeadingPID.KI, DrivebaseConstants.DriveHeadingPID.KD)
+
     override fun preUserInitHook(opMode: Wrapper) {
         val id = DeviceIDs
         val hardwareMap = opMode.opMode.hardwareMap
@@ -98,6 +103,7 @@ object SwerveDrivetrain : Subsystem {
         lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET)
         rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
         configureOtos()
+
 
         headingController.enableContinuousInput(-PI, PI)
 
@@ -111,10 +117,16 @@ object SwerveDrivetrain : Subsystem {
         profiledYController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
         profiledHeadingController.setTolerance(c.RotationPositionTolerance, c.RotationVelocityTolerance)
 
+        driveHeadingController.enableContinuousInput(-PI, PI)
+        driveHeadingController.setTolerance(DrivebaseConstants.DriveHeadingPID.PositionTolerance, DrivebaseConstants.DriveHeadingPID.VelocityTolerance)
+
         defaultCommand = fieldCentricDrive(
             { opMode.opMode.gamepad1.left_stick_x.toDouble() },
             { -opMode.opMode.gamepad1.left_stick_y.toDouble() },
-            { opMode.opMode.gamepad1.right_stick_x.toDouble() })
+            { opMode.opMode.gamepad1.right_stick_x.toDouble() },
+            { opMode.opMode.gamepad1.x },
+            { opMode.opMode.gamepad1.a },
+            { opMode.opMode.gamepad1.y } )
     }
 
     override fun preUserInitLoopHook(opMode: Wrapper) {
@@ -503,14 +515,31 @@ object SwerveDrivetrain : Subsystem {
             Rotation2d(getHeading())))
     }
 
-    fun fieldCentricDrive( strafeSpeed: DoubleSupplier, forwardSpeed: DoubleSupplier, turnSpeed: DoubleSupplier) : Lambda {
+    fun normalizeRadians(rads: Double): Double {
+        return rads.IEEErem(2 * Math.PI)
+    }
+
+    fun fieldCentricDrive(strafeSpeed: DoubleSupplier, forwardSpeed: DoubleSupplier, turnSpeed: DoubleSupplier, basket: BooleanSupplier, observationZone: BooleanSupplier, highRung: BooleanSupplier) : Lambda {
         return Lambda("field-centric-drive").addRequirements(SwerveDrivetrain)
             .setExecute{
+
+                var turnPower = turnSpeed.asDouble.pow(1)*DrivebaseConstants.Measurements.MAX_ANGULAR_VELOCITY
+                val totalDesiredActions = if(basket.asBoolean) {1} else {0} + if(observationZone.asBoolean) {1} else {0} + if(highRung.asBoolean) {1} else {0}
+                if (totalDesiredActions > 1) {
+                    ;
+                } else if (basket.asBoolean) {
+                    turnPower = -driveHeadingController.calculate(normalizeRadians(getHeading()), normalizeRadians(Math.toRadians(135.0)))
+                } else if (observationZone.asBoolean) {
+                    turnPower = -driveHeadingController.calculate(normalizeRadians(getHeading()), normalizeRadians(Math.toRadians(180.0)))
+                } else if (highRung.asBoolean) {
+                    turnPower = -driveHeadingController.calculate(normalizeRadians(getHeading()), normalizeRadians(Math.toRadians(0.0)))
+                }
+
                 firstOrderFieldCentricDrive(
                     ChassisSpeeds(
-                        -forwardSpeed.asDouble.pow(1) * DrivebaseConstants.Measurements.MAX_VELOCITY,
-                        strafeSpeed.asDouble.pow(1)*DrivebaseConstants.Measurements.MAX_VELOCITY,
-                        turnSpeed.asDouble.pow(1)*DrivebaseConstants.Measurements.MAX_ANGULAR_VELOCITY
+                        -forwardSpeed.asDouble.pow(3) * DrivebaseConstants.Measurements.MAX_VELOCITY,
+                        strafeSpeed.asDouble.pow(3)*DrivebaseConstants.Measurements.MAX_VELOCITY,
+                        turnPower
                     )
                 )}
             .setFinish{false}

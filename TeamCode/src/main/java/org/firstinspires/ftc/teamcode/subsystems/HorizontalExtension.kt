@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.Cache
 import java.lang.annotation.Inherited
 import java.util.function.DoubleSupplier
 import kotlin.math.abs
+import kotlin.math.pow
 
 object HorizontalExtension : Subsystem {
     @Target(AnnotationTarget.CLASS)
@@ -88,7 +89,7 @@ object HorizontalExtension : Subsystem {
         targetPosition = 0.0
         controller.enabled = false
 
-        defaultCommand = drive{-opMode.opMode.gamepad2.right_stick_y.toDouble()}
+        defaultCommand = drive{-opMode.opMode.gamepad2.right_stick_y.toDouble().pow(3.0)}
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {

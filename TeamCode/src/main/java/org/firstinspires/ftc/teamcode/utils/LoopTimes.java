@@ -64,10 +64,7 @@ public class LoopTimes implements Feature {
     }
 
     @Override
-    public void preUserInitHook(@NotNull Wrapper opMode) {
-        //startTime = System.nanoTime();
-        //lastTime = startTime;
-    }
+    public void preUserInitHook(@NotNull Wrapper opMode) { }
 
     @Override
     public void postUserInitHook(@NotNull Wrapper opMode) {
