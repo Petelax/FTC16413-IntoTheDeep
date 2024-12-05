@@ -9,6 +9,7 @@ import com.arcrobotics.ftclib.command.ParallelDeadlineGroup
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
@@ -210,14 +211,16 @@ class MercurialTestAuto : OpMode() {
     )
 
     override fun init() {
-        //SwerveDrivetrain.setPose(startPose)
+        //DrivebaseConstants.Otos.startPose = SparkFunOTOS.Pose2D(startPose.x, startPose.y, startPose.rotation.degrees)
         SwerveDrivetrain.setPose(startPose)
+        //SwerveDrivetrain.setPose(Pose2d(0.0, 0.0, Rotation2d()))
 
         VerticalArm.setPosition(VerticalConstants.VerticalArmPositions.AUTO_START)
         Deposit.setPosition(VerticalConstants.DepositPositions.IN)
         VerticalWrist.setPosition(VerticalConstants.VerticalWristPositions.INTAKE)
 
         SwerveDrivetrain.defaultCommand = SwerveDrivetrain.stopCmd()
+
         Elevator.defaultCommand = null
 
     }
@@ -227,13 +230,28 @@ class MercurialTestAuto : OpMode() {
     }
 
     override fun start() {
-        SwerveDrivetrain.setPose(startPose)
+        //SwerveDrivetrain.setPose(startPose)
 
-        auto.schedule()
-        //Sequential(
-            //SwerveDrivetrain.alignModules(place),
-            //SwerveDrivetrain.p2p(place)
-        //).schedule()
+        //auto.schedule()
+            //SwerveDrivetrain.alignModules(Pose2d(1.0, 0.0, Rotation2d())),
+
+        Sequential(
+            //SwerveDrivetrain.alignModules(Pose2d(24.0, 0.0, Rotation2d())),
+            Parallel(
+                SwerveDrivetrain.p2p(Pose2d(78.0, 24.0, Rotation2d.fromDegrees(90.0))),
+                Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE),
+                VerticalArm.specimen(),
+                VerticalWrist.specimenPlace(),
+            ),
+            Parallel(
+                SwerveDrivetrain.p2p(startPose),
+                Elevator.pidAuto(VerticalConstants.ElevatorPositions.BOTTOM),
+                VerticalArm.specimen(),
+                VerticalWrist.specimenPickup(),
+            ),
+            //SwerveDrivetrain.p2p(Pose2d(48.0, 0.0, Rotation2d())),
+            //SwerveDrivetrain.p2p(Pose2d(0.0, 0.0, Rotation2d())),
+        ).schedule()
 
     }
 

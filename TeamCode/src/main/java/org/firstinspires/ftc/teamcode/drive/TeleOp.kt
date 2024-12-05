@@ -80,7 +80,7 @@ class TeleOp: OpMode() {
         toolOp = GamepadEx(gamepad2)
 
         drive.defaultCommand =
-            org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.FieldCentricDrive(
+            FieldCentricDrive(
                 drive,
                 { driveOp.leftX },
                 { driveOp.leftY },
@@ -90,10 +90,10 @@ class TeleOp: OpMode() {
             )
 
         elevator.defaultCommand =
-            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorCommand(elevator) { toolOp.leftY }
+            ElevatorCommand(elevator) { toolOp.leftY }
 
         horizontalExtension.defaultCommand =
-            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.HorizontalExtensionCommand(
+            HorizontalExtensionCommand(
                 horizontalExtension
             ) { -toolOp.rightY }
 
@@ -129,7 +129,7 @@ class TeleOp: OpMode() {
         //GamepadButton(toolOp, GamepadKeys.Button.A).whenPressed(IntakeRun(intake))
         //GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(IntakeStop(intake))
         GamepadButton(toolOp, GamepadKeys.Button.Y).whenPressed(
-            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.PlaceSample(
+            PlaceSample(
                 horizontalExtension,
                 horizontalArm,
                 horizontalWrist,
@@ -142,14 +142,14 @@ class TeleOp: OpMode() {
         )
         //GamepadButton(toolOp, GamepadKeys.Button.X).whenPressed(HorizontalExtend(horizontalExtension, horizontalArm, horizontalWrist))
         GamepadButton(toolOp, GamepadKeys.Button.X).whenPressed(
-            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.IntakeArmRetract(
+            IntakeArmRetract(
                 horizontalArm,
                 horizontalWrist,
                 intake
             )
         )
         GamepadButton(toolOp, GamepadKeys.Button.B).whenPressed(
-            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.IntakeArmExtend(
+            IntakeArmExtend(
                 horizontalArm,
                 horizontalWrist,
                 intake
@@ -160,7 +160,7 @@ class TeleOp: OpMode() {
         GamepadButton(toolOp, GamepadKeys.Button.RIGHT_BUMPER).whenPressed(DepositCommand(deposit, VerticalConstants.DepositPositions.IN))
 
         GamepadButton(toolOp, GamepadKeys.Button.DPAD_DOWN).whenPressed(
-            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalRetract(
+            VerticalRetract(
                 elevator,
                 verticalArm,
                 verticalWrist,
@@ -168,14 +168,14 @@ class TeleOp: OpMode() {
             )
         )
         GamepadButton(toolOp, GamepadKeys.Button.DPAD_RIGHT).whenPressed(
-            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSpecimenPlace(
+            VerticalSpecimenPlace(
                 elevator,
                 verticalArm,
                 verticalWrist
             )
         )
         GamepadButton(toolOp, GamepadKeys.Button.DPAD_LEFT).whenPressed(
-            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSpecimenPickup(
+            VerticalSpecimenPickup(
                 elevator,
                 verticalArm,
                 verticalWrist
@@ -183,7 +183,7 @@ class TeleOp: OpMode() {
         )
         //GamepadButton(toolOp, GamepadKeys.Button.DPAD_UP).whenPressed(ElevatorPIDCommand(elevator, VerticalConstants.ElevatorPositions.TOP))
         GamepadButton(toolOp, GamepadKeys.Button.DPAD_UP).whenPressed(
-            org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.VerticalSample(
+            VerticalSample(
                 elevator,
                 verticalArm,
                 verticalWrist

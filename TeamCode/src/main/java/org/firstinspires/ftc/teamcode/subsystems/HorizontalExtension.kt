@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.utils.Cache
 import java.lang.annotation.Inherited
 import java.util.function.DoubleSupplier
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.pow
 
 object HorizontalExtension : Subsystem {
@@ -54,6 +55,8 @@ object HorizontalExtension : Subsystem {
 
     private var targetPosition = 0.0
     lateinit var controller: DoubleController
+    private var holdPosition = false
+    private var lastHoldPosition = true
 
     override fun preUserInitHook(opMode: Wrapper) {
         motor = opMode.opMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.HORIZONTAL_EXTENSION)
@@ -89,7 +92,7 @@ object HorizontalExtension : Subsystem {
         targetPosition = 0.0
         controller.enabled = false
 
-        defaultCommand = drive{-opMode.opMode.gamepad2.right_stick_y.toDouble().pow(3.0)}
+        defaultCommand = driveAndStop{-opMode.opMode.gamepad2.right_stick_y.toDouble().pow(3.0)}
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {
@@ -106,6 +109,39 @@ object HorizontalExtension : Subsystem {
             //.setEnd{ interrupted -> if(!interrupted) {setSpeed(0.0)} }
     }
 
+    fun spin(speed: Double): Lambda {
+        return Lambda("horizontal-spin").addRequirements(HorizontalExtension)
+            .setInit{
+                controller.enabled = false
+                setSpeed(speed)
+            }
+    }
+
+    fun driveAndStop(speed: DoubleSupplier): Lambda {
+        return Lambda("horizontal-extension-god-help-me").addRequirements(HorizontalExtension)
+            .setExecute{
+                if (holdPosition && speed.asDouble < 0.02) {
+                    //targetPosition = HorizontalConstants.HorizontalExtensionPositions.BOTTOM
+                    controller.enabled = true
+                } else if (holdPosition && speed.asDouble > 0.02) {
+                    holdPosition = false
+                    controller.enabled = false
+                    setSpeed(speed.asDouble)
+                } else if (!holdPosition && atBottom()) {
+                    holdPosition = true
+                    targetPosition = HorizontalConstants.HorizontalExtensionPositions.BOTTOM_HOLD
+                    controller.enabled = true
+                } else {
+                    controller.enabled = false
+                    setSpeed(speed.asDouble)
+                }
+
+                lastHoldPosition = holdPosition
+            }
+            .setInterruptible(true)
+
+    }
+
     fun pid(setPoint: Double): Lambda {
         return Lambda("horizontal-extension-pid").addRequirements(HorizontalExtension)
             .setInit{
@@ -120,6 +156,7 @@ object HorizontalExtension : Subsystem {
         return Lambda("cancel").addRequirements(HorizontalExtension)
             .setInit{
                 controller.enabled = false
+                holdPosition = false
             }
     }
 
@@ -167,7 +204,8 @@ object HorizontalExtension : Subsystem {
     }
 
     fun atBottom(): Boolean {
-        return atBottom
+        //return atBottom
+        return getPosition() < 1.0
     }
 
     fun getOffset(): Double {

@@ -155,14 +155,24 @@ class MercurialTeleOp : OpMode() {
 
         val sample = Sequential(
             horizontalRetract,
-            Parallel(
-                HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
-                Wait(0.500),
+            IfElse(
+                {HorizontalExtension.getPosition() > 0.5},
+                Parallel(
+                    Sequential(
+                        HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
+                        HorizontalExtension.spin(-0.3),
+                    ),
+                    Wait(0.150),
+                ),
+                Sequential()
             ),
+            HorizontalExtension.spin(-0.3),
+            Wait(0.05),
             Deposit.halfClose(),
             Intake.runIntake(),
             Wait(0.400),
             Intake.stopIntake(),
+            HorizontalExtension.spin(0.0),
             Deposit.close(),
             verticalSample
         )
@@ -249,13 +259,14 @@ class MercurialTeleOp : OpMode() {
         val packet = TelemetryPacket()
         //packet.put("elevator pid speed", Elevator.controller.velocity)
         //packet.put("elevator pid state", Elevator.controller.state)
-        packet.put("elevator pos", Elevator.getPosition())
-        packet.put("elevator target", Elevator.targetPosition)
+        //packet.put("elevator pos", Elevator.getPosition())
+        packet.put("horizontal pos", HorizontalExtension.getPosition())
+        //packet.put("elevator target", Elevator.targetPosition)
         //packet.put("elevator pid atSetPoint", Elevator.controller.finished())
-        packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
+        //packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
 
-        packet.put("pin0", Intake.getPin0())
-        packet.put("pin1", Intake.getPin1())
+        //packet.put("pin0", Intake.getPin0())
+        packet.put("intake piece", Intake.getGamePiece().name)
 
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
 

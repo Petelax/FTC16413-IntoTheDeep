@@ -70,7 +70,7 @@ class DrivebaseConstants {
         @JvmField var linearUnit = DistanceUnit.INCH
 
         @JvmField var linearScalar = 1.004 // 1.1188 // 1.011 old, 1.024 new
-        @JvmField var angularScalar = 1.0 //0.9857
+        @JvmField var angularScalar = 0.99053 //0.9857
 
         //@JvmField var startPose = SparkFunOTOS.Pose2D(78.0, 7.0, 90.0)
         @JvmField var startPose = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)
@@ -103,9 +103,9 @@ class DrivebaseConstants {
 
     @Config
     object DriveHeadingPID {
-        @JvmField var KP = 15.0
+        @JvmField var KP = 12.0 //15.0
         @JvmField var KI = 0.0
-        @JvmField var KD = 0.0
+        @JvmField var KD = 0.35
 
         @JvmField var PositionTolerance = 0.025
         @JvmField var VelocityTolerance = 1.0

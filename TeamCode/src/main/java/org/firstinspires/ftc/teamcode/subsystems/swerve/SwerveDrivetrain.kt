@@ -104,7 +104,6 @@ object SwerveDrivetrain : Subsystem {
         rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
         configureOtos()
 
-
         headingController.enableContinuousInput(-PI, PI)
 
         xController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)

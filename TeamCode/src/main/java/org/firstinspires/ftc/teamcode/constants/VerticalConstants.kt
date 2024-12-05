@@ -56,7 +56,7 @@ class VerticalConstants {
         @JvmField var specimenToIntake = 0.8
 
         @JvmField var intakeToSample = 0.3
-        @JvmField var sampleToIntake = 0.1
+        @JvmField var sampleToIntake = 0.020
     }
 
     @Config

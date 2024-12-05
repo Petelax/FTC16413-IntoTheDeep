@@ -78,17 +78,16 @@ class SpecimenAuto : OpMode() {
                 SwerveDrivetrain.alignModules(place),
                 Wait(0.65)
             ),
-            Wait(0.65)
+            Wait(0.55)
         ),
         Parallel(
             //SwerveDrivetrain.bp2p(place, 3.0),
             Sequential(
                 Wait(0.1),
-                Parallel(
-                    SwerveDrivetrain.bcp2p(place, 1.5),
-                    Wait(0.90),
-                    //changed
-                )
+                Race( null,
+                    Wait(2.0),
+                    SwerveDrivetrain.cp2p(place),
+                ),
             ),
             Race( null,
                 Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+1.0), Wait(1.0))
@@ -227,7 +226,7 @@ class SpecimenAuto : OpMode() {
     }
 
     override fun start() {
-        SwerveDrivetrain.setPose(startPose)
+        //SwerveDrivetrain.setPose(startPose)
 
         auto.schedule()
         //Sequential(
@@ -251,10 +250,10 @@ class SpecimenAuto : OpMode() {
         packet.put("rr delta", delta[3])
 
          */
-        packet.put("elevator pos", Elevator.getPosition())
-        packet.put("elevator target", Elevator.targetPosition)
-        packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
-        FtcDashboard.getInstance().sendTelemetryPacket(packet)
+        //packet.put("elevator pos", Elevator.getPosition())
+        //packet.put("elevator target", Elevator.targetPosition)
+        //packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
+        //FtcDashboard.getInstance().sendTelemetryPacket(packet)
 
     }
 
