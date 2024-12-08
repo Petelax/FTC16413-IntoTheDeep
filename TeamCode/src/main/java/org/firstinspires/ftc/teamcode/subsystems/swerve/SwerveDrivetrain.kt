@@ -33,6 +33,7 @@ import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.
 import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.Drawing
 import org.firstinspires.ftc.teamcode.utils.PIDController
+import org.firstinspires.ftc.teamcode.utils.Telemetry
 import java.lang.annotation.Inherited
 import java.util.function.BooleanSupplier
 import java.util.function.DoubleSupplier
@@ -145,6 +146,7 @@ object SwerveDrivetrain : Subsystem {
         lr.periodic()
         rr.periodic()
 
+        /*
         val packet = TelemetryPacket()
         packet.put("x", pose.x)
         packet.put("y", pose.y)
@@ -153,6 +155,8 @@ object SwerveDrivetrain : Subsystem {
         val rrPose = Pose2d(pose.x-72.0, pose.y-72.0, pose.rotation)
         Drawing.drawRobot(packet.fieldOverlay(), rrPose)
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
+         */
+        Telemetry.robotPose = pose
 
     }
 

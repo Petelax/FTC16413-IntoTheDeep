@@ -35,10 +35,13 @@ import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.BulkReads
 import org.firstinspires.ftc.teamcode.utils.LoopTimes
+import org.firstinspires.ftc.teamcode.utils.Telemetry
+import org.firstinspires.ftc.teamcode.utils.pathing.CurvePoint
 
 @Mercurial.Attach
 @BulkReads.Attach
 @LoopTimes.Attach
+@Telemetry.Attach
 
 @SwerveDrivetrain.Attach
 
@@ -122,6 +125,8 @@ class SpecimenAuto : OpMode() {
             Wait(0.8)
         ),
 
+        Lambda("print-path").setInit{Telemetry.path = second},
+
         Race(
             Wait(1.2),
             SwerveDrivetrain.forward(DrivebaseConstants.Measurements.MAX_VELOCITY*0.12),
@@ -180,6 +185,8 @@ class SpecimenAuto : OpMode() {
             Sequential(Wait(0.1), SwerveDrivetrain.bp2p(Pose2d(69.0, 34.5, Rotation2d.fromDegrees(90.0)), 1.5)),
         ),
 
+        Lambda("print-path").setInit{Telemetry.path = third},
+
         Wait(0.1),
         Deposit.open(),
         Wait(0.1),
@@ -219,7 +226,34 @@ class SpecimenAuto : OpMode() {
         SwerveDrivetrain.defaultCommand = SwerveDrivetrain.stopCmd()
         Elevator.defaultCommand = null
 
+
+        Telemetry.path = first
+
     }
+
+    private val first = listOf(
+        CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(103.5, 16.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+    )
+
+    private val second = listOf(
+        CurvePoint(Pose2d(120.0, 7.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(104.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(120.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(129.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        )
+
+    private val third = listOf(
+        CurvePoint(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(69.0, 34.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(120.0, 12.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        )
 
     override fun init_loop() {
 
@@ -237,12 +271,6 @@ class SpecimenAuto : OpMode() {
     }
 
     override fun loop() {
-        val packet = TelemetryPacket()
-        val pose = SwerveDrivetrain.getPose()
-        val delta = SwerveDrivetrain.getDelta()
-        //packet.put("x", pose.x)
-        //packet.put("y", pose.y)
-        //packet.put("heading", pose.heading)
         /*
         packet.put("lf delta", delta[0])
         packet.put("rf delta", delta[1])

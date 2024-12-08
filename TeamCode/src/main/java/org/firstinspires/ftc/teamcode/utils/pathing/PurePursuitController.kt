@@ -33,7 +33,44 @@ object PurePursuitController: Feature {
         turnPID.setTolerance(DrivebaseConstants.PIDToPosition.RotationPositionTolerance, DrivebaseConstants.PIDToPosition.RotationVelocityTolerance)
     }
 
-    fun goToPosition(currentPose: Pose2d, x: Double, y: Double, movementSpeed: Double, targetAngle: Double, turnSpeed: Double): ChassisSpeeds {
+    fun followPath(pathPoint: List<CurvePoint>, currentPose: Pose2d): ChassisSpeeds {
+        val followPoint = getFollowPointPath(pathPoint, currentPose, pathPoint[0].followDistance)
+        return goToPosition(currentPose, followPoint.pose, followPoint.moveSpeed, followPoint.turnSpeed)
+    }
+
+    fun getFollowPointPath(curvePoints: List<CurvePoint>, currentPose: Pose2d, followRadius: Double): CurvePoint {
+        val followPoint = CurvePoint(curvePoints[0])
+
+        for (i in 0 until curvePoints.size - 1) {
+            val startLine = curvePoints[i]
+            val endLine = curvePoints[i+1]
+
+            val intersections = lineCircleIntersection(currentPose.translation, followRadius, startLine.toTranslation2d(), endLine.toTranslation2d())
+
+            var closestAngle = Double.MAX_VALUE
+
+            intersections.forEach{ intersection ->
+                val angle = atan2(intersection.y-currentPose.y, intersection.x-currentPose.x)
+                val deltaAngle = (MathUtil.angleModulus(angle - currentPose.rotation.radians))
+
+                if (deltaAngle < closestAngle) {
+                    closestAngle = deltaAngle
+                    followPoint.setTranslation2d(intersection)
+                }
+            }
+
+            //TODO: when there's no intersection
+            //TODO: picking the most forward point
+
+        }
+
+        return followPoint
+    }
+
+    fun goToPosition(currentPose: Pose2d, targetPose: Pose2d, movementSpeed: Double, turnSpeed: Double): ChassisSpeeds {
+        val x = targetPose.x
+        val y = targetPose.y
+        val targetAngle = targetPose.rotation.radians
         val distancetoTarget = hypot(x-currentPose.x, y-currentPose.y)
         val absoluteAngleToTarget = atan2(y-currentPose.y, x-currentPose.y)
         val relativeAngleToTarget = MathUtil.angleModulus(absoluteAngleToTarget - currentPose.rotation.radians)
@@ -46,7 +83,7 @@ object PurePursuitController: Feature {
 
         val turnPower = turnPID.calculate(currentPose.heading, targetAngle) * turnSpeed
 
-        return ChassisSpeeds(xPower*DrivebaseConstants.Measurements.MAX_VELOCITY, yPower*DrivebaseConstants.Measurements.MAX_VELOCITY, turnPower)
+        return ChassisSpeeds(xPower*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed, yPower*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed, turnPower)
     }
 
     fun lineCircleIntersection(circleCenter: Translation2d, radius: Double, linePoint1: Translation2d, linePoint2: Translation2d): List<Translation2d> {

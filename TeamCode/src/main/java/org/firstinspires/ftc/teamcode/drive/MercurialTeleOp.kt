@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.drive
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
+import com.arcrobotics.ftclib.geometry.Pose2d
+import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import dev.frozenmilk.dairy.pasteurized.SDKGamepad
@@ -27,10 +29,13 @@ import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.BulkReads
 import org.firstinspires.ftc.teamcode.utils.LoopTimes
+import org.firstinspires.ftc.teamcode.utils.Telemetry
+import org.firstinspires.ftc.teamcode.utils.pathing.CurvePoint
 
 @Mercurial.Attach
 @BulkReads.Attach
 @LoopTimes.Attach
+@Telemetry.Attach
 
 @SwerveDrivetrain.Attach
 
@@ -47,7 +52,6 @@ import org.firstinspires.ftc.teamcode.utils.LoopTimes
 @TeleOp
 class MercurialTeleOp : OpMode() {
     override fun init() {
-        telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
         val mechanismGamepad = BoundGamepad(SDKGamepad(gamepad2))
         val driveGamepad = BoundGamepad(SDKGamepad(gamepad1))
 
@@ -55,7 +59,7 @@ class MercurialTeleOp : OpMode() {
         //mechanismGamepad.dpadDown.onTrue(Parallel(VerticalArm.intake(), VerticalWrist.intake(), Deposit.open()))
 
         val verticalSample = Parallel(
-            Lambda("print").setInit{telemetry.addLine("help me"); telemetry.update()},
+            Telemetry.putCommand("help", "me"),
             Elevator.pid(VerticalConstants.ElevatorPositions.TOP),
             Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.TOP),
             Sequential(
@@ -207,9 +211,9 @@ class MercurialTeleOp : OpMode() {
                 VerticalArm.sample()
             ),
             Wait(0.2),
-            Lambda("delete").addRequirements(Elevator).setInit{Elevator.defaultCommand = null},
-            Elevator.cancel(),
-            Elevator.climb { driveGamepad.rightTrigger.state - driveGamepad.leftTrigger.state }
+            //Lambda("delete").addRequirements(Elevator).setInit{Elevator.defaultCommand = null},
+            //Elevator.cancel(),
+            //Elevator.climb { driveGamepad.rightTrigger.state - driveGamepad.leftTrigger.state }
 
         )
 
@@ -236,7 +240,7 @@ class MercurialTeleOp : OpMode() {
         mechanismGamepad.rightBumper.onTrue(Deposit.close())
         mechanismGamepad.leftBumper.onTrue(Deposit.open())
 
-        //driveGamepad.y.onTrue(climb)
+        driveGamepad.leftBumper.onTrue(climb)
 
         //telemetry.addData("state", mechanismGamepad.rightTrigger.state )
         mechanismGamepad.rightTrigger.conditionalBindState().greaterThan(0.05).bind().onTrue(Lambda("clear").addRequirements(Intake))
@@ -253,22 +257,42 @@ class MercurialTeleOp : OpMode() {
 
         driveGamepad.leftStickButton.onTrue(SwerveDrivetrain.resetHeading())
 
+        //Telemetry.points.add(Pose2d(72.0, 72.0, Rotation2d(0.0)))
+        //Telemetry.points.add(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)))
+        /*
+        val path = listOf(
+            CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(103.5, 16.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(104.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(120.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(129.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(69.0, 34.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+            CurvePoint(Pose2d(120.0, 12.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        )
+
+        Telemetry.path = path
+         */
+
     }
 
     override fun loop() {
-        val packet = TelemetryPacket()
+
         //packet.put("elevator pid speed", Elevator.controller.velocity)
         //packet.put("elevator pid state", Elevator.controller.state)
         //packet.put("elevator pos", Elevator.getPosition())
-        packet.put("horizontal pos", HorizontalExtension.getPosition())
+        Telemetry.put("horizontal pos", HorizontalExtension.getPosition())
         //packet.put("elevator target", Elevator.targetPosition)
         //packet.put("elevator pid atSetPoint", Elevator.controller.finished())
         //packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
 
         //packet.put("pin0", Intake.getPin0())
-        packet.put("intake piece", Intake.getGamePiece().name)
-
-        FtcDashboard.getInstance().sendTelemetryPacket(packet)
+        Telemetry.put("intake piece", Intake.getGamePiece().name)
 
     }
 

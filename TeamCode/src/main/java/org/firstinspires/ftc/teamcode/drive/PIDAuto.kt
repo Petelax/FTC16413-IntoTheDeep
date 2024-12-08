@@ -151,7 +151,7 @@ class PIDAuto: CommandOpMode() {
 
         packet.put("ms", (currentTime-lastTime)/1E6)
         packet.fieldOverlay().setStroke("#3F51B5")
-        Drawing.drawRobot(packet.fieldOverlay(), pose)
+        //Drawing.drawRobot(packet.fieldOverlay(), pose)
         dashboard.sendTelemetryPacket(packet)
         telemetry.update()
 
