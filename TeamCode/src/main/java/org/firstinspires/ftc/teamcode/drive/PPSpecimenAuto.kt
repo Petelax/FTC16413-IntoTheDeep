@@ -18,6 +18,7 @@ import dev.frozenmilk.mercurial.commands.groups.Parallel
 import dev.frozenmilk.mercurial.commands.groups.Race
 import dev.frozenmilk.mercurial.commands.groups.Sequential
 import dev.frozenmilk.mercurial.commands.util.IfElse
+import dev.frozenmilk.mercurial.commands.util.StateMachine
 import dev.frozenmilk.mercurial.commands.util.Wait
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
@@ -37,6 +38,7 @@ import org.firstinspires.ftc.teamcode.utils.BulkReads
 import org.firstinspires.ftc.teamcode.utils.LoopTimes
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.utils.pathing.CurvePoint
+import org.firstinspires.ftc.teamcode.utils.pathing.PurePursuitController
 
 @Mercurial.Attach
 @BulkReads.Attach
@@ -217,19 +219,26 @@ class PPSpecimenAuto : OpMode() {
 
     override fun init() {
         //SwerveDrivetrain.setPose(startPose)
-        SwerveDrivetrain.setPose(startPose)
+        //SwerveDrivetrain.setPose(startPose)
 
-        VerticalArm.setPosition(VerticalConstants.VerticalArmPositions.AUTO_START)
-        Deposit.setPosition(VerticalConstants.DepositPositions.IN)
-        VerticalWrist.setPosition(VerticalConstants.VerticalWristPositions.INTAKE)
+        //VerticalArm.setPosition(VerticalConstants.VerticalArmPositions.AUTO_START)
+        //Deposit.setPosition(VerticalConstants.DepositPositions.IN)
+        //VerticalWrist.setPosition(VerticalConstants.VerticalWristPositions.INTAKE)
 
         SwerveDrivetrain.defaultCommand = SwerveDrivetrain.stopCmd()
         Elevator.defaultCommand = null
 
 
-        Telemetry.path = first
+        Telemetry.path = path
+        //Telemetry.points.add( Pose2d(48.0, 0.0, Rotation2d()) )
 
     }
+
+    private val path = listOf(
+        CurvePoint(Pose2d(0.0, 0.0, Rotation2d()), 0.2, 0.05, 6.0),
+        CurvePoint(Pose2d(48.0, 1.0, Rotation2d()), 0.2, 0.05, 6.0),
+        //CurvePoint(Pose2d(48.0, 24.0, Rotation2d()), 0.2, 0.05, 6.0),
+    )
 
     private val first = listOf(
         CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
@@ -262,7 +271,8 @@ class PPSpecimenAuto : OpMode() {
     override fun start() {
         //SwerveDrivetrain.setPose(startPose)
 
-        auto.schedule()
+        //auto.schedule()
+        PurePursuitController.followPathCommand(path).schedule()
         //Sequential(
             //SwerveDrivetrain.alignModules(place),
             //SwerveDrivetrain.p2p(place)

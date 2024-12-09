@@ -213,16 +213,16 @@ object SwerveDrivetrain : Subsystem {
                 var headingFeedback = -headingController.calculate(currentPose.rotation.radians, setPoint.rotation.radians)
                 headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
 
-                val n = max(xFeedback, max(yFeedback, headingFeedback))
+                val n = max(xFeedback, yFeedback)
 
                 if (n > DrivebaseConstants.PIDToPosition.MaxVelocity) {
                     xFeedback /= n
                     yFeedback /= n
-                    headingFeedback /= n
+                    //headingFeedback /= n
 
                     xFeedback *= DrivebaseConstants.PIDToPosition.MaxVelocity
                     yFeedback *= DrivebaseConstants.PIDToPosition.MaxVelocity
-                    headingFeedback *= DrivebaseConstants.PIDToPosition.MaxVelocity
+                    //headingFeedback *= DrivebaseConstants.PIDToPosition.MaxVelocity
                 }
 
                 firstOrderFieldCentricDrive(ChassisSpeeds(xFeedback, yFeedback, headingFeedback))
