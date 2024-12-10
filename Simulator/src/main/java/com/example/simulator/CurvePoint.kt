@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.utils.pathing
+package com.example.simulator
 
-import com.arcrobotics.ftclib.geometry.Pose2d
-import com.arcrobotics.ftclib.geometry.Translation2d
-import com.arcrobotics.ftclib.geometry.Vector2d
+import com.example.simulator.geometry.Pose2d
+import com.example.simulator.geometry.Translation2d
+import com.example.simulator.geometry.Vector2d
 
 data class CurvePoint(
     var pose: Pose2d,

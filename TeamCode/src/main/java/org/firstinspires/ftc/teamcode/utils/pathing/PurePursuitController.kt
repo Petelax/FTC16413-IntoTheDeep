@@ -20,6 +20,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.atan2
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.max
@@ -42,6 +43,8 @@ object PurePursuitController {
 
     val path: List<CurvePoint> = listOf()
 
+    var lastIndex = 0.0
+
     init {
         headingController.enableContinuousInput(-PI, PI)
         headingController.setTolerance(DrivebaseConstants.PIDToPosition.RotationPositionTolerance, DrivebaseConstants.PIDToPosition.RotationVelocityTolerance)
@@ -52,7 +55,7 @@ object PurePursuitController {
     fun followPathCommand(path: List<CurvePoint>): Lambda {
         return Lambda("follow-path").addRequirements(SwerveDrivetrain)
             .setInit{
-
+                lastIndex = 0.0
             }
             .setExecute{
                 SwerveDrivetrain.firstOrderFieldCentricDrive(
@@ -71,44 +74,105 @@ object PurePursuitController {
 
     fun followPath(pathPoints: List<CurvePoint>, currentPose: Pose2d): ChassisSpeeds {
         assert(pathPoints.size >= 2)
-        val followPoint = getFollowPointPath(pathPoints, currentPose, pathPoints[0].followDistance)
-        return goToPosition(currentPose, followPoint.pose, followPoint.moveSpeed, followPoint.turnSpeed)
+        val followPoint = getFollowPointPath(pathPoints, currentPose, pathPoints[0].followDistance, lastIndex)
+        lastIndex = followPoint.second
+        Telemetry.put("lastIndex", lastIndex)
+        return goToPosition(currentPose, followPoint.first.pose, followPoint.first.moveSpeed, followPoint.first.turnSpeed)
     }
 
-    fun getFollowPointPath(curvePoints: List<CurvePoint>, currentPose: Pose2d, followRadius: Double): CurvePoint {
-        var followPoint = curvePoints[0].copy()
+    /**
+     * @param E starting point of line
+     * @param L ending point of line
+     * @param t fractional index
+     */
+    fun fractionalIndexToPoint(E: Vector2d, L: Vector2d, t: Double) : Vector2d {
+        val d = L - E
 
-        for (i in 0 until curvePoints.size - 1) {
+        return E + (d * t)
+    }
+
+    /**
+     * @return first curvepoint, second index
+     */
+    fun getFollowPointPath(curvePoints: List<CurvePoint>, currentPose: Pose2d, followRadius: Double, lastFoundIndex: Double): Pair<CurvePoint, Double> {
+        var intersections: MutableList<Pair<Vector2d, Double>> = mutableListOf()
+
+        for (i in lastFoundIndex.toInt() until curvePoints.size - 1) {
             val startLine = curvePoints[i].copy()
             val endLine = curvePoints[i+1].copy()
 
-            val intersections = lineCircleIntersection(Vector2d(currentPose.x, currentPose.y), followRadius, startLine.getVector2d(), endLine.getVector2d())
-
-            if (intersections.isNotEmpty()) {
-                Telemetry.put("success", "")
-            }
-
-            var closestAngle = Double.MAX_VALUE
-
-            intersections.forEach{ intersection ->
-                val angle = atan2(intersection.y-currentPose.y, intersection.x-currentPose.x)
-                val deltaAngle = (MathUtil.angleModulus(angle - currentPose.rotation.radians))
-
-                if (closestAngle > deltaAngle) {
-                    closestAngle = deltaAngle
-                    followPoint.pose = Pose2d(intersection.x, intersection.y, followPoint.pose.rotation)
+            lineCircleIntersection(Vector2d(currentPose.x, currentPose.y), followRadius, startLine.getVector2d(), endLine.getVector2d()).forEach { pair: Pair<Vector2d, Double> ->
+                if (pair.second > lastFoundIndex) {
+                    intersections.add(pair)
                 }
             }
 
-            Telemetry.put("follow point x", followPoint.pose.x)
-            Telemetry.put("follow point y", followPoint.pose.y)
+            /*
+            when (intersections.size) {
+                2 -> {
+                    val currentIndex = max(lastFoundIndex, max(intersections[0].second+i, intersections[1].second+i))
+                    //val vec = fractionalIndexToPoint(startLine.getVector2d(), endLine.getVector2d(), currentIndex)
+
+                    when (currentIndex) {
+                        lastFoundIndex -> {
+                            return Pair(curvePoints[lastFoundIndex.toInt()+1].copy(), lastFoundIndex)
+                        }
+                        intersections[0].second+i -> {
+                            val curvePoint = endLine.copy(pose = Pose2d(intersections[0].first.x, intersections[0].first.y, endLine.pose.rotation))
+                            return Pair(curvePoint, intersections[0].second+i)
+                        }
+                        intersections[1].second+i -> {
+                            val curvePoint = endLine.copy(pose = Pose2d(intersections[1].first.x, intersections[1].first.y, endLine.pose.rotation))
+                            return Pair(curvePoint, intersections[1].second+i)
+
+                        }
+                        else -> {
+                            throw Exception("aint no way bro")
+                        }
+                    }
+
+                }
+                1 -> {
+                    val currentIndex = max(lastFoundIndex, intersections[0].second+i)
+                    //val vec = fractionalIndexToPoint(startLine.getVector2d(), endLine.getVector2d(), currentIndex)
+
+                    when (currentIndex) {
+                        lastFoundIndex -> {
+                            return Pair(curvePoints[lastFoundIndex.toInt()+1].copy(), lastFoundIndex)
+                        }
+                        intersections[0].second+i -> {
+                            val curvePoint = endLine.copy(pose = Pose2d(intersections[0].first.x, intersections[0].first.y, endLine.pose.rotation))
+                            return Pair(curvePoint, intersections[0].second+i)
+                        }
+                        else -> {
+                            throw Exception("aint no way bro")
+                        }
+                    }
+
+
+                }
+                else -> {
+                    val vec = fractionalIndexToPoint(startLine.getVector2d(), endLine.getVector2d(), lastFoundIndex)
+                    return Pair(endLine.copy(pose = Pose2d(vec.x, vec.y, endLine.pose.rotation)), lastFoundIndex)
+                }
+            }
+
+             */
 
             //TODO: when there's no intersection
             //TODO: picking the most forward point
 
         }
 
-        return followPoint
+        if (intersections.isNotEmpty()) {
+            intersections.sortBy { it.second }
+            val pair = intersections[0]
+            val nextCurvePoint = curvePoints[ceil(pair.second).toInt()]
+            return Pair(nextCurvePoint.copy(pose = Pose2d(pair.first.x, pair.first.y, nextCurvePoint.pose.rotation)), pair.second)
+        }
+
+        return Pair(curvePoints.last(), lastFoundIndex)
+
     }
 
     /*
@@ -133,7 +197,6 @@ object PurePursuitController {
 
      */
     fun goToPosition(currentPose: Pose2d, targetPose: Pose2d, movementSpeed: Double, turnSpeed: Double): ChassisSpeeds {
-        val currentPose = SwerveDrivetrain.getPose()
         var xFeedback = -xController.calculate(currentPose.x, targetPose.x)
         xFeedback += xFeedback.sign * DrivebaseConstants.PIDToPosition.KF
         xFeedback /= DrivebaseConstants.Measurements.MAX_VELOCITY
@@ -143,14 +206,23 @@ object PurePursuitController {
         var headingFeedback = -headingController.calculate(currentPose.rotation.radians, targetPose.rotation.radians)
         headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
 
-        xFeedback /= (xFeedback.absoluteValue + yFeedback.absoluteValue)
-        yFeedback /= (xFeedback.absoluteValue + yFeedback.absoluteValue)
+        if (hypot(xFeedback, yFeedback) > movementSpeed) {
+            xFeedback /= (xFeedback.absoluteValue + yFeedback.absoluteValue)
+            yFeedback /= (xFeedback.absoluteValue + yFeedback.absoluteValue)
+        }
 
         return ChassisSpeeds(xFeedback*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed, yFeedback*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed, headingFeedback*turnSpeed)
     }
 
-
-    fun lineCircleIntersection(C: Vector2d, r: Double, E: Vector2d, L: Vector2d): List<Vector2d> {
+    /**
+     * @param C center of circle
+     * @param r circle radius
+     * @param E starting point of line
+     * @param L ending point of line
+     *
+     * @return list of pairs with (point, index)
+     */
+    fun lineCircleIntersection(C: Vector2d, r: Double, E: Vector2d, L: Vector2d): List<Pair<Vector2d, Double>> {
         val d = L - E
         val f = E - C
 
@@ -159,7 +231,7 @@ object PurePursuitController {
         val c = f.dot(f) - r*r
         var discriminant = b*b - 4*a*c
 
-        var results: MutableList<Double> = mutableListOf()
+        var indices: MutableList<Double> = mutableListOf()
 
         if (discriminant < 0) {
             println("no intersection")
@@ -170,22 +242,30 @@ object PurePursuitController {
             val t2 = (-b + discriminant)/(2*a)
 
             if (t1 in 0.0..1.0) {
-                results.add(t1)
+                indices.add(t1)
             }
             if (t2 in 0.0..1.0) {
-                results.add(t2)
+                indices.add(t2)
             }
 
         }
 
-        var points: MutableList<Vector2d> = emptyList<Vector2d>().toMutableList()
 
-        results.forEach { t ->
+        val maxX = max(E.x, L.x)
+        val minX = min(E.x, L.x)
+        val maxY = max(E.y, L.y)
+        val minY = min(E.y, L.y)
+
+        val results: MutableList<Pair<Vector2d, Double>> = mutableListOf()
+
+        indices.forEach { t ->
             val point = E + (d * t)
-            points.add(point)
+            if (point.x in minX..maxX && point.y in minY..maxY) {
+                results.add(Pair(point, t))
+            }
         }
 
-        return points
+        return results
 
     }
 

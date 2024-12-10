@@ -114,6 +114,12 @@ android {
         jniLibs.srcDir rootProject.file('libs')
     }
     ndkVersion '21.3.6528147'
+
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
 }
 
 repositories {

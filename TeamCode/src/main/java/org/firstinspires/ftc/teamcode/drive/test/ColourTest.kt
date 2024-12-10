@@ -17,7 +17,7 @@ class ColourTest: OpMode() {
     private lateinit var hubs: List<LynxModule>
     private lateinit var elapsedtime: ElapsedTime
     private lateinit var gamepad: GamepadEx
-    private lateinit var color: RevColorSensorV3
+    //private lateinit var color: RevColorSensorV3
     //private lateinit var intake: Intake
     private lateinit var pin0: AnalogInput
     private lateinit var pin1: AnalogInput
@@ -34,7 +34,7 @@ class ColourTest: OpMode() {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL
         }
 
-        color = hardwareMap.get(RevColorSensorV3::class.java, "color")
+        //color = hardwareMap.get(RevColorSensorV3::class.java, "color")
         //intake = Intake(hardwareMap)
 
         pin0 = hardwareMap.analogInput.get("encoderLF")
@@ -60,6 +60,7 @@ class ColourTest: OpMode() {
         //telemetry.addData("blue", intake.getBlue())
         //telemetry.addData("distance", intake.getDistance())
 
+        /*
         val colors = color.normalizedColors
         telemetry.addData("red", colors.red)
         telemetry.addData("blue", colors.blue)
@@ -67,11 +68,13 @@ class ColourTest: OpMode() {
         telemetry.addData("alpha", colors.alpha)
         telemetry.addData("distance", color.getDistance(DistanceUnit.MM))
 
+         */
+
         //telemetry.addData("state", intake.getGamePiece().name)
-        telemetry.addData("0", pin0.voltage * 255.0/3.3)
-        telemetry.addData("1", pin1.voltage * 255.0/3.3)
-        telemetry.addData("2", pin2.voltage * 255.0/3.3)
-        telemetry.addData("3", pin3.voltage * 255.0/3.3)
+        telemetry.addData("0", pin0.voltage / 3.3 * 100.0)
+        telemetry.addData("1", pin1.voltage / 3.3 * 100.0)
+        telemetry.addData("2", pin2.voltage / 3.3 * 100.0)
+        telemetry.addData("3", pin3.voltage / 3.3 * 100.0)
 
         telemetry.addData("ms", elapsedtime.milliseconds())
         telemetry.update()

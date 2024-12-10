@@ -218,7 +218,7 @@ class PPSpecimenAuto : OpMode() {
     )
 
     override fun init() {
-        //SwerveDrivetrain.setPose(startPose)
+        SwerveDrivetrain.setPose(startPose)
         //SwerveDrivetrain.setPose(startPose)
 
         //VerticalArm.setPosition(VerticalConstants.VerticalArmPositions.AUTO_START)
@@ -229,39 +229,39 @@ class PPSpecimenAuto : OpMode() {
         Elevator.defaultCommand = null
 
 
-        Telemetry.path = path
+        Telemetry.path = first
         //Telemetry.points.add( Pose2d(48.0, 0.0, Rotation2d()) )
 
     }
 
     private val path = listOf(
-        CurvePoint(Pose2d(0.0, 0.0, Rotation2d()), 0.2, 0.05, 6.0),
-        CurvePoint(Pose2d(48.0, 1.0, Rotation2d()), 0.2, 0.05, 6.0),
-        //CurvePoint(Pose2d(48.0, 24.0, Rotation2d()), 0.2, 0.05, 6.0),
+        CurvePoint(Pose2d(0.0, 0.0, Rotation2d()), 1.0, 0.5, 20.0),
+        CurvePoint(Pose2d(48.0, 0.0, Rotation2d()), 1.0, 0.5, 20.0),
+        CurvePoint(Pose2d(48.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 0.5, 12.0),
     )
 
     private val first = listOf(
-        CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(103.5, 16.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 0.5, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 0.4, 1.0, 6.0),
+        CurvePoint(Pose2d(103.5, 24.0, Rotation2d.fromDegrees(90.0)), 0.4, 1.0, 2.0),
+        CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 0.4, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 0.4, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
     )
 
     private val second = listOf(
-        CurvePoint(Pose2d(120.0, 7.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(104.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(120.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(129.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(120.0, 7.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(104.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(120.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(129.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
         )
 
     private val third = listOf(
-        CurvePoint(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(69.0, 34.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
-        CurvePoint(Pose2d(120.0, 12.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0, 1.0, 1.0, 1.0),
+        CurvePoint(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(69.0, 34.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(120.0, 12.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         )
 
     override fun init_loop() {
@@ -272,7 +272,7 @@ class PPSpecimenAuto : OpMode() {
         //SwerveDrivetrain.setPose(startPose)
 
         //auto.schedule()
-        PurePursuitController.followPathCommand(path).schedule()
+        PurePursuitController.followPathCommand(first).schedule()
         //Sequential(
             //SwerveDrivetrain.alignModules(place),
             //SwerveDrivetrain.p2p(place)

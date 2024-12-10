@@ -1,5 +1,6 @@
 package com.example.simulator
 
+import com.example.simulator.geometry.Pose2d
 import com.example.simulator.geometry.Rotation2d
 import com.example.simulator.geometry.Translation2d
 import com.example.simulator.geometry.Vector2d
@@ -8,6 +9,7 @@ import javafx.application.Application.launch
 import javafx.scene.Scene
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
@@ -24,6 +26,7 @@ class Simulator : Application() {
         Pair(72.0, 24.0),
         Pair(104.0, 80.0),
     )
+    /*
     override fun start(primaryStage: Stage) {
         val field = Image(javaClass.getResourceAsStream("/images/field.png"))
 
@@ -88,10 +91,77 @@ class Simulator : Application() {
         this.centerY = (y / 144.0) * height
     }
 
+     */
+    override fun start(primaryStage: Stage) {
+        // Create a pane to hold everything
+        val pane = Pane()
+
+        // Load the background image
+        val bgImage = Image(javaClass.getResourceAsStream("/images/field.png"))  // Replace with the path to your image
+        val imageView = ImageView(bgImage)
+
+        // Set the fixed size of the image to match the desired graph area
+        imageView.fitWidth = 1080.0
+        imageView.fitHeight = 1080.0
+        imageView.rotate = -90.0
+
+        // Add the background image to the pane
+        pane.children.add(imageView)
+
+        // Plot the points (example points)
+        /*
+        val points = listOf(Pair(100.0, 200.0), Pair(300.0, 400.0), Pair(500.0, 100.0), Pair(700.0, 500.0), Pair(540.0, 540.0))
+        for (point in points) {
+            val circle = Circle(point.first, point.second, 10.0)  // Create a circle at the given point
+            circle.fill = Color.RED  // Set the color of the point
+            pane.children.add(circle)  // Add the point to the pane
+        }
+
+         */
+        graphPath(pane, first)
+
+        // Create the scene with the fixed size
+        val scene = Scene(pane, 1080.0, 1080.0)
+
+        // Set up the stage
+        primaryStage.title = "sim"
+        primaryStage.scene = scene
+        primaryStage.show()
+    }
+
+    private val first = listOf(
+        CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 0.5, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 0.4, 1.0, 6.0),
+        CurvePoint(Pose2d(103.5, 24.0, Rotation2d.fromDegrees(90.0)), 0.4, 1.0, 2.0),
+        CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 0.4, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 0.4, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+    )
+
+    fun graphPath(pane: Pane, path: List<CurvePoint>) {
+        for (point in path) {
+            val pose = point.pose
+            val circle = Circle(toPx(((72.0-pose.y))+72.0), toPx(((72.0-pose.x))+72.0), toPx(2.0))  // Create a circle at the given point
+            //val circle = Circle(toPx(pose.y), toPx(pose.x), toPx(2.0))  // Create a circle at the given point
+            //val circle1 = Circle(540.0, 540.0, 10.0)  // Create a circle at the given point
+            circle.fill = Color.color(0.73, 0.02, 0.99) //Color.PURPLE  // Set the color of the point
+            //circle1.fill = Color.PURPLE  // Set the color of the point
+            pane.children.add(circle)  // Add the point to the pane
+            //pane.children.add(circle1)
+        }
+
+    }
+
+    fun toPx(n: Double) : Double {
+        return (n/144.0) * 1080.0
+    }
+
+
 }
 
 fun main(args: Array<String>) {
-    println("test")
+    /*
+    println("targets: ")
 
     val results = lineCircleIntersection(Vector2d(12.0, 0.0), 3.0, Vector2d(0.0, 0.0), Vector2d(48.0, 0.0))
 
@@ -100,11 +170,25 @@ fun main(args: Array<String>) {
         println("y " + i + ": "+ point.y)
     }
 
-    //launch(Simulator::class.java)
+     */
+    launch(Simulator::class.java)
 
 }
 
+fun distance(a: Vector2d, b: Vector2d): Double {
+    val deltaX = b.x - a.x
+    val deltaY = b.y - a.y
+    val distance = sqrt(deltaX*deltaX + deltaY*deltaY)
+    return distance
+}
 
+
+/**
+ * @param C center of circle
+ * @param r circle radius
+ * @param E starting point of line
+ * @param L ending point of line
+ */
 fun lineCircleIntersection(C: Vector2d, r: Double, E: Vector2d, L: Vector2d): List<Vector2d> {
     val d = L - E
     val f = E - C
@@ -135,9 +219,16 @@ fun lineCircleIntersection(C: Vector2d, r: Double, E: Vector2d, L: Vector2d): Li
 
     var points: MutableList<Vector2d> = emptyList<Vector2d>().toMutableList()
 
+    val maxX = max(E.x, L.x)
+    val minX = min(E.x, L.x)
+    val maxY = max(E.y, L.y)
+    val minY = min(E.y, L.y)
+
     results.forEach { t ->
         val point = E + (d * t)
-        points.add(point)
+        if (point.x in minX..maxX && point.y in minY..maxY) {
+            points.add(point)
+        }
     }
 
     return points
