@@ -1,15 +1,7 @@
-package org.firstinspires.ftc.teamcode.utils.pathing
+package com.example.simulator
 
-import com.arcrobotics.ftclib.controller.PIDFController
-import com.arcrobotics.ftclib.geometry.Pose2d
-import com.arcrobotics.ftclib.geometry.Vector2d
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
-import dev.frozenmilk.mercurial.commands.Lambda
-import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain.c
-import org.firstinspires.ftc.teamcode.utils.PIDController
-import org.firstinspires.ftc.teamcode.utils.Telemetry
+import com.example.simulator.geometry.Pose2d
+import com.example.simulator.geometry.Vector2d
 import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
@@ -21,14 +13,6 @@ import kotlin.math.sqrt
 
 object PurePursuitController {
     //override var dependency: Dependency<*> = Dependency { opMode: Wrapper, resolvedFeatures: List<Feature>, yielding: Boolean ->  }
-    val headingController = PIDController(
-        DrivebaseConstants.PIDToPosition.RotationKP,
-        DrivebaseConstants.PIDToPosition.RotationKI,
-        DrivebaseConstants.PIDToPosition.RotationKD
-    )
-
-    val xController: PIDFController = PIDFController(c.TranslationKP, c.TranslationKI, c.TranslationKD, 0.0)
-    val yController: PIDFController = PIDFController(c.TranslationKP, c.TranslationKI, c.TranslationKD, 0.0)
 
     val path: List<CurvePoint> = listOf()
 
@@ -36,42 +20,6 @@ object PurePursuitController {
     var lastPoint = CurvePoint()
 
 
-    init {
-        headingController.enableContinuousInput(-PI, PI)
-        headingController.setTolerance(DrivebaseConstants.PIDToPosition.RotationPositionTolerance, DrivebaseConstants.PIDToPosition.RotationVelocityTolerance)
-        xController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
-        yController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
-    }
-
-    fun followPathCommand(path: List<CurvePoint>): Lambda {
-        return Lambda("follow-path").addRequirements(SwerveDrivetrain)
-            .setInit{
-                lastIndex = 0.0
-                lastPoint = path[0]
-            }
-            .setExecute{
-                SwerveDrivetrain.firstOrderFieldCentricDrive(
-                    followPath(path, SwerveDrivetrain.getPose())
-                )
-            }
-            .setFinish{
-                (SwerveDrivetrain.getPose().x - path.last().pose.x).absoluteValue < DrivebaseConstants.PIDToPosition.TranslationPositionTolerance &&
-                (SwerveDrivetrain.getPose().y - path.last().pose.y).absoluteValue < DrivebaseConstants.PIDToPosition.TranslationPositionTolerance &&
-                (SwerveDrivetrain.getPose().heading - path.last().pose.heading).absoluteValue < DrivebaseConstants.PIDToPosition.RotationPositionTolerance
-            }
-            .setEnd{
-                SwerveDrivetrain.stop()
-            }
-    }
-
-    fun followPath(pathPoints: List<CurvePoint>, currentPose: Pose2d): ChassisSpeeds {
-        assert(pathPoints.size >= 2)
-        val followPoint = getFollowPointPath(pathPoints, currentPose, pathPoints[0].followDistance, lastPoint, lastIndex)
-        lastIndex = followPoint.second
-        lastPoint = followPoint.first
-        Telemetry.put("lastIndex", lastIndex)
-        return goToPosition(currentPose, followPoint.first.pose, followPoint.first.moveSpeed, followPoint.first.turnSpeed)
-    }
 
     /**
      * @param E starting point of line
@@ -160,23 +108,6 @@ object PurePursuitController {
     }
 
      */
-    fun goToPosition(currentPose: Pose2d, targetPose: Pose2d, movementSpeed: Double, turnSpeed: Double): ChassisSpeeds {
-        var xFeedback = -xController.calculate(currentPose.x, targetPose.x)
-        xFeedback += xFeedback.sign * DrivebaseConstants.PIDToPosition.KF
-        xFeedback /= DrivebaseConstants.Measurements.MAX_VELOCITY
-        var yFeedback = -yController.calculate(currentPose.y, targetPose.y)
-        yFeedback += yFeedback.sign * DrivebaseConstants.PIDToPosition.KF
-        yFeedback /= DrivebaseConstants.Measurements.MAX_VELOCITY
-        var headingFeedback = -headingController.calculate(currentPose.rotation.radians, targetPose.rotation.radians)
-        headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
-
-        if (hypot(xFeedback, yFeedback) > movementSpeed) {
-            xFeedback /= (xFeedback.absoluteValue + yFeedback.absoluteValue)
-            yFeedback /= (xFeedback.absoluteValue + yFeedback.absoluteValue)
-        }
-
-        return ChassisSpeeds(xFeedback*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed, yFeedback*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed, headingFeedback*turnSpeed)
-    }
 
     /**
      * @param C center of circle

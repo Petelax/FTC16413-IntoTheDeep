@@ -9,10 +9,13 @@ import javafx.application.Application.launch
 import javafx.scene.Scene
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.layout.Background
+import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
+import javafx.scene.shape.Line
 import javafx.stage.Stage
 import kotlin.math.abs
 import kotlin.math.max
@@ -96,6 +99,8 @@ class Simulator : Application() {
         // Create a pane to hold everything
         val pane = Pane()
 
+        pane.background = Background(BackgroundFill(Color.color(0.16, 0.16, 0.16), null, null))
+
         // Load the background image
         val bgImage = Image(javaClass.getResourceAsStream("/images/field.png"))  // Replace with the path to your image
         val imageView = ImageView(bgImage)
@@ -104,6 +109,7 @@ class Simulator : Application() {
         imageView.fitWidth = 1080.0
         imageView.fitHeight = 1080.0
         imageView.rotate = -90.0
+        imageView.opacity = 0.8
 
         // Add the background image to the pane
         pane.children.add(imageView)
@@ -118,7 +124,8 @@ class Simulator : Application() {
         }
 
          */
-        graphPath(pane, first)
+        val newPath = PurePursuitController.injectPoints(first, 3.0)
+        graphPath(pane, newPath)
 
         // Create the scene with the fixed size
         val scene = Scene(pane, 1080.0, 1080.0)
@@ -141,7 +148,7 @@ class Simulator : Application() {
     fun graphPath(pane: Pane, path: List<CurvePoint>) {
         for (point in path) {
             val pose = point.pose
-            val circle = Circle(toPx(((72.0-pose.y))+72.0), toPx(((72.0-pose.x))+72.0), toPx(2.0))  // Create a circle at the given point
+            val circle = Circle(toPx(((72.0-pose.y))+72.0), toPx(((72.0-pose.x))+72.0), toPx(1.0))  // Create a circle at the given point
             //val circle = Circle(toPx(pose.y), toPx(pose.x), toPx(2.0))  // Create a circle at the given point
             //val circle1 = Circle(540.0, 540.0, 10.0)  // Create a circle at the given point
             circle.fill = Color.color(0.73, 0.02, 0.99) //Color.PURPLE  // Set the color of the point
@@ -150,6 +157,24 @@ class Simulator : Application() {
             //pane.children.add(circle1)
         }
 
+        for (i in 0 until path.size - 1) {
+            val start = toVector(path[i].pose)
+            val end = toVector(path[i + 1].pose)
+
+            // Create a line from the current point to the next point
+            val line = Line(start.x, start.y, end.x, end.y)
+            line.stroke = Color.color(0.73, 0.02, 0.99)
+            line.strokeWidth = 2.0  // Set the thickness of the line
+            pane.children.add(line)
+
+        }
+
+    }
+
+    fun toVector(pose: Pose2d) : Vector2d {
+        return Vector2d(
+            toPx(((72.0-pose.y))+72.0), toPx(((72.0-pose.x))+72.0)
+        )
     }
 
     fun toPx(n: Double) : Double {
