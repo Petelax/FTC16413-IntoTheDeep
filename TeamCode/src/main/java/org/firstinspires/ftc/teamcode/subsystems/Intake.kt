@@ -82,13 +82,12 @@ object Intake : Subsystem {
         pin0.mode = DigitalChannel.Mode.INPUT
         pin1.mode = DigitalChannel.Mode.INPUT
 
+        defaultCommand = setSpeedSupplier { opMode.opMode.gamepad2.right_trigger.toDouble().pow(3) - opMode.opMode.gamepad2.left_trigger.pow(3) }
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {
         p0 = pin0.state
         p1 = pin1.state
-
-        defaultCommand = setSpeedSupplier { opMode.opMode.gamepad2.right_trigger.toDouble().pow(3) - opMode.opMode.gamepad2.left_trigger.pow(3) }
 
     }
 
@@ -198,6 +197,13 @@ object Intake : Subsystem {
             stopIntake()
         )
 
+    }
+
+    fun spinUntilHolding() : Lambda {
+        return Lambda("spin-until-holding").addRequirements(Intake)
+            .setInit{ setPower(HorizontalConstants.IntakeSpeeds.MAX) }
+            .setFinish{ Deposit.holdingPiece() }
+            .setEnd{ setPower(0.0) }
     }
 
     enum class Sample {

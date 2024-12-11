@@ -6,6 +6,7 @@ import com.example.simulator.geometry.Translation2d
 import com.example.simulator.geometry.Vector2d
 import javafx.application.Application
 import javafx.application.Application.launch
+import javafx.application.Platform
 import javafx.scene.Scene
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -124,24 +125,59 @@ class Simulator : Application() {
         }
 
          */
-        val newPath = PurePursuitController.injectPoints(first, 3.0)
+
+        /*
+        val newPath = PurePursuitController.injectPoints(path, 2.0)
+
+        val b = 0.85
+        val newerPath = PurePursuitController.smoother(newPath, 0.2, 0.8, 0.001)
+        val constrainedPath = PurePursuitController.setPathTargetSpeed(newerPath, 0.05)
+        constrainedPath.forEach { point ->
+            println(point.toString())
+        }
+
+         */
+        val newPath = PurePursuitController.waypointsToPath(path, kCurvature = 3.0)
+
+        newPath.forEach { point ->
+            println(point)
+        }
+
         graphPath(pane, newPath)
+        //val arr = PurePursuitController.pathToDoubleArray(first)
 
         // Create the scene with the fixed size
         val scene = Scene(pane, 1080.0, 1080.0)
 
+        scene.setOnKeyPressed { event ->
+            if (event.code.toString() == "Q") {
+                Platform.exit()  // This will exit the application
+            }
+        }
+
         // Set up the stage
-        primaryStage.title = "sim"
+        primaryStage.title = "FTC Simulator"
         primaryStage.scene = scene
         primaryStage.show()
     }
 
     private val first = listOf(
-        CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 0.5, 1.0, 6.0),
-        CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 0.4, 1.0, 6.0),
-        CurvePoint(Pose2d(103.5, 24.0, Rotation2d.fromDegrees(90.0)), 0.4, 1.0, 2.0),
-        CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 0.4, 1.0, 2.0),
-        CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 0.4, 1.0, 2.0),
+        CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        //CurvePoint(Pose2d(85.0, 30.0, Rotation2d.fromDegrees(90.0)), 0.4, 1.0, 2.0),
+        CurvePoint(Pose2d(103.5, 32.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+    )
+
+    private val path = listOf(
+        CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 30.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 0.3, 1.0, 6.0),
+        CurvePoint(Pose2d(103.5, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
         CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
     )
 

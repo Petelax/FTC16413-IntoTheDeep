@@ -13,6 +13,7 @@
             <RevColorSensorV3 name="color" port="0" bus="0" />
             <DigitalDevice name="pin0" port="6"/>
             <DigitalDevice name="pin1" port="7"/>
+            <AnalogInput name="depositSensor" port="0" />
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <goBILDA5202SeriesMotor name="motorLF" port="0" />

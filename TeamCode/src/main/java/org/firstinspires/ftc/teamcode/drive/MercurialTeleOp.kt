@@ -131,6 +131,8 @@ class MercurialTeleOp : OpMode() {
                         )
                     ),
                     Sequential(
+                        Deposit.open(),
+                        Wait(0.100),
                         Parallel(
                             Wait(VerticalConstants.VerticalArmConstants.sampleToIntake),
                             VerticalArm.intake(),
@@ -166,18 +168,24 @@ class MercurialTeleOp : OpMode() {
                         HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
                         HorizontalExtension.spin(-0.3),
                     ),
-                    Wait(0.150),
+                    Wait(0.250),
                 ),
                 Sequential()
             ),
             HorizontalExtension.spin(-0.3),
-            Wait(0.05),
+            Wait(0.01),
+            Race( null,
+                Intake.spinUntilHolding(),
+                Wait(0.400),
+            ),
             Deposit.halfClose(),
             Intake.runIntake(),
-            Wait(0.400),
+            Wait(0.05),
             Intake.stopIntake(),
-            HorizontalExtension.spin(0.0),
+
             Deposit.close(),
+            HorizontalExtension.spin(0.0),
+            Wait(0.10),
             verticalSample
         )
 
@@ -256,6 +264,8 @@ class MercurialTeleOp : OpMode() {
         mechanismGamepad.rightStickY.conditionalBindState().greaterThan(0.05).bind().onTrue(HorizontalExtension.disableController())
 
         driveGamepad.leftStickButton.onTrue(SwerveDrivetrain.resetHeading())
+
+        driveGamepad.back.onTrue(Intake.spinUntilHolding())
 
         //Telemetry.points.add(Pose2d(72.0, 72.0, Rotation2d(0.0)))
         //Telemetry.points.add(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)))

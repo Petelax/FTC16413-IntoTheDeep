@@ -229,16 +229,22 @@ class PPSpecimenAuto : OpMode() {
         Elevator.defaultCommand = null
 
 
-        Telemetry.path = first
+        Telemetry.path = trajectory
         //Telemetry.points.add( Pose2d(48.0, 0.0, Rotation2d()) )
 
     }
 
     private val path = listOf(
-        CurvePoint(Pose2d(0.0, 0.0, Rotation2d()), 1.0, 0.5, 20.0),
-        CurvePoint(Pose2d(48.0, 0.0, Rotation2d()), 1.0, 0.5, 20.0),
-        CurvePoint(Pose2d(48.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 0.5, 12.0),
+        CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 32.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 0.3, 1.0, 6.0),
+        CurvePoint(Pose2d(103.5, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
     )
+
+    private val trajectory = PurePursuitController.waypointsToPath(path)
 
     private val first = listOf(
         CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 0.5, 1.0, 6.0),
@@ -272,7 +278,7 @@ class PPSpecimenAuto : OpMode() {
         //SwerveDrivetrain.setPose(startPose)
 
         //auto.schedule()
-        PurePursuitController.followPathCommand(first).schedule()
+        PurePursuitController.followPathCommand(trajectory).schedule()
         //Sequential(
             //SwerveDrivetrain.alignModules(place),
             //SwerveDrivetrain.p2p(place)

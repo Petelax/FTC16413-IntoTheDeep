@@ -11,7 +11,9 @@ import dev.frozenmilk.mercurial.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
+import org.firstinspires.ftc.teamcode.utils.Telemetry
 import java.lang.annotation.Inherited
+import kotlin.math.max
 
 object Deposit : Subsystem {
     @Target(AnnotationTarget.CLASS)
@@ -27,10 +29,24 @@ object Deposit : Subsystem {
         FeatureRegistrar.activeOpMode.hardwareMap.get(ServoImplEx::class.java, DeviceIDs.DEPOSIT)
     }
 
+    private val crf by subsystemCell {
+        FeatureRegistrar.activeOpMode.hardwareMap.analogInput.get(DeviceIDs.DEPOSIT_SENSOR)
+    }
+
+    private var distance = 100.0
+    private var maxVoltage = 3.3
+
     override fun preUserInitHook(opMode: Wrapper) {
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
         cachedPosition = 100.0
         servo.position = VerticalConstants.DepositPositions.OUT
+        maxVoltage = crf.maxVoltage
+    }
+
+    override fun preUserLoopHook(opMode: Wrapper) {
+        distance = crf.voltage / maxVoltage * 100.0
+        Telemetry.put("deposit distance", getDistance())
+        Telemetry.put("holding", holdingPiece())
     }
 
     fun kill(): Lambda {
@@ -75,5 +91,17 @@ object Deposit : Subsystem {
             .setInit{ setPosition(position)}
             .setFinish{true}
     }
+
+    /**
+     * distance from crf on deposit
+     */
+    fun getDistance() : Double {
+        return distance
+    }
+
+    fun holdingPiece() : Boolean {
+        return getDistance() <= VerticalConstants.DepositPositions.DEPOSIT_THRESHOLD
+    }
+
 
 }

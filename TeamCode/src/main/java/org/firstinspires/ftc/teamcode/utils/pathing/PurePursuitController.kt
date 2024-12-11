@@ -1,53 +1,39 @@
 package org.firstinspires.ftc.teamcode.utils.pathing
 
-import com.arcrobotics.ftclib.controller.PIDFController
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Vector2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import dev.frozenmilk.mercurial.commands.Lambda
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
-import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain.c
-import org.firstinspires.ftc.teamcode.utils.PIDController
+import org.firstinspires.ftc.teamcode.utils.DrivetrainPIDController
 import org.firstinspires.ftc.teamcode.utils.Telemetry
-import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
-import kotlin.math.hypot
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sign
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 object PurePursuitController {
     //override var dependency: Dependency<*> = Dependency { opMode: Wrapper, resolvedFeatures: List<Feature>, yielding: Boolean ->  }
-    val headingController = PIDController(
-        DrivebaseConstants.PIDToPosition.RotationKP,
-        DrivebaseConstants.PIDToPosition.RotationKI,
-        DrivebaseConstants.PIDToPosition.RotationKD
-    )
-
-    val xController: PIDFController = PIDFController(c.TranslationKP, c.TranslationKI, c.TranslationKD, 0.0)
-    val yController: PIDFController = PIDFController(c.TranslationKP, c.TranslationKI, c.TranslationKD, 0.0)
-
-    val path: List<CurvePoint> = listOf()
 
     var lastIndex = 0.0
     var lastPoint = CurvePoint()
 
+    var lastClosestPoint = Pair(Vector2d(), 0)
 
-    init {
-        headingController.enableContinuousInput(-PI, PI)
-        headingController.setTolerance(DrivebaseConstants.PIDToPosition.RotationPositionTolerance, DrivebaseConstants.PIDToPosition.RotationVelocityTolerance)
-        xController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
-        yController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
-    }
+    private val p2pController = DrivetrainPIDController(DrivebaseConstants.PIDToPosition)
+    private val ppController = DrivetrainPIDController(DrivebaseConstants.PurePursuitPIDCoefficients)
 
     fun followPathCommand(path: List<CurvePoint>): Lambda {
         return Lambda("follow-path").addRequirements(SwerveDrivetrain)
             .setInit{
                 lastIndex = 0.0
                 lastPoint = path[0]
+                resetController()
             }
             .setExecute{
                 SwerveDrivetrain.firstOrderFieldCentricDrive(
@@ -70,7 +56,57 @@ object PurePursuitController {
         lastIndex = followPoint.second
         lastPoint = followPoint.first
         Telemetry.put("lastIndex", lastIndex)
-        return goToPosition(currentPose, followPoint.first.pose, followPoint.first.moveSpeed, followPoint.first.turnSpeed)
+        Telemetry.put("distance", lastPoint.totalDistance)
+        /*
+        return goToPositionPID(
+            currentPose,
+            followPoint.first.pose,
+            followPoint.first.targetSpeed,
+            followPoint.first.turnSpeed
+        )
+         */
+        val closestPair = getClosestPoint(pathPoints, Pair(Vector2d(currentPose.x, currentPose.y), lastClosestPoint.second))
+
+        lastClosestPoint = closestPair
+
+        val closestPoint = pathPoints[closestPair.second]
+
+        return if ((lastPoint.totalDistance + (lastPoint.followDistance) + 0.5) >= pathPoints.last().totalDistance) {
+            goToPositionPID(
+                currentPose,
+                pathPoints.last().pose,
+                pathPoints.last().targetSpeed,
+                pathPoints.last().turnSpeed
+            )
+        } else {
+            goToPosition(
+                currentPose,
+                followPoint.first.pose,
+                closestPoint.targetSpeed,
+                followPoint.first.turnSpeed
+            )
+        }
+
+    }
+
+    /**
+     * O(N)
+     */
+    fun getClosestPoint(path: List<CurvePoint>, currentPoint: Pair<Vector2d, Int>): Pair<Vector2d, Int> {
+        var lowestDistance = Double.MAX_VALUE
+        val currentVec = currentPoint.first
+        val lastIndex = currentPoint.second
+        var index = lastIndex
+        for (i in lastIndex until path.size) {
+            val distance = distance(path[i].getVector2d(), currentVec)
+            if (distance <= lowestDistance) {
+                lowestDistance = distance
+                index = i
+            }
+        }
+
+        return Pair(path[index].getVector2d(), index)
+
     }
 
     /**
@@ -111,6 +147,174 @@ object PurePursuitController {
     }
 
     /**
+     * Performs a deep copy of a 2 Dimensional Array looping thorough each element in the 2D array
+     *
+     * BigO: Order N x M
+     * @param arr
+     * @return
+     */
+    fun doubleArrayCopy(arr: Array<DoubleArray>): Array<DoubleArray> {
+        //size first dimension of array
+
+        val temp = Array(arr.size) {
+            DoubleArray(
+                arr[0].size
+            )
+        }
+
+        for (i in arr.indices) {
+            //Resize second dimension of array
+            temp[i] = DoubleArray(arr[i].size)
+
+            //Copy Contents
+            for (j in arr[i].indices) temp[i][j] = arr[i][j]
+        }
+
+        return temp
+    }
+
+    /**
+     * Optimization algorithm, which optimizes the data points in path to create a smooth trajectory.
+     * This optimization uses gradient descent. While unlikely, it is possible for this algorithm to never
+     * converge. If this happens, try increasing the tolerance level.
+     *
+     * BigO: N^x, where X is the number of of times the while loop iterates before tolerance is met.
+     *
+     * @param curvePoints
+     * @param weight_data
+     * @param weight_smooth
+     * @param tolerance
+     * @return
+     */
+    fun smoother(
+        //path: Array<DoubleArray>,
+        curvePoints: List<CurvePoint>,
+        weight_data: Double,
+        weight_smooth: Double,
+        tolerance: Double
+    ): List<CurvePoint> {
+        //copy array
+        val path = pathToDoubleArray(curvePoints)
+
+        val newPath: Array<DoubleArray> = doubleArrayCopy(path)
+
+        var change = tolerance
+        while (change >= tolerance) {
+            change = 0.0
+            for (i in 1 until path.size - 1) for (j in path[i].indices) {
+                val aux = newPath[i][j]
+                newPath[i][j] += weight_data * (path[i][j] - newPath[i][j]) + weight_smooth * (newPath[i - 1][j] + newPath[i + 1][j] - (2.0 * newPath[i][j]))
+                change += abs(aux - newPath[i][j])
+            }
+        }
+
+        return doubleArrayToPath(curvePoints, newPath)
+    }
+
+    fun pathToDoubleArray(path: List<CurvePoint>) : Array<DoubleArray> {
+        var array = Array(path.size) {DoubleArray(2)}
+        path.forEachIndexed { i, point ->
+            array[i][0] = point.pose.x
+            array[i][1] = point.pose.y
+        }
+        return array
+    }
+
+    fun doubleArrayToPath(curvePoints: List<CurvePoint>, arr: Array<DoubleArray>) : List<CurvePoint> {
+        var newPath: MutableList<CurvePoint> = mutableListOf()
+        curvePoints.forEachIndexed { i, point ->
+            newPath.add(point.copy(pose = Pose2d(arr[i][0], arr[i][1], point.pose.rotation)))
+        }
+
+        return newPath
+    }
+
+    fun distancePoints(curvePoints: List<CurvePoint>) : List<CurvePoint> {
+        var newPath: MutableList<CurvePoint> = mutableListOf()
+
+        newPath.add(0, curvePoints[0].copy(totalDistance = 0.0))
+
+        var distance = 0.0
+        for (i in 1 until curvePoints.size) {
+            val a = curvePoints[i].getVector2d()
+            val b = curvePoints[i-1].getVector2d()
+
+            distance += distance(a, b)
+            newPath.add(curvePoints[i].copy(totalDistance = distance))
+        }
+
+        return newPath
+    }
+
+    fun distance(a: Vector2d, b: Vector2d): Double {
+        return a.minus(b).magnitude()
+    }
+
+    /**
+     * @return curvature
+     */
+    fun getCurvature(p: Vector2d, q: Vector2d, r: Vector2d) : Double {
+        //val x1 = p.x
+        val y1 = p.y
+
+        val x2 = q.x
+        val y2 = q.y
+
+        val x3 = r.x
+        val y3 = r.y
+
+        val x1 = if (p.x == x2) { p.x+0.001 } else { p.x }
+
+        val k1 = 0.5 * (x1*x1 + y1*y1 - x2*x2 - y2*y2)/(x1 - x2)
+        val k2 = (y1 - y2)/(x1 - x2)
+        val b = 0.5 * (x2*x2 - 2 * x2 * k1 + y2*y2 - x3*x3 + 2 * x3 * k1 - y3*y3)/(x3 * k2 - y3 + y2 - x2 * k2)
+        val a = k1 - k2 * b
+        val radius = sqrt((x1 - a).pow(2) + (y1 - b).pow(2))
+        val curvature = 1/radius
+
+        return curvature
+    }
+
+    /**
+     * path must have greater or equal to 3 points
+     */
+    fun setPathTargetSpeed(path: List<CurvePoint>) : List<CurvePoint> {
+        assert(path.size>=3)
+
+        var newPath: MutableList<CurvePoint> = mutableListOf(path[0].copy(targetSpeed = path[0].moveSpeed))
+
+        for (i in 1 until path.size-1) {
+            val p: CurvePoint = path[i]
+            val r: CurvePoint = path[i+1]
+            val q: CurvePoint = path[i-1]
+
+            val curvature = getCurvature(p.getVector2d(), q.getVector2d(), r.getVector2d())
+
+            val targetSpeed = min(p.moveSpeed, DrivebaseConstants.PurePursuit.K_CURVATURE / curvature)
+
+            val followDistance = DrivebaseConstants.PurePursuit.K_MIN_FOLLOW_DISTANCE + targetSpeed * DrivebaseConstants.PurePursuit.K_FOLLOW_DISTANCE
+
+            newPath.add(i, path[i].copy(followDistance=followDistance, targetSpeed=targetSpeed))
+
+        }
+
+        newPath.add(path.last().copy(targetSpeed = path.last().moveSpeed))
+
+        return newPath
+
+    }
+
+    fun waypointsToPath(points: List<CurvePoint>, spacing: Double = DrivebaseConstants.PurePursuit.SPACING, kSmooth: Double = DrivebaseConstants.PurePursuit.K_SMOOTH) : List<CurvePoint> {
+        val injected = injectPoints(points, spacing)
+        val a = 1-kSmooth
+        val smoothed = smoother(injected, a, kSmooth, 0.001)
+        val distanced = distancePoints(smoothed)
+        val constrained = setPathTargetSpeed(distanced) //using k_curvature
+        return constrained
+    }
+
+
+    /**
      * @return first curvepoint, second index
      */
     fun getFollowPointPath(curvePoints: List<CurvePoint>, currentPose: Pose2d, followRadius: Double, lastPose: CurvePoint, lastFoundIndex: Double): Pair<CurvePoint, Double> {
@@ -132,7 +336,8 @@ object PurePursuitController {
             intersections.sortBy { it.second }
             val pair = intersections[0]
             val nextCurvePoint = curvePoints[ceil(pair.second).toInt()]
-            return Pair(nextCurvePoint.copy(pose = Pose2d(pair.first.x, pair.first.y, nextCurvePoint.pose.rotation)), pair.second)
+            val lastCurvePoint = curvePoints[floor(pair.second).toInt()]
+            return Pair(nextCurvePoint.copy(pose = Pose2d(pair.first.x, pair.first.y, nextCurvePoint.pose.rotation), totalDistance = lastCurvePoint.totalDistance + distance(pair.first, lastCurvePoint.getVector2d())), pair.second)
         }
 
         return Pair(lastPose, lastFoundIndex)
@@ -160,15 +365,46 @@ object PurePursuitController {
     }
 
      */
+    fun resetController() {
+        ppController.reset()
+        p2pController.reset()
+    }
+
     fun goToPosition(currentPose: Pose2d, targetPose: Pose2d, movementSpeed: Double, turnSpeed: Double): ChassisSpeeds {
+        return ppController.calculateNormalized(currentPose, targetPose, movementSpeed, turnSpeed)
+    }
+
+    fun goToPositionPID(currentPose: Pose2d, targetPose: Pose2d, movementSpeed: Double, turnSpeed: Double): ChassisSpeeds {
+        return p2pController.calculate(currentPose, targetPose, movementSpeed, turnSpeed)
+    }
+    /*
+    fun goToPosition(currentPose: Pose2d, targetPose: Pose2d, movementSpeed: Double, turnSpeed: Double): ChassisSpeeds {
+        var xFeedback = -(targetPose.x - currentPose.x)
+        var yFeedback = -(targetPose.y - currentPose.y)
+
+        var headingFeedback = -headingController.calculate(currentPose.rotation.radians, targetPose.rotation.radians)
+        headingFeedback += headingFeedback.sign * DrivebaseConstants.PurePursuit.KF
+
+        xFeedback /= (xFeedback.absoluteValue + yFeedback.absoluteValue)
+        yFeedback /= (xFeedback.absoluteValue + yFeedback.absoluteValue)
+
+        return ChassisSpeeds(
+            xFeedback*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed,
+            yFeedback*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed,
+            headingFeedback*turnSpeed
+        )
+    }
+
+
+    fun goToPositionPID(currentPose: Pose2d, targetPose: Pose2d, movementSpeed: Double, turnSpeed: Double): ChassisSpeeds {
         var xFeedback = -xController.calculate(currentPose.x, targetPose.x)
-        xFeedback += xFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+        xFeedback += xFeedback.sign * DrivebaseConstants.PurePursuit.KF
         xFeedback /= DrivebaseConstants.Measurements.MAX_VELOCITY
         var yFeedback = -yController.calculate(currentPose.y, targetPose.y)
-        yFeedback += yFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+        yFeedback += yFeedback.sign * DrivebaseConstants.PurePursuit.KF
         yFeedback /= DrivebaseConstants.Measurements.MAX_VELOCITY
         var headingFeedback = -headingController.calculate(currentPose.rotation.radians, targetPose.rotation.radians)
-        headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+        headingFeedback += headingFeedback.sign * DrivebaseConstants.PurePursuit.KF
 
         if (hypot(xFeedback, yFeedback) > movementSpeed) {
             xFeedback /= (xFeedback.absoluteValue + yFeedback.absoluteValue)
@@ -177,6 +413,7 @@ object PurePursuitController {
 
         return ChassisSpeeds(xFeedback*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed, yFeedback*DrivebaseConstants.Measurements.MAX_VELOCITY*movementSpeed, headingFeedback*turnSpeed)
     }
+     */
 
     /**
      * @param C center of circle

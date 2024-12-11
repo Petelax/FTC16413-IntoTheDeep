@@ -64,6 +64,8 @@ class VerticalConstants {
         @JvmField var IN = 0.0
         @JvmField var MID = 0.08
         @JvmField var OUT = 1.00
+
+        @JvmField var DEPOSIT_THRESHOLD = 35.0
     }
 
     @Config
@@ -73,6 +75,7 @@ class VerticalConstants {
         @JvmField var SPECIMEN_PICKUP = 0.65 //wall
         @JvmField var SPECIMEN_PLACE = 0.935 //specimen place
     }
+
 
     /**
      * vertical arm

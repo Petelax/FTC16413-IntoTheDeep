@@ -9,18 +9,37 @@ import com.example.simulator.geometry.Vector2d
  * @param moveSpeed translation speed from 0.0 to 1.0
  * @param turnSpeed translation speed from 0.0 to 1.0
  * @param followDistance distance to look ahead and follow in inches
+ * @param targetSpeed speed to drive based on curvature
  */
 data class CurvePoint(
     var pose: Pose2d,
     var moveSpeed: Double,
     var turnSpeed: Double,
     var followDistance: Double,
+    var targetSpeed: Double,
+    var totalDistance: Double
 ) {
     constructor() : this(
         Pose2d(),
         1.0,
         1.0,
         0.0,
+        1.0,
+        0.0
+    )
+
+    constructor(
+        pose: Pose2d,
+        moveSpeed: Double,
+        turnSpeed: Double,
+        followDistance: Double,
+    ) : this(
+        pose,
+        moveSpeed,
+        turnSpeed,
+        followDistance,
+        moveSpeed,
+        0.0
     )
 
     fun getVector2d(): Vector2d {
