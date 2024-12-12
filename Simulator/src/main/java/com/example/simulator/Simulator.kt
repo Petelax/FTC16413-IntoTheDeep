@@ -137,7 +137,7 @@ class Simulator : Application() {
         }
 
          */
-        val newPath = PurePursuitController.waypointsToPath(path, kCurvature = 3.0)
+        val newPath = PurePursuitController.waypointsToPath(path, kCurvature = 0.1)
 
         newPath.forEach { point ->
             println(point)

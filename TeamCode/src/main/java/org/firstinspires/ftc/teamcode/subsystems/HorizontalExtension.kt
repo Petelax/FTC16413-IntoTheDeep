@@ -26,6 +26,7 @@ import java.util.function.DoubleSupplier
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.pow
+import kotlin.math.sign
 
 object HorizontalExtension : Subsystem {
     @Target(AnnotationTarget.CLASS)
@@ -194,7 +195,12 @@ object HorizontalExtension : Subsystem {
         if ((currentPosition < positions.LOWER_LIMIT && speed <= 0.0) || (currentPosition > positions.UPPER_LIMIT && speed > 0.0)) {
             setRawSpeed(0.0)
         } else {
-            setRawSpeed(speed)
+            val f = if (speed.absoluteValue > constants.MINIMUM) {
+                coefficients.KF * sign(speed)
+            } else {
+                0.0
+            }
+            setRawSpeed(speed + f)
         }
 
     }

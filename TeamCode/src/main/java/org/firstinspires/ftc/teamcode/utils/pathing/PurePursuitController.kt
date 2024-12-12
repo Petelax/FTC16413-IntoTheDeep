@@ -5,6 +5,8 @@ import com.arcrobotics.ftclib.geometry.Vector2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import dev.frozenmilk.mercurial.commands.Lambda
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
+import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.PurePursuit.KFF
+import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.PurePursuit.KPID
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.DrivetrainPIDController
 import org.firstinspires.ftc.teamcode.utils.Telemetry
@@ -33,6 +35,7 @@ object PurePursuitController {
             .setInit{
                 lastIndex = 0.0
                 lastPoint = path[0]
+                lastClosestPoint = Pair(Vector2d(), 0)
                 resetController()
             }
             .setExecute{
@@ -51,7 +54,7 @@ object PurePursuitController {
     }
 
     fun followPath(pathPoints: List<CurvePoint>, currentPose: Pose2d): ChassisSpeeds {
-        assert(pathPoints.size >= 2)
+        //assert(pathPoints.size >= 2)
         val followPoint = getFollowPointPath(pathPoints, currentPose, pathPoints[0].followDistance, lastPoint, lastIndex)
         lastIndex = followPoint.second
         lastPoint = followPoint.first
@@ -79,12 +82,45 @@ object PurePursuitController {
                 pathPoints.last().turnSpeed
             )
         } else {
-            goToPosition(
+            val direction = getPathDirection(pathPoints, closestPair)
+            var pidSpeeds = goToPosition(
                 currentPose,
                 followPoint.first.pose,
                 closestPoint.targetSpeed,
                 followPoint.first.turnSpeed
             )
+            pidSpeeds.vxMetersPerSecond *= KPID
+            pidSpeeds.vyMetersPerSecond *= KPID
+            val ffSpeeds = ChassisSpeeds(direction.x * DrivebaseConstants.Measurements.MAX_VELOCITY * closestPoint.targetSpeed * KFF, direction.y * DrivebaseConstants.Measurements.MAX_VELOCITY * closestPoint.targetSpeed * KFF, 0.0)
+            var targetVec = Vector2d(
+                pidSpeeds.vxMetersPerSecond + ffSpeeds.vxMetersPerSecond,
+                pidSpeeds.vyMetersPerSecond + ffSpeeds.vyMetersPerSecond
+            )
+            /*
+            val error = Vector2d(
+                ffSpeeds.vxMetersPerSecond - pidSpeeds.vxMetersPerSecond,
+                ffSpeeds.vyMetersPerSecond - pidSpeeds.vyMetersPerSecond
+            )
+            val ffVec = Vector2d(
+                ffSpeeds.vxMetersPerSecond,
+                ffSpeeds.vyMetersPerSecond
+            )
+
+             */
+
+            //val newTarget = ffVec + (error * KPID)
+            //val normalized = targetVec.normalize() * DrivebaseConstants.Measurements.MAX_VELOCITY * closestPoint.targetSpeed
+            val normalized = targetVec
+
+            val targetSpeeds = ChassisSpeeds(
+                normalized.x,
+                normalized.y,
+                pidSpeeds.omegaRadiansPerSecond
+            )
+
+            targetSpeeds
+
+            //ChassisSpeeds()
         }
 
     }
@@ -279,7 +315,7 @@ object PurePursuitController {
      * path must have greater or equal to 3 points
      */
     fun setPathTargetSpeed(path: List<CurvePoint>) : List<CurvePoint> {
-        assert(path.size>=3)
+        //assert(path.size>=3)
 
         var newPath: MutableList<CurvePoint> = mutableListOf(path[0].copy(targetSpeed = path[0].moveSpeed))
 
@@ -288,7 +324,11 @@ object PurePursuitController {
             val r: CurvePoint = path[i+1]
             val q: CurvePoint = path[i-1]
 
-            val curvature = getCurvature(p.getVector2d(), q.getVector2d(), r.getVector2d())
+            var curvature = getCurvature(p.getVector2d(), q.getVector2d(), r.getVector2d())
+
+            if (curvature == 0.0 || curvature.isNaN() || curvature.isInfinite()) {
+                curvature = 0.001
+            }
 
             val targetSpeed = min(p.moveSpeed, DrivebaseConstants.PurePursuit.K_CURVATURE / curvature)
 
@@ -376,6 +416,30 @@ object PurePursuitController {
 
     fun goToPositionPID(currentPose: Pose2d, targetPose: Pose2d, movementSpeed: Double, turnSpeed: Double): ChassisSpeeds {
         return p2pController.calculate(currentPose, targetPose, movementSpeed, turnSpeed)
+    }
+
+    fun getPathDirection(path: List<CurvePoint>, closestPair: Pair<Vector2d, Int>) : Vector2d {
+        if (path.size == closestPair.second+1) {
+            return Vector2d()
+        }
+        val current = closestPair.first
+        val next = path[closestPair.second+1].getVector2d()
+        val target = current - next
+
+
+        /*
+        var i = 2 + closestPair.second
+        while (target.x.isNaN() && i < path.size) {
+            next = path[closestPair.second+i].getVector2d()
+            x = (next.x - current.x) * -1.0
+            y = (next.y - current.y) * -1.0
+            var target = Vector2d(x, y)
+
+        }
+
+         */
+
+        return (target).normalize()
     }
     /*
     fun goToPosition(currentPose: Pose2d, targetPose: Pose2d, movementSpeed: Double, turnSpeed: Double): ChassisSpeeds {

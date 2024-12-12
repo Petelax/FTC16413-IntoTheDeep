@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.swerve
 
 import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.controller.PIDFController
 import com.arcrobotics.ftclib.controller.wpilibcontroller.ProfiledPIDController
 import com.arcrobotics.ftclib.geometry.Pose2d
@@ -11,12 +10,10 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS
-import com.qualcomm.robotcore.hardware.configuration.LynxI2cDeviceConfiguration
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.dependency.Dependency
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
-import dev.frozenmilk.mercurial.commands.Command
 import dev.frozenmilk.mercurial.commands.Lambda
 import dev.frozenmilk.mercurial.commands.groups.Parallel
 import dev.frozenmilk.mercurial.commands.groups.Race
@@ -30,8 +27,6 @@ import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.WHEEL_BASE
-import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
-import org.firstinspires.ftc.teamcode.utils.Drawing
 import org.firstinspires.ftc.teamcode.utils.PIDController
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import java.lang.annotation.Inherited
@@ -103,6 +98,7 @@ object SwerveDrivetrain : Subsystem {
         rf = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET)
         lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET)
         rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
+
         configureOtos()
 
         headingController.enableContinuousInput(-PI, PI)
@@ -130,7 +126,7 @@ object SwerveDrivetrain : Subsystem {
     }
 
     override fun preUserInitLoopHook(opMode: Wrapper) {
-        periodic(opMode)
+        //periodic(opMode)
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {
@@ -391,10 +387,15 @@ object SwerveDrivetrain : Subsystem {
         //return imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
     }
 
-    fun resetHeading(): Lambda {
+    fun resetHeadingCommand(): Lambda {
         return Lambda("reset-heading")
             .setInit{ headingOffset = headingOffset.plus(getPose().rotation) }
     }
+
+    fun resetHeading() {
+        headingOffset = headingOffset.plus(getPose().rotation)
+    }
+
 
 
     fun getPose(): Pose2d {

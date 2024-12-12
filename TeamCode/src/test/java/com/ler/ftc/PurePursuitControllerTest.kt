@@ -274,6 +274,33 @@ class PurePursuitControllerTest {
 
     }
 
+    @Test
+    fun pathDirection() {
+        val injected = pp.injectPoints(path, 3.0)
+        val smoothed = pp.smoother(injected, 0.2, 0.8, 0.001)
+        val point = CurvePoint(Pose2d(30.0, 0.0, Rotation2d()), 1.0, 1.0, 10.0)
+
+        smoothed.forEach { point ->
+            println(point)
+        }
+
+
+        val pair = pp.getClosestPoint(smoothed, Pair(point.getVector2d(), 0))
+        val direction = pp.getPathDirection(smoothed, pair)
+        println(direction)
+
+        /*
+        smoothed.forEachIndexed { i, point ->
+            val pair = pp.getClosestPoint(path, Pair(point.getVector2d(), 0))
+            val direction = pp.getPathDirection(smoothed, pair)
+            println(direction)
+
+        }
+         */
+
+
+    }
+
 
     private fun chassisSpeedsEqual(a: ChassisSpeeds, b: ChassisSpeeds) : Boolean {
         val x = a.vxMetersPerSecond == b.vxMetersPerSecond

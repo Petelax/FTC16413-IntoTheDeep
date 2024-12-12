@@ -9,10 +9,10 @@ class HorizontalConstants {
         @JvmField var KV = 0.0
         @JvmField var KA = 0.0
 
-        @JvmField var KP = 0.22
+        @JvmField var KP = 0.11
         @JvmField var KI = 0.0
         @JvmField var KD = 0.001
-        @JvmField var KF = 0.0
+        @JvmField var KF = 0.07
 
         @JvmField var KG = 0.0
     }
@@ -32,6 +32,8 @@ class HorizontalConstants {
         @JvmField var TICKS_TO_INCHES = 0.04487179487
         @JvmField var POSITION_TOLERANCE = 0.25
         @JvmField var VELOCITY_TOLERANCE = 5.0
+
+        @JvmField var MINIMUM = 0.01
     }
 
     @Config

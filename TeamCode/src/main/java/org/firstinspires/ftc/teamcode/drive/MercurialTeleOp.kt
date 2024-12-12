@@ -1,10 +1,5 @@
 package org.firstinspires.ftc.teamcode.drive
 
-import com.acmerobotics.dashboard.FtcDashboard
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.arcrobotics.ftclib.geometry.Pose2d
-import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import dev.frozenmilk.dairy.pasteurized.SDKGamepad
@@ -16,6 +11,7 @@ import dev.frozenmilk.mercurial.commands.groups.Race
 import dev.frozenmilk.mercurial.commands.groups.Sequential
 import dev.frozenmilk.mercurial.commands.util.IfElse
 import dev.frozenmilk.mercurial.commands.util.Wait
+import org.firstinspires.ftc.teamcode.constants.DrivetrainPIDCoefficients
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.Deposit
@@ -30,7 +26,6 @@ import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.BulkReads
 import org.firstinspires.ftc.teamcode.utils.LoopTimes
 import org.firstinspires.ftc.teamcode.utils.Telemetry
-import org.firstinspires.ftc.teamcode.utils.pathing.CurvePoint
 
 @Mercurial.Attach
 @BulkReads.Attach
@@ -263,7 +258,7 @@ class MercurialTeleOp : OpMode() {
         mechanismGamepad.rightStickY.conditionalBindState().lessThan(-0.05).bind().onTrue(HorizontalExtension.disableController())
         mechanismGamepad.rightStickY.conditionalBindState().greaterThan(0.05).bind().onTrue(HorizontalExtension.disableController())
 
-        driveGamepad.leftStickButton.onTrue(SwerveDrivetrain.resetHeading())
+        driveGamepad.leftStickButton.onTrue(SwerveDrivetrain.resetHeadingCommand())
 
         driveGamepad.back.onTrue(Intake.spinUntilHolding())
 
@@ -289,6 +284,10 @@ class MercurialTeleOp : OpMode() {
         Telemetry.path = path
          */
 
+    }
+
+    override fun start() {
+        SwerveDrivetrain.resetHeading()
     }
 
     override fun loop() {

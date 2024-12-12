@@ -10,7 +10,6 @@
             <Servo name="verticalArm" port="2" />
             <Servo name="verticalWrist" port="3" />
             <Servo name="deposit" port="4" />
-            <RevColorSensorV3 name="color" port="0" bus="0" />
             <DigitalDevice name="pin0" port="6"/>
             <DigitalDevice name="pin1" port="7"/>
             <AnalogInput name="depositSensor" port="0" />

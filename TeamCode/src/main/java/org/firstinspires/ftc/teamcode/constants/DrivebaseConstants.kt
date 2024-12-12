@@ -14,9 +14,9 @@ object DrivebaseConstants {
         @JvmField var KV = 6.82 //7.0
         @JvmField var KA = 0.48 //0.5
 
-        @JvmField var KP = 0.45
-        @JvmField var KI = 0.0
-        @JvmField var KD = 0.0
+        @JvmField var KP = 0.40 //0.40
+        @JvmField var KI = 0.0 //0.02
+        @JvmField var KD = 0.03
 
         @JvmField var alignTolerance = 15.0
     }
@@ -70,8 +70,12 @@ object DrivebaseConstants {
         @JvmField var angularUnit = AngleUnit.DEGREES
         @JvmField var linearUnit = DistanceUnit.INCH
 
-        @JvmField var linearScalar = 1.004 // 1.1188 // 1.011 old, 1.024 new
-        @JvmField var angularScalar = 0.99053 //0.9857
+        //@JvmField var linearScalar = 1.004 // 1.1188 // 1.011 old, 1.024 new
+        //@JvmField var linearScalar = 1.018261066//0.9680
+        //@JvmField var linearScalar = 1.020244684//0.9680
+        @JvmField var linearScalar = 1.019//0.9680
+        //@JvmField var angularScalar = 0.994
+        @JvmField var angularScalar = 0.9935
 
         //@JvmField var startPose = SparkFunOTOS.Pose2D(78.0, 7.0, 90.0)
         @JvmField var startPose = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)
@@ -142,13 +146,15 @@ object DrivebaseConstants {
         @JvmField
         var K_SMOOTH = 0.80
         @JvmField
-        var K_CURVATURE = 3.0
+        var K_CURVATURE = 0.1
         @JvmField
         var SPACING = 3.0
         @JvmField
         var K_FOLLOW_DISTANCE = 15.0
         @JvmField
         var K_MIN_FOLLOW_DISTANCE = 3.0
+        @JvmField var KFF = 0.8
+        @JvmField var KPID = 0.0
     }
 
     @JvmField var PurePursuitPIDCoefficients = DrivetrainPIDCoefficients(
