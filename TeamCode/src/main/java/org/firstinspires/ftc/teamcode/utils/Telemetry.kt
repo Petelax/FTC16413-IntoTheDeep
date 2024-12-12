@@ -83,7 +83,7 @@ object Telemetry: Feature {
             }
 
             points.forEach { pose ->
-                fieldOverlay.setFill("#3F51B5").fillCircle(pose.x, pose.y, 2.0)
+                fieldOverlay.setFill("#3F51B5").fillCircle(pose.x, pose.y, 0.5)
             }
 
         }

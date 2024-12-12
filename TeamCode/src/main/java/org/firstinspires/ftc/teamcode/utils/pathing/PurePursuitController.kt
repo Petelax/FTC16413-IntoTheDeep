@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.PurePursuit.K
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.PurePursuit.KPID
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.DrivetrainPIDController
+import org.firstinspires.ftc.teamcode.utils.RateLimiter
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import kotlin.math.abs
 import kotlin.math.absoluteValue
@@ -30,7 +31,10 @@ object PurePursuitController {
     private val p2pController = DrivetrainPIDController(DrivebaseConstants.PIDToPosition)
     private val ppController = DrivetrainPIDController(DrivebaseConstants.PurePursuitPIDCoefficients)
 
-    fun followPathCommand(path: List<CurvePoint>): Lambda {
+    private val xRateLimiter = RateLimiter(DrivebaseConstants.Measurements.MAX_ACCELERATION)
+    private val yRateLimiter = RateLimiter(DrivebaseConstants.Measurements.MAX_ACCELERATION)
+
+    fun followPathCommand(path: List<CurvePoint>, kPID: Double=KPID, kFF: Double=KFF): Lambda {
         return Lambda("follow-path").addRequirements(SwerveDrivetrain)
             .setInit{
                 lastIndex = 0.0
@@ -40,7 +44,7 @@ object PurePursuitController {
             }
             .setExecute{
                 SwerveDrivetrain.firstOrderFieldCentricDrive(
-                    followPath(path, SwerveDrivetrain.getPose())
+                    rateLimit(followPath(path, SwerveDrivetrain.getPose(), kPID, kFF))
                 )
             }
             .setFinish{
@@ -53,9 +57,12 @@ object PurePursuitController {
             }
     }
 
-    fun followPath(pathPoints: List<CurvePoint>, currentPose: Pose2d): ChassisSpeeds {
+    fun followPath(pathPoints: List<CurvePoint>, currentPose: Pose2d, kPID: Double=KPID, kFF: Double=KFF): ChassisSpeeds {
         //assert(pathPoints.size >= 2)
-        val followPoint = getFollowPointPath(pathPoints, currentPose, pathPoints[0].followDistance, lastPoint, lastIndex)
+        val closestPair = getClosestPoint(pathPoints, Pair(Vector2d(currentPose.x, currentPose.y), lastClosestPoint.second))
+        val closestPoint = pathPoints[closestPair.second]
+
+        val followPoint = getFollowPointPath(pathPoints, currentPose, closestPoint.followDistance, lastPoint, lastIndex)
         lastIndex = followPoint.second
         lastPoint = followPoint.first
         Telemetry.put("lastIndex", lastIndex)
@@ -68,18 +75,18 @@ object PurePursuitController {
             followPoint.first.turnSpeed
         )
          */
-        val closestPair = getClosestPoint(pathPoints, Pair(Vector2d(currentPose.x, currentPose.y), lastClosestPoint.second))
 
         lastClosestPoint = closestPair
 
-        val closestPoint = pathPoints[closestPair.second]
 
-        return if ((lastPoint.totalDistance + (lastPoint.followDistance) + 0.5) >= pathPoints.last().totalDistance) {
+        Telemetry.put("last point distance", pathPoints[pathPoints.size-1].totalDistance)
+
+        return if ((lastPoint.totalDistance + (lastPoint.followDistance) + 0.5) >= pathPoints[pathPoints.size-1].totalDistance) {
             goToPositionPID(
                 currentPose,
-                pathPoints.last().pose,
-                pathPoints.last().targetSpeed,
-                pathPoints.last().turnSpeed
+                pathPoints[pathPoints.size-1].pose,
+                pathPoints[pathPoints.size-2].targetSpeed,
+                pathPoints[pathPoints.size-2].turnSpeed,
             )
         } else {
             val direction = getPathDirection(pathPoints, closestPair)
@@ -89,9 +96,9 @@ object PurePursuitController {
                 closestPoint.targetSpeed,
                 followPoint.first.turnSpeed
             )
-            pidSpeeds.vxMetersPerSecond *= KPID
-            pidSpeeds.vyMetersPerSecond *= KPID
-            val ffSpeeds = ChassisSpeeds(direction.x * DrivebaseConstants.Measurements.MAX_VELOCITY * closestPoint.targetSpeed * KFF, direction.y * DrivebaseConstants.Measurements.MAX_VELOCITY * closestPoint.targetSpeed * KFF, 0.0)
+            pidSpeeds.vxMetersPerSecond *= kPID
+            pidSpeeds.vyMetersPerSecond *= kPID
+            val ffSpeeds = ChassisSpeeds(direction.x * DrivebaseConstants.Measurements.MAX_VELOCITY * closestPoint.targetSpeed * kFF, direction.y * DrivebaseConstants.Measurements.MAX_VELOCITY * closestPoint.targetSpeed * kFF, 0.0)
             var targetVec = Vector2d(
                 pidSpeeds.vxMetersPerSecond + ffSpeeds.vxMetersPerSecond,
                 pidSpeeds.vyMetersPerSecond + ffSpeeds.vyMetersPerSecond
@@ -123,6 +130,14 @@ object PurePursuitController {
             //ChassisSpeeds()
         }
 
+    }
+
+    fun rateLimit(speeds: ChassisSpeeds) : ChassisSpeeds {
+        return ChassisSpeeds(
+            xRateLimiter.calculate(speeds.vxMetersPerSecond),
+            yRateLimiter.calculate(speeds.vyMetersPerSecond),
+            speeds.omegaRadiansPerSecond,
+        )
     }
 
     /**
@@ -314,7 +329,12 @@ object PurePursuitController {
     /**
      * path must have greater or equal to 3 points
      */
-    fun setPathTargetSpeed(path: List<CurvePoint>) : List<CurvePoint> {
+    fun setPathTargetSpeed(
+        path: List<CurvePoint>,
+        kCurvature: Double = DrivebaseConstants.PurePursuit.K_CURVATURE,
+        minFollowDistance: Double = DrivebaseConstants.PurePursuit.K_MIN_FOLLOW_DISTANCE,
+        kFollowDistance: Double = DrivebaseConstants.PurePursuit.K_FOLLOW_DISTANCE
+    ) : List<CurvePoint> {
         //assert(path.size>=3)
 
         var newPath: MutableList<CurvePoint> = mutableListOf(path[0].copy(targetSpeed = path[0].moveSpeed))
@@ -330,9 +350,11 @@ object PurePursuitController {
                 curvature = 0.001
             }
 
-            val targetSpeed = min(p.moveSpeed, DrivebaseConstants.PurePursuit.K_CURVATURE / curvature)
+            val targetSpeed = min(p.moveSpeed, kCurvature / curvature)
 
-            val followDistance = DrivebaseConstants.PurePursuit.K_MIN_FOLLOW_DISTANCE + targetSpeed * DrivebaseConstants.PurePursuit.K_FOLLOW_DISTANCE
+            val followDistance = minFollowDistance + targetSpeed * kFollowDistance
+            //val radius = min(1.0/curvature, 1.0)
+            //val followDistance = minFollowDistance + radius * kFollowDistance
 
             newPath.add(i, path[i].copy(followDistance=followDistance, targetSpeed=targetSpeed))
 
@@ -344,13 +366,42 @@ object PurePursuitController {
 
     }
 
-    fun waypointsToPath(points: List<CurvePoint>, spacing: Double = DrivebaseConstants.PurePursuit.SPACING, kSmooth: Double = DrivebaseConstants.PurePursuit.K_SMOOTH) : List<CurvePoint> {
+    fun smoothVelocities(path: List<CurvePoint>, a: Double = DrivebaseConstants.Measurements.MAX_ACCELERATION_PERCENT) : List<CurvePoint> {
+        var newPath = path.toMutableList()
+
+        newPath[newPath.size-1] = path.last().copy(targetSpeed = 0.0)
+
+        for (i in newPath.size-2 downTo  0 ) {
+            val current = newPath[i]
+            val next = newPath[i+1]
+            val distance = distance(next.getVector2d(), current.getVector2d())
+            //val distance = (next.totalDistance - current.totalDistance)
+            val velocity = min(
+                current.targetSpeed,
+                sqrt(next.targetSpeed.pow(2) + 2 * a * distance)
+            )
+            newPath[i] = current.copy(targetSpeed = velocity)
+        }
+
+        return newPath
+
+    }
+
+    fun waypointsToPath(
+        points: List<CurvePoint>,
+        spacing: Double = DrivebaseConstants.PurePursuit.SPACING,
+        kSmooth: Double = DrivebaseConstants.PurePursuit.K_SMOOTH,
+        kCurvature: Double = DrivebaseConstants.PurePursuit.K_CURVATURE,
+        minFollowDistance: Double = DrivebaseConstants.PurePursuit.K_MIN_FOLLOW_DISTANCE,
+        kFollowDistance: Double = DrivebaseConstants.PurePursuit.K_FOLLOW_DISTANCE
+    ) : List<CurvePoint> {
         val injected = injectPoints(points, spacing)
         val a = 1-kSmooth
         val smoothed = smoother(injected, a, kSmooth, 0.001)
         val distanced = distancePoints(smoothed)
-        val constrained = setPathTargetSpeed(distanced) //using k_curvature
-        return constrained
+        val constrained = setPathTargetSpeed(distanced, kCurvature = kCurvature, kFollowDistance = kFollowDistance, minFollowDistance = minFollowDistance) //using k_curvature
+        val bettered = smoothVelocities(constrained)
+        return bettered
     }
 
 

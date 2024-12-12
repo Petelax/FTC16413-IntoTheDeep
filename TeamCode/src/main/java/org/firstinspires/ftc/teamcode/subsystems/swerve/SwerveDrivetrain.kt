@@ -126,14 +126,20 @@ object SwerveDrivetrain : Subsystem {
     }
 
     override fun preUserInitLoopHook(opMode: Wrapper) {
-        //periodic(opMode)
+        //periodic()
     }
 
     override fun preUserLoopHook(opMode: Wrapper) {
-        periodic(opMode)
+        periodic()
     }
 
-    fun periodic(opMode: Wrapper) {
+    /*
+    override fun cleanup(opMode: Wrapper) {
+        SwerveDrivetrain.deregister()
+    }
+     */
+
+    fun periodic() {
         val tempPose = odo.position
         pose = Pose2d(tempPose.x, tempPose.y, Rotation2d.fromDegrees(tempPose.h).minus(headingOffset))
 
@@ -377,6 +383,7 @@ object SwerveDrivetrain : Subsystem {
     fun setPose(pose: Pose2d) {
         headingOffset = Rotation2d()
         odo.position = SparkFunOTOS.Pose2D(pose.x, pose.y, pose.rotation.degrees)
+        periodic()
     }
 
     /**

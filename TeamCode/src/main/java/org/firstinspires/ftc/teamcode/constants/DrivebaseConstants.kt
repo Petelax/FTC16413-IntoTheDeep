@@ -16,7 +16,7 @@ object DrivebaseConstants {
 
         @JvmField var KP = 0.40 //0.40
         @JvmField var KI = 0.0 //0.02
-        @JvmField var KD = 0.03
+        @JvmField var KD = 0.01
 
         @JvmField var alignTolerance = 15.0
     }
@@ -31,7 +31,8 @@ object DrivebaseConstants {
         const val TICKS_PER_REV = 8192
         //const val TICKS_TO_INCHES = (PI*2.0*WHEEL_RADIUS) / TICKS_PER_REV
         const val MAX_VELOCITY = 1.8 /* meters per second */
-        const val MAX_ACCELERATION = 3.6
+        @JvmField var MAX_ACCELERATION = 3.6
+        @JvmField var MAX_ACCELERATION_PERCENT = 0.3
         //const val MAX_ACCEL = 15.0 /* meters per second */
         const val MAX_ANGULAR_VELOCITY = 10 //13.5 /* rad per second */
         //const val CENTER_WHEEL_OFFSET = 0.0
@@ -82,79 +83,20 @@ object DrivebaseConstants {
     }
 
 
-    /*
-    @Config
-    object PurePursuit : DrivetrainPIDCoefficients(
-       /*
-        TranslationKP = 0.3,
-        TranslationKI = 0.0,
-        TranslationKD = 0.025,
-
-        RotationKP = 15.0,
-        RotationKI = 0.0,
-        RotationKD = 0.35,
-
-        TranslationPositionTolerance = 0.25,
-        TranslationVelocityTolerance = 10.0,
-
-        RotationPositionTolerance = 0.025,
-        RotationVelocityTolerance = 1.0,
-
-        MaxAcceleration = 30.0,
-        MaxVelocity = 0.05,
-
-        MaxAngularAcceleration = 120.0,
-        MaxAngularVelocity = 60.0,
-
-        KF = 0.05
-
-        */
-    ) {
-
-        @JvmField var KF = 0.05
-
-        @JvmField var TranslationKP = 0.3
-        @JvmField var TranslationKI = 0.0
-        @JvmField var TranslationKD = 0.025
-
-        @JvmField var RotationKP = 15.0
-        @JvmField var RotationKI = 0.0
-        @JvmField var RotationKD = 0.35
-
-        @JvmField var TranslationPositionTolerance = 0.25
-        @JvmField var TranslationVelocityTolerance = 10.0
-
-        @JvmField var RotationPositionTolerance = 0.025
-        @JvmField var RotationVelocityTolerance = 1.0
-
-        @JvmField var MaxAcceleration = 30.0
-        @JvmField var MaxVelocity = 0.05
-
-        @JvmField var MaxAngularAcceleration = 120.0
-        @JvmField var MaxAngularVelocity = 60.0
-
-        @JvmField var K_SMOOTH = 0.80
-        @JvmField var K_CURVATURE = 0.05
-        @JvmField var SPACING = 3.0
-        @JvmField var K_FOLLOW_DISTANCE = 10.0
-        @JvmField var K_MIN_FOLLOW_DISTANCE = 3.0
-    }
-     */
-
     @Config
     object PurePursuit {
         @JvmField
         var K_SMOOTH = 0.80
         @JvmField
-        var K_CURVATURE = 0.1
+        var K_CURVATURE = 0.09
         @JvmField
-        var SPACING = 3.0
+        var SPACING = 1.5
         @JvmField
-        var K_FOLLOW_DISTANCE = 15.0
+        var K_FOLLOW_DISTANCE = 7.0
         @JvmField
-        var K_MIN_FOLLOW_DISTANCE = 3.0
-        @JvmField var KFF = 0.8
-        @JvmField var KPID = 0.0
+        var K_MIN_FOLLOW_DISTANCE = 1.0
+        @JvmField var KFF = 0.0
+        @JvmField var KPID = 1.0
     }
 
     @JvmField var PurePursuitPIDCoefficients = DrivetrainPIDCoefficients(
@@ -206,34 +148,6 @@ object DrivebaseConstants {
         MaxAngularVelocity = 60.0,
 
     )
-
-    /*
-    @Config
-    object PIDToPosition {
-        @JvmField var KF = 0.05
-
-        @JvmField var TranslationKP = 0.3
-        @JvmField var TranslationKI = 0.0
-        @JvmField var TranslationKD = 0.025
-
-        @JvmField var RotationKP = 15.0
-        @JvmField var RotationKI = 0.0
-        @JvmField var RotationKD = 0.35
-
-        @JvmField var TranslationPositionTolerance = 0.25
-        @JvmField var TranslationVelocityTolerance = 10.0
-
-        @JvmField var RotationPositionTolerance = 0.025
-        @JvmField var RotationVelocityTolerance = 1.0
-
-        @JvmField var MaxAcceleration = 30.0
-        @JvmField var MaxVelocity = 0.05
-
-        @JvmField var MaxAngularAcceleration = 120.0
-        @JvmField var MaxAngularVelocity = 60.0
-    }
-
-     */
 
     @Config
     object DriveHeadingPID {

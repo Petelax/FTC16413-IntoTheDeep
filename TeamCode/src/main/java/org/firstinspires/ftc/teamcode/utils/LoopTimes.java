@@ -45,17 +45,20 @@ public class LoopTimes implements Feature {
         double averageLoopTime = (.000001 * (currentTime - startTime)) / loops;
         double averageHz = 1 / (averageLoopTime / 1000);
 
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("Instantaneous Loop Time", instantLoopTime);
-        packet.put("Instantaneous Loop Hz", instantHz);
-        packet.put("Average Loop Time", averageLoopTime);
-        packet.put("Average Loop Hz", averageHz);
-        FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
+        //TelemetryPacket packet = new TelemetryPacket();
+        org.firstinspires.ftc.teamcode.utils.Telemetry.INSTANCE.put("Instantaneous Loop Time", instantLoopTime);
+        org.firstinspires.ftc.teamcode.utils.Telemetry.INSTANCE.put("Instantaneous Loop Hz", instantHz);
+        org.firstinspires.ftc.teamcode.utils.Telemetry.INSTANCE.put("Average Loop Time", averageLoopTime);
+        org.firstinspires.ftc.teamcode.utils.Telemetry.INSTANCE.put("Average Loop Hz", averageHz);
+        //FtcDashboard.getInstance().sendTelemetryPacket(packet);
+
+        /*
         telemetry.addData("Instantaneous Loop Time", instantLoopTime);
         telemetry.addData("Instantaneous Loop Hz", instantHz);
         telemetry.addData("Average Loop Time", averageLoopTime);
         telemetry.addData("Average Loop Hz", averageHz);
+         */
 
 
         lastTime = currentTime;
