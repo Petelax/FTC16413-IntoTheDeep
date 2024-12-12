@@ -66,6 +66,7 @@ class VerticalConstants {
         @JvmField var OUT = 1.00
 
         @JvmField var DEPOSIT_THRESHOLD = 35.0
+        @JvmField var TIGHT_DEPOSIT_THRESHOLD = 10.0
     }
 
     @Config

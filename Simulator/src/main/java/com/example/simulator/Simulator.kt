@@ -146,12 +146,19 @@ class Simulator : Application() {
 
          */
 
-        val newPath = sixth
+        val newPath = second
         newPath.forEach { point ->
             println(point)
         }
 
+        graphPath(pane, first)
         graphPath(pane, newPath)
+        graphPath(pane, third)
+        graphPath(pane, fourth)
+        graphPath(pane, fifth)
+        graphPath(pane, sixth)
+        graphPath(pane, seventh)
+        graphPath(pane, eighth)
 
         //graphPath(pane, seventh)
         //val arr = PurePursuitController.pathToDoubleArray(first)
@@ -178,6 +185,18 @@ class Simulator : Application() {
         CurvePoint(Pose2d(78.0, 35.0, Rotation2d.fromDegrees(90.0)), 0.2, 1.0, 6.0),
     ))
 
+    private val secondRaw = listOf(
+        CurvePoint(Pose2d(78.0, 36.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 34.0, Rotation2d.fromDegrees(95.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(78.0, 27.0, Rotation2d.fromDegrees(170.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(79.40, 26.96, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(82.0, 26.0, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(90.0, 26.0, Rotation2d.fromDegrees(-120.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(108.0, 30.0, Rotation2d.fromDegrees(-95.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(109.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+    )
 
     private val second = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(78.0, 36.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
@@ -210,10 +229,10 @@ class Simulator : Application() {
         CurvePoint(Pose2d(108.0, 40.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
         CurvePoint(Pose2d(110.0, 45.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
         CurvePoint(Pose2d(118.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(132.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(132.0, 20.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(132.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.5, 1.0, 6.0),
-    ), kSmooth = 0.95, kCurvature = 0.08)
+        CurvePoint(Pose2d(132.0, 57.0, Rotation2d.fromDegrees(-90.0)), 0.7, 1.0, 2.0),
+        CurvePoint(Pose2d(132.0, 22.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(132.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.7, 1.0, 6.0),
+    ), kSmooth = 0.95, kCurvature = 0.075)
 
     private val fifth = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(132.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
@@ -225,12 +244,15 @@ class Simulator : Application() {
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val sixth = PurePursuitController.waypointsToPath(listOf(
-        CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.8, 1.0, 5.0),
-        CurvePoint(Pose2d(70.0, 30.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(70.0, 25.0, Rotation2d.fromDegrees(170.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(70.0, 23.5, Rotation2d.fromDegrees(170.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(120.0, 25.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
+        CurvePoint(Pose2d(70.0, 30.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
+        CurvePoint(Pose2d(70.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(70.0, 23.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(85.0, 24.0, Rotation2d.fromDegrees(170.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(95.0, 24.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(100.0, 24.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 25.0, Rotation2d.fromDegrees(-90.0)), 0.7, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.7, 1.0, 6.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val seventh = PurePursuitController.waypointsToPath(listOf(
@@ -238,13 +260,13 @@ class Simulator : Application() {
         CurvePoint(Pose2d(120.0, 20.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(118.19, 20.5, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(116.10, 21.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(66.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(66.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
-    ), kSmooth = 0.95, kCurvature = 0.08)
+        CurvePoint(Pose2d(65.0, 22.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
+    ), kSmooth = 0.95, kCurvature = 0.075)
 
     private val eighth = PurePursuitController.waypointsToPath(listOf(
-        CurvePoint(Pose2d(66.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.8, 1.0, 5.0),
-        CurvePoint(Pose2d(66.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.8, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
@@ -266,7 +288,7 @@ class Simulator : Application() {
             //val circle1 = Circle(540.0, 540.0, 10.0)  // Create a circle at the given point
             circle.fill = Color.color(0.73, 0.02, 0.99) //Color.PURPLE  // Set the color of the point
             //circle1.fill = Color.PURPLE  // Set the color of the point
-            pane.children.add(circle)  // Add the point to the pane
+            //pane.children.add(circle)  // Add the point to the pane
             //pane.children.add(circle1)
         }
 
@@ -277,7 +299,7 @@ class Simulator : Application() {
             // Create a line from the current point to the next point
             val line = Line(start.x, start.y, end.x, end.y)
             line.stroke = Color.color(0.73, 0.02, 0.99)
-            line.strokeWidth = 2.0  // Set the thickness of the line
+            line.strokeWidth = 3.0  // Set the thickness of the line
             pane.children.add(line)
 
         }

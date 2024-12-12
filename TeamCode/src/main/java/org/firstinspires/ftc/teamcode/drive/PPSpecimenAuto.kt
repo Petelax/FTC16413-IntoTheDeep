@@ -117,8 +117,8 @@ class PPSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(118.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
         CurvePoint(Pose2d(132.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
         CurvePoint(Pose2d(132.0, 20.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(132.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.5, 1.0, 6.0),
-    ), kSmooth = 0.95, kCurvature = 0.08)
+        CurvePoint(Pose2d(132.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.8, 1.0, 6.0),
+    ), kSmooth = 0.95, kCurvature = 0.075)
 
     private val fifth = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(132.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
@@ -126,16 +126,19 @@ class PPSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(118.19, 20.5, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(116.10, 21.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(70.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.8, 1.0, 5.0),
+        CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val sixth = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
         CurvePoint(Pose2d(70.0, 30.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
         CurvePoint(Pose2d(70.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(70.0, 23.5, Rotation2d.fromDegrees(170.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(70.0, 23.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(85.0, 24.0, Rotation2d.fromDegrees(170.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(95.0, 24.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(100.0, 24.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(120.0, 25.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.8, 1.0, 6.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val seventh = PurePursuitController.waypointsToPath(listOf(
@@ -143,13 +146,13 @@ class PPSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(120.0, 20.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(118.19, 20.5, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(116.10, 21.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(66.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(66.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 22.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
     ), kSmooth = 0.95, kCurvature = 0.075)
 
     private val eighth = PurePursuitController.waypointsToPath(listOf(
-        CurvePoint(Pose2d(66.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.8, 1.0, 5.0),
-        CurvePoint(Pose2d(66.0, 23.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 23.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
@@ -183,7 +186,8 @@ class PPSpecimenAuto : OpMode() {
         ),
 
         Wait(0.05),
-        SwerveDrivetrain.forwardTime(0.12, 1.3),
+        //SwerveDrivetrain.forwardTime(0.12, 1.3),
+        Timeout(SwerveDrivetrain.forwardSensor(0.15), 2.0),
 
         Wait(0.05),
         Deposit.close(),
@@ -203,7 +207,7 @@ class PPSpecimenAuto : OpMode() {
             VerticalArm.specimen(),
             VerticalWrist.specimenPlace(),
             Sequential(
-                Wait(1.0),
+                Wait(0.7),
                 Elevator.pidAutoTimeout(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+1.0, 2.0),
             ),
             Sequential(
@@ -235,7 +239,8 @@ class PPSpecimenAuto : OpMode() {
         Lambda("print-path").setInit{Telemetry.path = fifth},
 
         Wait(0.05),
-        SwerveDrivetrain.forwardTime(0.12, 1.3),
+        //SwerveDrivetrain.forwardTime(0.12, 1.3),
+        Timeout(SwerveDrivetrain.forwardSensor(0.15), 2.0),
 
         Wait(0.05),
         Deposit.close(),
@@ -277,7 +282,8 @@ class PPSpecimenAuto : OpMode() {
         ),
 
         Wait(0.05),
-        SwerveDrivetrain.forwardTime(0.12, 1.3),
+        //SwerveDrivetrain.forwardTime(0.12, 1.3),
+        Timeout(SwerveDrivetrain.forwardSensor(0.15), 2.0),
 
         /*
          * seventh

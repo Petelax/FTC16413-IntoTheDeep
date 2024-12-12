@@ -27,6 +27,7 @@ import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.WHEEL_BASE
+import org.firstinspires.ftc.teamcode.subsystems.Deposit
 import org.firstinspires.ftc.teamcode.utils.PIDController
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import java.lang.annotation.Inherited
@@ -244,6 +245,14 @@ object SwerveDrivetrain : Subsystem {
             stopCmd()
         )
     }
+
+    fun forwardSensor(speed: Double): Lambda {
+        return Lambda("drivetrain-sensor-forward").addRequirements(SwerveDrivetrain)
+            .setExecute{ drive(ChassisSpeeds(-speed, 0.0, 0.0)) }
+            .setFinish{ Deposit.reallyHoldingPiece() }
+            .setEnd{ stop() }
+    }
+
 
     fun pp2p(setPoint: Pose2d): Lambda {
         return Lambda("pp2p").addRequirements(SwerveDrivetrain)

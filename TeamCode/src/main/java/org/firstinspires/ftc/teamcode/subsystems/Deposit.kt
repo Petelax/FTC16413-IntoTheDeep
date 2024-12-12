@@ -46,7 +46,7 @@ object Deposit : Subsystem {
     override fun preUserLoopHook(opMode: Wrapper) {
         distance = crf.voltage / maxVoltage * 100.0
         Telemetry.put("deposit distance", getDistance())
-        Telemetry.put("holding", holdingPiece())
+        Telemetry.put("really holding", reallyHoldingPiece())
     }
 
     fun kill(): Lambda {
@@ -101,6 +101,10 @@ object Deposit : Subsystem {
 
     fun holdingPiece() : Boolean {
         return getDistance() <= VerticalConstants.DepositPositions.DEPOSIT_THRESHOLD
+    }
+
+    fun reallyHoldingPiece() : Boolean {
+        return getDistance() <= VerticalConstants.DepositPositions.TIGHT_DEPOSIT_THRESHOLD
     }
 
 
