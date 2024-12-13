@@ -36,6 +36,7 @@ import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.BulkReads
+import org.firstinspires.ftc.teamcode.utils.Globals
 import org.firstinspires.ftc.teamcode.utils.LoopTimes
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import org.firstinspires.ftc.teamcode.utils.pathing.CurvePoint
@@ -425,6 +426,7 @@ class PPSpecimenAuto : OpMode() {
         Elevator.defaultCommand = null
 
         Telemetry.path = first
+        Telemetry.put("alliance colour", Globals.AllianceColour.name)
         //Telemetry.points.add( Pose2d(48.0, 0.0, Rotation2d()) )
 
     }

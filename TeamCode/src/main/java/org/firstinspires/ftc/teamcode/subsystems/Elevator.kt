@@ -138,6 +138,12 @@ object Elevator : Subsystem {
 
     }
 
+    fun reset() {
+        currentPosition = 0.0
+        positionOffset = 0.0
+        controller.controllerCalculation.reset()
+    }
+
     /*
     val fsm: StateMachine<States> = StateMachine(States.MANUAL)
         .withState(States.MANUAL) { state: RefCell<States>, name: String ->

@@ -11,6 +11,7 @@ import dev.frozenmilk.mercurial.commands.groups.Race
 import dev.frozenmilk.mercurial.commands.groups.Sequential
 import dev.frozenmilk.mercurial.commands.util.IfElse
 import dev.frozenmilk.mercurial.commands.util.Wait
+import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.HorizontalRetract
 import org.firstinspires.ftc.teamcode.constants.DrivetrainPIDCoefficients
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
@@ -24,6 +25,7 @@ import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.BulkReads
+import org.firstinspires.ftc.teamcode.utils.Globals
 import org.firstinspires.ftc.teamcode.utils.LoopTimes
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 
@@ -220,11 +222,11 @@ class MercurialTeleOp : OpMode() {
 
         )
 
-        mechanismGamepad.dpadUp.onTrue(Parallel(Sequential(Intake.runIntake(), Wait(0.400), Intake.stopIntake()), verticalSample))
+        mechanismGamepad.dpadUp.onTrue(Parallel(Sequential(Intake.runIntake(), Wait(0.400), Intake.stopIntake()), verticalSample).with(horizontalRetract))
         mechanismGamepad.dpadDown.onTrue(verticalRetract)
 
-        mechanismGamepad.dpadLeft.onTrue(verticalSpecimenPickup)
-        mechanismGamepad.dpadRight.onTrue(verticalSpecimenPlace)
+        mechanismGamepad.dpadLeft.onTrue(verticalSpecimenPickup.with(horizontalRetract))
+        mechanismGamepad.dpadRight.onTrue(verticalSpecimenPlace.with(horizontalRetract))
 
         mechanismGamepad.y.onTrue(sample)
 
@@ -283,6 +285,7 @@ class MercurialTeleOp : OpMode() {
 
         Telemetry.path = path
          */
+        Telemetry.put("alliance colour", Globals.AllianceColour.name)
 
     }
 

@@ -100,6 +100,12 @@ object HorizontalExtension : Subsystem {
         currentPosition = (motor.currentPosition * constants.TICKS_TO_INCHES) - positionOffset
     }
 
+    fun reset() {
+        currentPosition = 0.0
+        positionOffset = 0.0
+        controller.controllerCalculation.reset()
+    }
+
     fun drive(speed: DoubleSupplier): Lambda {
         return Lambda("horizontal-extension-default").addRequirements(HorizontalExtension)
             .setInit{

@@ -424,6 +424,12 @@ object SwerveDrivetrain : Subsystem {
             .setInit{ headingOffset = headingOffset.plus(getPose().rotation) }
     }
 
+    fun reset() {
+        setPose(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)))
+        headingOffset = Rotation2d()
+        headingController.reset()
+    }
+
     fun resetHeading() {
         headingOffset = headingOffset.plus(getPose().rotation)
     }
