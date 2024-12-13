@@ -187,7 +187,7 @@ class PPSpecimenAuto : OpMode() {
 
         Wait(0.05),
         //SwerveDrivetrain.forwardTime(0.12, 1.3),
-        Timeout(SwerveDrivetrain.forwardSensor(0.15), 2.0),
+        Timeout(SwerveDrivetrain.forwardSensor(0.2), 2.0),
 
         Wait(0.05),
         Deposit.close(),
@@ -240,7 +240,7 @@ class PPSpecimenAuto : OpMode() {
 
         Wait(0.05),
         //SwerveDrivetrain.forwardTime(0.12, 1.3),
-        Timeout(SwerveDrivetrain.forwardSensor(0.15), 2.0),
+        Timeout(SwerveDrivetrain.forwardSensor(0.2), 2.0),
 
         Wait(0.05),
         Deposit.close(),
@@ -283,7 +283,7 @@ class PPSpecimenAuto : OpMode() {
 
         Wait(0.05),
         //SwerveDrivetrain.forwardTime(0.12, 1.3),
-        Timeout(SwerveDrivetrain.forwardSensor(0.15), 2.0),
+        Timeout(SwerveDrivetrain.forwardSensor(0.2), 2.0),
 
         /*
          * seventh

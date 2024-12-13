@@ -23,6 +23,7 @@ import dev.frozenmilk.mercurial.commands.util.Wait
 import dev.frozenmilk.mercurial.subsystems.Subsystem
 import dev.frozenmilk.util.cell.RefCell
 import org.ejml.simple.SimpleMatrix
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.TRACK_WIDTH
@@ -78,7 +79,7 @@ object SwerveDrivetrain : Subsystem {
         FeatureRegistrar.activeOpMode.hardwareMap.get(SparkFunOTOS::class.java, DeviceIDs.OTOS)
     }
 
-    private var pose = Pose2d()
+    private var pose = Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))
     private var headingOffset = Rotation2d()
 
     val c = DrivebaseConstants.PIDToPosition
@@ -100,7 +101,28 @@ object SwerveDrivetrain : Subsystem {
         lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET)
         rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
 
-        configureOtos()
+        val config = DrivebaseConstants.Otos
+        odo.setLinearUnit(config.linearUnit)
+        odo.setAngularUnit(config.angularUnit)
+
+        odo.setOffset(config.offset)
+
+        odo.setLinearScalar(config.linearScalar)
+        odo.setAngularScalar(config.angularScalar)
+
+        odo.calibrateImu()
+
+        odo.resetTracking()
+
+        odo.position = SparkFunOTOS.Pose2D(pose.x, pose.y, pose.rotation.degrees)
+        headingOffset = Rotation2d()
+
+        //headingOffset = Rotation2d()
+        /*
+        if (opMode.meta.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
+            configureOtos()
+        }
+         */
 
         headingController.enableContinuousInput(-PI, PI)
 
@@ -118,8 +140,8 @@ object SwerveDrivetrain : Subsystem {
         driveHeadingController.setTolerance(DrivebaseConstants.DriveHeadingPID.PositionTolerance, DrivebaseConstants.DriveHeadingPID.VelocityTolerance)
 
         defaultCommand = fieldCentricDrive(
+            { opMode.opMode.gamepad1.left_stick_y.toDouble() },
             { opMode.opMode.gamepad1.left_stick_x.toDouble() },
-            { -opMode.opMode.gamepad1.left_stick_y.toDouble() },
             { opMode.opMode.gamepad1.right_stick_x.toDouble() },
             { opMode.opMode.gamepad1.x },
             { opMode.opMode.gamepad1.a },
@@ -133,12 +155,6 @@ object SwerveDrivetrain : Subsystem {
     override fun preUserLoopHook(opMode: Wrapper) {
         periodic()
     }
-
-    /*
-    override fun cleanup(opMode: Wrapper) {
-        SwerveDrivetrain.deregister()
-    }
-     */
 
     fun periodic() {
         val tempPose = odo.position
@@ -673,7 +689,7 @@ object SwerveDrivetrain : Subsystem {
         }
     }
 
-    private fun configureOtos() {
+    private fun configureOtos(startPose: SparkFunOTOS.Pose2D = DrivebaseConstants.Otos.startPose) {
         val config = DrivebaseConstants.Otos
         // Set the desired units for linear and angular measurements. Can be either
         // meters or inches for linear, and radians or degrees for angular. If not
@@ -739,7 +755,7 @@ object SwerveDrivetrain : Subsystem {
         // another source of location information (eg. vision odometry), you can set
         // the OTOS location to match and it will continue to track from there.
         // val currentPosition = SparkFunOTOS.Pose2D(0.0, 0.0, 0.0)
-        odo.setPosition(config.startPose)
+        odo.setPosition(startPose)
 
         // Get the hardware and firmware version
         val hwVersion = SparkFunOTOS.Version()

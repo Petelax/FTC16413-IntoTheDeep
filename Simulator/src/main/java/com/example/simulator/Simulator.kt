@@ -153,12 +153,14 @@ class Simulator : Application() {
 
         graphPath(pane, first)
         graphPath(pane, newPath)
+        /*
         graphPath(pane, third)
         graphPath(pane, fourth)
         graphPath(pane, fifth)
         graphPath(pane, sixth)
         graphPath(pane, seventh)
         graphPath(pane, eighth)
+         */
 
         //graphPath(pane, seventh)
         //val arr = PurePursuitController.pathToDoubleArray(first)

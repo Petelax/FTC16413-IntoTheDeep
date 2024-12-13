@@ -24,6 +24,7 @@ import dev.frozenmilk.mercurial.commands.util.StateMachine
 import dev.frozenmilk.mercurial.commands.util.Wait
 import dev.frozenmilk.mercurial.subsystems.Subsystem
 import dev.frozenmilk.util.cell.RefCell
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
@@ -76,8 +77,10 @@ object Elevator : Subsystem {
     lateinit var controller: DoubleController
 
     override fun preUserInitHook(opMode: Wrapper) {
-        motorLeft.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-        motorRight.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        if (opMode.meta.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
+            motorLeft.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            motorRight.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        }
 
         motorLeft.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motorRight.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER

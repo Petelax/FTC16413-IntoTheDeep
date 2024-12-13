@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.arcrobotics.ftclib.geometry.Pose2d
+import com.arcrobotics.ftclib.geometry.Rotation2d
 import dev.frozenmilk.dairy.core.Feature
 import dev.frozenmilk.dairy.core.dependency.Dependency
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
@@ -21,8 +22,8 @@ object Telemetry: Feature {
 
     private var packets: MutableMap<String, Any> = mutableMapOf()
 
-    var robotPose = Pose2d()
-        set(value) {
+    var robotPose = Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))
+         set(value) {
             field = value
             packets["x"] = robotPose.x
             packets["y"] = robotPose.y

@@ -17,9 +17,9 @@ import dev.frozenmilk.mercurial.commands.Lambda
 import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda
 import dev.frozenmilk.mercurial.subsystems.Subsystem
 import dev.frozenmilk.util.cell.RefCell
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
-import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.utils.Cache
 import java.lang.annotation.Inherited
 import java.util.function.DoubleSupplier
@@ -38,7 +38,7 @@ object HorizontalExtension : Subsystem {
     override var dependency: Dependency<*> = Subsystem.DEFAULT_DEPENDENCY and SingleAnnotation(Attach::class.java)
 
     private var motor by subsystemCell{
-        FeatureRegistrar.activeOpMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.ELEVATOR_LEFT)
+        FeatureRegistrar.activeOpMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.HORIZONTAL_EXTENSION)
     }
 
     private var currentPosition: Double = 0.0
@@ -60,9 +60,9 @@ object HorizontalExtension : Subsystem {
     private var lastHoldPosition = true
 
     override fun preUserInitHook(opMode: Wrapper) {
-        motor = opMode.opMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.HORIZONTAL_EXTENSION)
-
-        motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        if (opMode.meta.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
+            motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        }
 
         motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 

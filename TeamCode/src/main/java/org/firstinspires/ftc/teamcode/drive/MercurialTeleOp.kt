@@ -287,7 +287,7 @@ class MercurialTeleOp : OpMode() {
     }
 
     override fun start() {
-        SwerveDrivetrain.resetHeading()
+        //SwerveDrivetrain.resetHeading()
     }
 
     override fun loop() {
