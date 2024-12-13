@@ -232,9 +232,20 @@ class MercurialTeleOp : OpMode() {
 
         mechanismGamepad.x.onTrue(horizontalRetract)
         mechanismGamepad.b.onTrue(
-            IfElse ( {HorizontalExtension.getPosition() < 1.0},
-                Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
-                Parallel(HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
+            Parallel(
+                IfElse ( {HorizontalExtension.getPosition() < 1.0},
+                    Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
+                    Parallel(HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
+                ),
+                VerticalArm.intake(),
+                VerticalWrist.intake(),
+                IfElse ( {Elevator.getPosition() > VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+1.0},
+                    Parallel (
+                        Elevator.pid(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE),
+                        Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE)
+                    ),
+                    Sequential()
+                )
             )
         )
         mechanismGamepad.b.onTrue(Wait(0.100).then(Intake.runIntakeStopping().then(Intake.backDrive())))
