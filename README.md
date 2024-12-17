@@ -1,3 +1,5 @@
+*"And when Alexander saw the breadth of his domain, he wept, for there were no more worlds to conquer."*
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the INTO THE DEEP (2024-2025) competition season.
