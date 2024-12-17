@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive
+package org.firstinspires.ftc.teamcode.drive.test
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
@@ -11,14 +11,15 @@ import com.arcrobotics.ftclib.command.WaitCommand
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.AlignPIDToPosition
 import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.ElevatorPIDCommand
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.ftclib.Elevator
 import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
-import org.firstinspires.ftc.teamcode.utils.Drawing
 
 @Config
+@Disabled
 @Autonomous(group = "test")
 class PIDAuto: CommandOpMode() {
     private lateinit var drive: SwerveDrivetrain

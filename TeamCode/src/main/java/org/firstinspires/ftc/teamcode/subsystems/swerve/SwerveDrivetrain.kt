@@ -570,11 +570,11 @@ object SwerveDrivetrain : Subsystem {
                 if (totalDesiredActions > 1) {
                     ;
                 } else if (basket.asBoolean) {
-                    turnPower = -driveHeadingController.calculate(normalizeRadians(getHeading()), normalizeRadians(Math.toRadians(135.0)))
+                    turnPower = -driveHeadingController.calculate(normalizeRadians(getHeading()), normalizeRadians(Math.toRadians(-135.0)))
                 } else if (observationZone.asBoolean) {
-                    turnPower = -driveHeadingController.calculate(normalizeRadians(getHeading()), normalizeRadians(Math.toRadians(180.0)))
+                    turnPower = -driveHeadingController.calculate(normalizeRadians(getHeading()), normalizeRadians(Math.toRadians(-90.0)))
                 } else if (highRung.asBoolean) {
-                    turnPower = -driveHeadingController.calculate(normalizeRadians(getHeading()), normalizeRadians(Math.toRadians(0.0)))
+                    turnPower = -driveHeadingController.calculate(normalizeRadians(getHeading()), normalizeRadians(Math.toRadians(90.0)))
                 }
 
                 firstOrderFieldCentricDrive(

@@ -11,6 +11,7 @@ import dev.frozenmilk.mercurial.commands.groups.Race
 import dev.frozenmilk.mercurial.commands.groups.Sequential
 import dev.frozenmilk.mercurial.commands.util.IfElse
 import dev.frozenmilk.mercurial.commands.util.Wait
+import org.firstinspires.ftc.teamcode.commands.Timeout
 import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.HorizontalRetract
 import org.firstinspires.ftc.teamcode.constants.DrivetrainPIDCoefficients
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
@@ -157,7 +158,8 @@ class MercurialTeleOp : OpMode() {
         val horizontalRetract = Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake())
 
         val sample = Sequential(
-            horizontalRetract,
+            Timeout(Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.INSIDE), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake()), 1.5),
+
             IfElse(
                 {HorizontalExtension.getPosition() > 0.5},
                 Parallel(

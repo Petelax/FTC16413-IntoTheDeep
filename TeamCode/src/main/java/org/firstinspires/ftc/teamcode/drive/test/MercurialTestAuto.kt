@@ -1,47 +1,34 @@
-package org.firstinspires.ftc.teamcode.drive
+package org.firstinspires.ftc.teamcode.drive.test
 
-import androidx.core.os.persistableBundleOf
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
-import com.arcrobotics.ftclib.command.ParallelDeadlineGroup
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import dev.frozenmilk.mercurial.Mercurial
-import dev.frozenmilk.mercurial.commands.Lambda
 import dev.frozenmilk.mercurial.commands.groups.Parallel
 import dev.frozenmilk.mercurial.commands.groups.Race
 import dev.frozenmilk.mercurial.commands.groups.Sequential
-import dev.frozenmilk.mercurial.commands.util.IfElse
 import dev.frozenmilk.mercurial.commands.util.Wait
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
-import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
-import org.firstinspires.ftc.teamcode.drive.SpecimenAuto.specimenAutoPoses.place
-import org.firstinspires.ftc.teamcode.drive.SpecimenAuto.specimenAutoPoses.startPose
+import org.firstinspires.ftc.teamcode.drive.test.SpecimenAuto.specimenAutoPoses.place
+import org.firstinspires.ftc.teamcode.drive.test.SpecimenAuto.specimenAutoPoses.startPose
 import org.firstinspires.ftc.teamcode.subsystems.Deposit
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalArm
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
-import org.firstinspires.ftc.teamcode.subsystems.HorizontalWrist
-import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.BulkReads
 import org.firstinspires.ftc.teamcode.utils.LoopTimes
-import org.firstinspires.ftc.teamcode.utils.Telemetry
-import org.firstinspires.ftc.teamcode.utils.pathing.CurvePoint
 
 @Mercurial.Attach
 @BulkReads.Attach
 @LoopTimes.Attach
-@Telemetry.Attach
 
 @SwerveDrivetrain.Attach
 
@@ -55,8 +42,9 @@ import org.firstinspires.ftc.teamcode.utils.pathing.CurvePoint
 @VerticalWrist.Attach
 @Deposit.Attach
 
+@Disabled
 @Autonomous
-class SpecimenAuto : OpMode() {
+class MercurialTestAuto : OpMode() {
     val verticalSpecimenPickup = Parallel(
         Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.BOTTOM),
         Elevator.pidAuto(VerticalConstants.ElevatorPositions.BOTTOM),
@@ -81,16 +69,17 @@ class SpecimenAuto : OpMode() {
                 SwerveDrivetrain.alignModules(place),
                 Wait(0.65)
             ),
-            Wait(0.55)
+            Wait(0.65)
         ),
         Parallel(
             //SwerveDrivetrain.bp2p(place, 3.0),
             Sequential(
                 Wait(0.1),
-                Race( null,
-                    Wait(2.0),
-                    SwerveDrivetrain.cp2p(place),
-                ),
+                Parallel(
+                    SwerveDrivetrain.bcp2p(place, 1.5),
+                    Wait(0.90),
+                    //changed
+                )
             ),
             Race( null,
                 Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+1.0), Wait(1.0))
@@ -124,8 +113,6 @@ class SpecimenAuto : OpMode() {
             SwerveDrivetrain.bp2p(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 3.0),
             Wait(0.8)
         ),
-
-        Lambda("print-path").setInit{Telemetry.path = second},
 
         Race(
             Wait(1.2),
@@ -185,8 +172,6 @@ class SpecimenAuto : OpMode() {
             Sequential(Wait(0.1), SwerveDrivetrain.bp2p(Pose2d(69.0, 34.5, Rotation2d.fromDegrees(90.0)), 1.5)),
         ),
 
-        Lambda("print-path").setInit{Telemetry.path = third},
-
         Wait(0.1),
         Deposit.open(),
         Wait(0.1),
@@ -216,44 +201,19 @@ class SpecimenAuto : OpMode() {
     )
 
     override fun init() {
-        //SwerveDrivetrain.setPose(startPose)
+        //DrivebaseConstants.Otos.startPose = SparkFunOTOS.Pose2D(startPose.x, startPose.y, startPose.rotation.degrees)
         SwerveDrivetrain.setPose(startPose)
+        //SwerveDrivetrain.setPose(Pose2d(0.0, 0.0, Rotation2d()))
 
         VerticalArm.setPosition(VerticalConstants.VerticalArmPositions.AUTO_START)
         Deposit.setPosition(VerticalConstants.DepositPositions.IN)
         VerticalWrist.setPosition(VerticalConstants.VerticalWristPositions.INTAKE)
 
         SwerveDrivetrain.defaultCommand = SwerveDrivetrain.stopCmd()
+
         Elevator.defaultCommand = null
 
-
-        Telemetry.path = first
-
     }
-
-    private val first = listOf(
-        CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(103.5, 16.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(108.0, 58.0, Rotation2d.fromDegrees(-85.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
-    )
-
-    private val second = listOf(
-        CurvePoint(Pose2d(120.0, 7.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(104.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(120.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(129.0, 56.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
-        )
-
-    private val third = listOf(
-        CurvePoint(Pose2d(129.0, 19.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(69.0, 34.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(120.0, 12.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        )
 
     override fun init_loop() {
 
@@ -262,15 +222,36 @@ class SpecimenAuto : OpMode() {
     override fun start() {
         //SwerveDrivetrain.setPose(startPose)
 
-        auto.schedule()
-        //Sequential(
-            //SwerveDrivetrain.alignModules(place),
-            //SwerveDrivetrain.p2p(place)
-        //).schedule()
+        //auto.schedule()
+            //SwerveDrivetrain.alignModules(Pose2d(1.0, 0.0, Rotation2d())),
+
+        Sequential(
+            //SwerveDrivetrain.alignModules(Pose2d(24.0, 0.0, Rotation2d())),
+            Parallel(
+                SwerveDrivetrain.p2p(Pose2d(78.0, 24.0, Rotation2d.fromDegrees(90.0))),
+                Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE),
+                VerticalArm.specimen(),
+                VerticalWrist.specimenPlace(),
+            ),
+            Parallel(
+                SwerveDrivetrain.p2p(startPose),
+                Elevator.pidAuto(VerticalConstants.ElevatorPositions.BOTTOM),
+                VerticalArm.specimen(),
+                VerticalWrist.specimenPickup(),
+            ),
+            //SwerveDrivetrain.p2p(Pose2d(48.0, 0.0, Rotation2d())),
+            //SwerveDrivetrain.p2p(Pose2d(0.0, 0.0, Rotation2d())),
+        ).schedule()
 
     }
 
     override fun loop() {
+        val packet = TelemetryPacket()
+        val pose = SwerveDrivetrain.getPose()
+        val delta = SwerveDrivetrain.getDelta()
+        //packet.put("x", pose.x)
+        //packet.put("y", pose.y)
+        //packet.put("heading", pose.heading)
         /*
         packet.put("lf delta", delta[0])
         packet.put("rf delta", delta[1])
@@ -278,10 +259,10 @@ class SpecimenAuto : OpMode() {
         packet.put("rr delta", delta[3])
 
          */
-        //packet.put("elevator pos", Elevator.getPosition())
-        //packet.put("elevator target", Elevator.targetPosition)
-        //packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
-        //FtcDashboard.getInstance().sendTelemetryPacket(packet)
+        packet.put("elevator pos", Elevator.getPosition())
+        packet.put("elevator target", Elevator.targetPosition)
+        packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
+        FtcDashboard.getInstance().sendTelemetryPacket(packet)
 
     }
 

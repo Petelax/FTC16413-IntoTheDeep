@@ -7,6 +7,7 @@ import com.arcrobotics.ftclib.command.button.GamepadButton
 import com.arcrobotics.ftclib.gamepad.GamepadEx
 import com.arcrobotics.ftclib.gamepad.GamepadKeys
 import com.qualcomm.hardware.lynx.LynxModule
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.VoltageSensor
 import org.firstinspires.ftc.teamcode.commands.ftclib.drivebase.FieldCentricDrive
@@ -31,6 +32,7 @@ import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.ftclib.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.ftclib.swerve.SwerveDrivetrain
 
+@Disabled
 @TeleOp(group = "test")
 class CommandTeleOp: CommandOpMode() {
     private lateinit var hubs: List<LynxModule>

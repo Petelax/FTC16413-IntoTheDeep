@@ -61,9 +61,15 @@ class VerticalConstants {
 
     @Config
     object DepositPositions {
+        @JvmField var IN = 0.01
+        @JvmField var MID = 0.08
+        @JvmField var OUT = 0.80
+        /*
+        old
         @JvmField var IN = 0.0
         @JvmField var MID = 0.08
-        @JvmField var OUT = 1.00
+        @JvmField var OUT = 1.0
+         */
 
         @JvmField var DEPOSIT_THRESHOLD = 35.0
         @JvmField var TIGHT_DEPOSIT_THRESHOLD = 10.0
@@ -89,6 +95,11 @@ class VerticalConstants {
      * pwm power 74.9%
      *
      * deposit
+     * angle 55 units
+     * pwm power 94.1%
+     * sensitivity high
+     *
+     * old deposit
      * angle 50 units
      * pwm power 94.1%
      * sensitivity high

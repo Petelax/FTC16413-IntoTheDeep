@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import dev.frozenmilk.mercurial.Mercurial
@@ -28,17 +29,13 @@ import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 @Deposit.Attach
 
 @TeleOp
-class ResetEverything : OpMode() {
-    override fun init() {
+class ResetEverything : LinearOpMode() {
+    override fun runOpMode() {
         SwerveDrivetrain.reset()
         Elevator.reset()
         HorizontalExtension.reset()
-        telemetry.addLine("everything is reset")
-        telemetry.update()
+        waitForStart()
     }
 
-    override fun loop() {
-
-    }
 
 }
