@@ -59,6 +59,16 @@ object PurePursuitController {
 
     fun followPath(pathPoints: List<CurvePoint>, currentPose: Pose2d, kPID: Double=KPID, kFF: Double=KFF): ChassisSpeeds {
         //assert(pathPoints.size >= 2)
+
+        if (pathPoints.size == 1) {
+            return goToPositionPID(
+                currentPose,
+                pathPoints[0].pose,
+                pathPoints[0].targetSpeed,
+                pathPoints[0].turnSpeed,
+            )
+        }
+
         val closestPair = getClosestPoint(pathPoints, Pair(Vector2d(currentPose.x, currentPose.y), lastClosestPoint.second))
         val closestPoint = pathPoints[closestPair.second]
 

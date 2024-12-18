@@ -39,7 +39,7 @@ object Deposit : Subsystem {
     override fun preUserInitHook(opMode: Wrapper) {
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
         cachedPosition = 100.0
-        servo.position = VerticalConstants.DepositPositions.OUT
+        //servo.position = VerticalConstants.DepositPositions.OUT
         maxVoltage = crf.maxVoltage
     }
 

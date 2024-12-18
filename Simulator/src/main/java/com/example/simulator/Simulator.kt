@@ -146,20 +146,23 @@ class Simulator : Application() {
 
          */
 
-        val newPath = second
+        val newPath = first
         newPath.forEach { point ->
             println(point)
         }
 
         graphPath(pane, first)
-        graphPath(pane, newPath)
 
+        /*
+        graphPath(pane, first)
+        graphPath(pane, newPath)
         graphPath(pane, third)
         graphPath(pane, fourth)
         graphPath(pane, fifth)
         graphPath(pane, sixth)
         graphPath(pane, seventh)
         graphPath(pane, eighth)
+         */
 
         //graphPath(pane, seventh)
         //val arr = PurePursuitController.pathToDoubleArray(first)
@@ -179,6 +182,13 @@ class Simulator : Application() {
         primaryStage.show()
     }
 
+    private val first = PurePursuitController.waypointsToPath(listOf(
+        CurvePoint(Pose2d(29.75, 7.375, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(27.31, 10.54, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
+    ), kSmooth = 0.95)
+
+    /*
     private val first = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(78.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
@@ -280,6 +290,8 @@ class Simulator : Application() {
         CurvePoint(Pose2d(120.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
         CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
     )
+
+     */
 
     fun graphPath(pane: Pane, path: List<CurvePoint>) {
         for (point in path) {

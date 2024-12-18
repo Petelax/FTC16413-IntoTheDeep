@@ -76,8 +76,8 @@ object Intake : Subsystem {
         left.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
         right.pwmRange = PwmControl.PwmRange(500.0, 2500.0)
         cachedPower = 100.0
-        left.power = 0.0
-        right.power = 0.0
+        //left.power = 0.0
+        //right.power = 0.0
         right.direction = DcMotorSimple.Direction.REVERSE
         pin0.mode = DigitalChannel.Mode.INPUT
         pin1.mode = DigitalChannel.Mode.INPUT

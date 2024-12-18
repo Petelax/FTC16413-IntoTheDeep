@@ -9,6 +9,6 @@ import org.firstinspires.ftc.teamcode.utils.Globals
 class SetRedAlliance : LinearOpMode() {
     override fun runOpMode() {
         Globals.AllianceColour = AllianceColours.Red
-        waitForStart()`
+        waitForStart();
     }
 }

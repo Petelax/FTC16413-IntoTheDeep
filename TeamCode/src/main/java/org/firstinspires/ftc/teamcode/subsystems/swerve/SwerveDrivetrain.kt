@@ -421,7 +421,7 @@ object SwerveDrivetrain : Subsystem {
 
     fun resetHeadingCommand(): Lambda {
         return Lambda("reset-heading")
-            .setInit{ headingOffset = headingOffset.plus(getPose().rotation) }
+            .setInit{ headingOffset = headingOffset.plus(getPose().rotation).plus(Rotation2d.fromDegrees(-90.0)) }
     }
 
     fun reset() {

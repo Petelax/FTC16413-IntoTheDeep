@@ -114,6 +114,10 @@ class SwerveModule
         return desiredState
     }
 
+    fun getCurrentState(): SwerveModuleState {
+        return SwerveModuleState(desiredState.speedMetersPerSecond, Rotation2d(getHeading()))
+    }
+
     /**
      * set state of module
      */
