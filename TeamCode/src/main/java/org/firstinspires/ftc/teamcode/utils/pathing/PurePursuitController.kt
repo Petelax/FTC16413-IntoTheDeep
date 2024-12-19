@@ -411,6 +411,9 @@ object PurePursuitController {
         val distanced = distancePoints(smoothed)
         val constrained = setPathTargetSpeed(distanced, kCurvature = kCurvature, kFollowDistance = kFollowDistance, minFollowDistance = minFollowDistance) //using k_curvature
         val bettered = smoothVelocities(constrained)
+        val start = bettered[0].pose
+        val end = bettered[bettered.size-1].pose
+        println("path between $start and $end generated")
         return bettered
     }
 
@@ -560,7 +563,7 @@ object PurePursuitController {
         var indices: MutableList<Double> = mutableListOf()
 
         if (discriminant < 0) {
-            println("no intersection")
+            //println("no intersection")
             return emptyList()
         } else {
             discriminant = sqrt(discriminant)

@@ -70,16 +70,18 @@ class PPSpecimenAuto : OpMode() {
 
     private val second = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(78.0, 36.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(78.0, 34.0, Rotation2d.fromDegrees(95.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(78.0, 27.0, Rotation2d.fromDegrees(170.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(79.40, 26.96, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(82.0, 26.0, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(90.0, 26.0, Rotation2d.fromDegrees(-120.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(108.0, 30.0, Rotation2d.fromDegrees(-95.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(109.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(120.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-    ), kSmooth = 0.95, minFollowDistance = 4.5, kFollowDistance = 6.0, kCurvature = 0.085, spacing = 1.5)
+        CurvePoint(Pose2d(78.0, 34.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 30.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(78.0, 25.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(82.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(87.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(90.0, 25.0, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(108.0, 30.0, Rotation2d.fromDegrees(-95.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(109.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 22.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.75, 1.0, 6.0),
+    ), kSmooth = 0.895, minFollowDistance = 4.5, kFollowDistance = 6.0, kCurvature = 0.080, spacing = 1.5)
 
     private val third = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.8, 1.0, 6.0),
@@ -87,7 +89,7 @@ class PPSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(118.19, 18.60, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(116.10, 19.55, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(73.0, 21.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(73.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.8, 1.0, 5.0),
+        CurvePoint(Pose2d(73.0, 35.50, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val fourth = PurePursuitController.waypointsToPath(listOf(
@@ -110,7 +112,7 @@ class PPSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(118.19, 20.5, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(116.10, 21.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(70.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(70.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
+        CurvePoint(Pose2d(70.0, 35.75, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val sixth = PurePursuitController.waypointsToPath(listOf(
@@ -121,8 +123,8 @@ class PPSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(85.0, 24.0, Rotation2d.fromDegrees(170.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(95.0, 24.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(100.0, 24.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(120.0, 25.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.8, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 25.0, Rotation2d.fromDegrees(-90.0)), 0.8, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.75, 1.0, 6.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val seventh = PurePursuitController.waypointsToPath(listOf(
@@ -164,14 +166,14 @@ class PPSpecimenAuto : OpMode() {
         Parallel(
             Timeout(PurePursuitController.followPathCommand(second, 0.90, 0.10), 10.0),
             Sequential(
-                Wait(0.40),
+                Wait(0.80),
                 verticalSpecimenPickup
             ),
         ),
 
         Wait(0.05),
         //SwerveDrivetrain.forwardTime(0.12, 1.3),
-        Timeout(SwerveDrivetrain.forwardSensor(0.2), 2.0),
+        Timeout(SwerveDrivetrain.forwardSensor(0.3), 2.0),
 
         Wait(0.05),
         Deposit.close(),
