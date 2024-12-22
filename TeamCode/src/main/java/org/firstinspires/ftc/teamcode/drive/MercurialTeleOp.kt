@@ -190,8 +190,13 @@ class MercurialTeleOp : OpMode() {
 
         val climb = Sequential(
             Lambda("climb").setInit{ Elevator.limitless = true },
-            /*
-            Parallel(
+            Timeout(
+            Lambda("disable").setInit{
+                HorizontalExtension.defaultCommand = HorizontalExtension.stop()
+                SwerveDrivetrain.defaultCommand = SwerveDrivetrain.stopCmd()
+            }, 0.1),
+            Race(
+                Wait(0.1),
                 SwerveDrivetrain.kill(),
                 HorizontalExtension.kill(),
                 HorizontalArm.kill(),
@@ -200,7 +205,6 @@ class MercurialTeleOp : OpMode() {
                 VerticalWrist.kill(),
                 Deposit.kill(),
             ),
-             */
 
             Parallel(
                 Sequential(

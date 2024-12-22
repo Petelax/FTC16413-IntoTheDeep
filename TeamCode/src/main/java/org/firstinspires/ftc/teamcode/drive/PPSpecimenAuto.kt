@@ -89,7 +89,7 @@ class PPSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(118.19, 18.60, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(116.10, 19.55, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(73.0, 21.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(73.0, 35.50, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(73.0, 35.75, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val fourth = PurePursuitController.waypointsToPath(listOf(

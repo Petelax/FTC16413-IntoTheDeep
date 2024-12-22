@@ -68,6 +68,8 @@ object HorizontalExtension : Subsystem {
 
         motor.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
+        motor.direction = DcMotorSimple.Direction.REVERSE
+
         controller = DoubleController(
             targetSupplier = MotionComponentSupplier {
                 if (it == MotionComponents.STATE) {
@@ -185,6 +187,11 @@ object HorizontalExtension : Subsystem {
     fun kill(): Lambda {
         return Lambda("kill-horizontal-extension").addRequirements(HorizontalExtension)
             .setInit{ motor.setMotorDisable() }
+    }
+
+    fun stop(): Lambda {
+        return Lambda("stop-horizontal-extension").addRequirements(HorizontalExtension)
+            .setInit{ controller.enabled=false; setRawSpeed(0.0) }
     }
 
     fun setRawSpeed(speed: Double) {
