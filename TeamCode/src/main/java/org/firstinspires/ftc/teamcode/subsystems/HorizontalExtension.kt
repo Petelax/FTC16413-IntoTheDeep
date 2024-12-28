@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.arcrobotics.ftclib.controller.PIDFController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
@@ -14,9 +13,7 @@ import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponentSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.mercurial.commands.Lambda
-import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda
 import dev.frozenmilk.mercurial.subsystems.Subsystem
-import dev.frozenmilk.util.cell.RefCell
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
@@ -39,6 +36,10 @@ object HorizontalExtension : Subsystem {
 
     private var motor by subsystemCell{
         FeatureRegistrar.activeOpMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.HORIZONTAL_EXTENSION)
+    }
+
+    private var limit by subsystemCell {
+        FeatureRegistrar.activeOpMode.hardwareMap.touchSensor.get(DeviceIDs.HORIZONTAL_LIMIT)
     }
 
     private var currentPosition: Double = 0.0
@@ -98,8 +99,21 @@ object HorizontalExtension : Subsystem {
         defaultCommand = driveAndStop{-opMode.opMode.gamepad2.right_stick_y.toDouble().pow(3.0)}
     }
 
+    override fun preUserStartHook(opMode: Wrapper) {
+        if (limit.isPressed) {
+            positionOffset += currentPosition
+        }
+
+    }
+
     override fun preUserLoopHook(opMode: Wrapper) {
         currentPosition = (motor.currentPosition * constants.TICKS_TO_INCHES) - positionOffset
+
+        atBottom = limit.isPressed
+        if (atBottom && !lastAtBottom) {
+            positionOffset += currentPosition
+        }
+        lastAtBottom = atBottom
     }
 
     fun reset() {
@@ -129,14 +143,14 @@ object HorizontalExtension : Subsystem {
     fun driveAndStop(speed: DoubleSupplier): Lambda {
         return Lambda("horizontal-extension-god-help-me").addRequirements(HorizontalExtension)
             .setExecute{
-                if (holdPosition && speed.asDouble < 0.02) {
+                if (holdPosition && abs(speed.asDouble) < 0.02) {
                     //targetPosition = HorizontalConstants.HorizontalExtensionPositions.BOTTOM
                     controller.enabled = true
-                } else if (holdPosition && speed.asDouble > 0.02) {
+                } else if (holdPosition && abs(speed.asDouble) >= 0.02) {
                     holdPosition = false
                     controller.enabled = false
                     setSpeed(speed.asDouble)
-                } else if (!holdPosition && atBottom()) {
+                } else if (!holdPosition && getPosition() < 1.0) {
                     holdPosition = true
                     targetPosition = HorizontalConstants.HorizontalExtensionPositions.BOTTOM_HOLD
                     controller.enabled = true
@@ -175,8 +189,46 @@ object HorizontalExtension : Subsystem {
             .setFinish{ atSetPoint() }
     }
 
+    fun waitUntilInsideSetPoint(inside: Double, setPoint: Double): Lambda {
+        return Lambda("waiting-for-setpoint")
+            .setInit{ targetPosition=setPoint }
+            .setFinish{ getPosition() <= inside }
+    }
+
     fun waitUntilSetPoint(): Lambda {
         return Lambda("waiting-for-setpoint").setFinish{ atSetPoint() }
+    }
+
+    fun retract(): Lambda {
+        return Lambda("horizontal-extension-retract").setRequirements(HorizontalExtension)
+            .setInit{
+                controller.enabled = false
+            }
+            .setExecute{
+                setSpeed(constants.RETRACTING_SPEED)
+            }
+            .setFinish{ atBottom() }
+            .setEnd{ interrupted ->
+                if (interrupted) {
+                    //setSpeed(0.0)
+                    setSpeed(constants.RETRACT_KEEP_SPEED)
+                } else {
+                    setSpeed(constants.RETRACT_KEEP_SPEED)
+                }
+            }
+    }
+
+    /**
+     * never finish
+     */
+    fun retractKeep(): Lambda {
+        return Lambda("horizontal-extension-retract-keep").setRequirements(HorizontalExtension)
+            .setInit{
+                controller.enabled = false
+                setSpeed(constants.RETRACT_KEEP_SPEED)
+            }
+            .setFinish{false}
+            .setEnd{ setSpeed(0.0) }
     }
 
     fun atSetPoint(): Boolean {
@@ -208,7 +260,7 @@ object HorizontalExtension : Subsystem {
         if ((currentPosition < positions.LOWER_LIMIT && speed <= 0.0) || (currentPosition > positions.UPPER_LIMIT && speed > 0.0)) {
             setRawSpeed(0.0)
         } else {
-            val f = if (speed.absoluteValue > constants.MINIMUM) {
+            val f = if (speed.absoluteValue > constants.MINIMUM_SPEED) {
                 coefficients.KF * sign(speed)
             } else {
                 0.0
@@ -224,7 +276,7 @@ object HorizontalExtension : Subsystem {
 
     fun atBottom(): Boolean {
         //return atBottom
-        return getPosition() < 1.0
+        return getPosition() < 0.60
     }
 
     fun getOffset(): Double {

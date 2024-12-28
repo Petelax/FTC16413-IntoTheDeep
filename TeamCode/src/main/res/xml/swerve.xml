@@ -30,6 +30,7 @@
             <AnalogInput name="encoderLR" port="2" />
             <AnalogInput name="encoderRR" port="3" />
             <RevTouchSensor name="verticalLimit" port="1" />
+            <RevTouchSensor name="horizontalLimit" port="3" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
             <SparkFunOTOS name="otos" port="1" bus="0" />
         </LynxModule>

@@ -24,7 +24,7 @@ class VerticalConstants {
         @JvmField var UPPER_LIMIT = 28.1 //28.2
         @JvmField var LOWER_LIMIT = 0.0 //28.2
         @JvmField var TOP = 27.75 //28.2
-        @JvmField var BOTTOM = 0.20
+        @JvmField var BOTTOM = 0.10
         @JvmField var ARM = 3.5
         @JvmField var ARM_TARGET = 3.75
         @JvmField var SPECIMEN_PLACE = 13.5
@@ -62,7 +62,8 @@ class VerticalConstants {
     @Config
     object DepositPositions {
         @JvmField var IN = 0.01
-        @JvmField var MID = 0.08
+        //@JvmField var MID = 0.08
+        @JvmField var MID = 0.40
         @JvmField var OUT = 0.80
         /*
         old

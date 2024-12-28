@@ -458,7 +458,7 @@ class PPSpecimenAuto : OpMode() {
 
     @Config
     object specimenAutoPoses {
-        @JvmField var startPose = Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))
+        @JvmField var startPose = Pose2d(78.0, 7.689, Rotation2d.fromDegrees(90.0))
         @JvmField var place = Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0))
 
     }
