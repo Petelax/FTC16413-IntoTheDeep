@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils.pathing
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Translation2d
 import com.arcrobotics.ftclib.geometry.Vector2d
+import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 
 /**
  * @param pose pose
@@ -17,7 +18,9 @@ data class CurvePoint(
     var turnSpeed: Double,
     var followDistance: Double,
     var targetSpeed: Double,
-    var totalDistance: Double
+    var totalDistance: Double,
+    var kPID: Double,
+    var kFF: Double,
 ) {
     constructor() : this(
         Pose2d(),
@@ -25,7 +28,9 @@ data class CurvePoint(
         1.0,
         0.0,
         1.0,
-        0.0
+        0.0,
+        DrivebaseConstants.PurePursuit.KPID,
+        DrivebaseConstants.PurePursuit.KFF,
     )
 
     constructor(
@@ -39,7 +44,27 @@ data class CurvePoint(
         turnSpeed,
         followDistance,
         moveSpeed,
-        0.0
+        0.0,
+        DrivebaseConstants.PurePursuit.KPID,
+        DrivebaseConstants.PurePursuit.KFF,
+    )
+
+    constructor(
+        pose: Pose2d,
+        moveSpeed: Double,
+        turnSpeed: Double,
+        followDistance: Double,
+        kPID: Double,
+        kFF: Double
+    ) : this(
+        pose,
+        moveSpeed,
+        turnSpeed,
+        followDistance,
+        moveSpeed,
+        0.0,
+        kPID,
+        kFF
     )
 
     fun getVector2d(): Vector2d {

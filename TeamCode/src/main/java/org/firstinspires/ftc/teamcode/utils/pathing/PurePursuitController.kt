@@ -5,8 +5,6 @@ import com.arcrobotics.ftclib.geometry.Vector2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import dev.frozenmilk.mercurial.commands.Lambda
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
-import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.PurePursuit.KFF
-import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.PurePursuit.KPID
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.DrivetrainPIDController
 import org.firstinspires.ftc.teamcode.utils.RateLimiter
@@ -34,7 +32,7 @@ object PurePursuitController {
     private val xRateLimiter = RateLimiter(DrivebaseConstants.Measurements.MAX_ACCELERATION)
     private val yRateLimiter = RateLimiter(DrivebaseConstants.Measurements.MAX_ACCELERATION)
 
-    fun followPathCommand(path: List<CurvePoint>, kPID: Double=KPID, kFF: Double=KFF): Lambda {
+    fun followPathCommand(path: List<CurvePoint>): Lambda {
         return Lambda("follow-path").addRequirements(SwerveDrivetrain)
             .setInit{
                 lastIndex = 0.0
@@ -44,7 +42,7 @@ object PurePursuitController {
             }
             .setExecute{
                 SwerveDrivetrain.firstOrderFieldCentricDrive(
-                    rateLimit(followPath(path, SwerveDrivetrain.getPose(), kPID, kFF))
+                    rateLimit(followPath(path, SwerveDrivetrain.getPose()))
                 )
             }
             .setFinish{
@@ -57,7 +55,7 @@ object PurePursuitController {
             }
     }
 
-    fun followPath(pathPoints: List<CurvePoint>, currentPose: Pose2d, kPID: Double=KPID, kFF: Double=KFF): ChassisSpeeds {
+    fun followPath(pathPoints: List<CurvePoint>, currentPose: Pose2d): ChassisSpeeds {
         //assert(pathPoints.size >= 2)
 
         if (pathPoints.size == 1) {
@@ -106,6 +104,8 @@ object PurePursuitController {
                 closestPoint.targetSpeed,
                 followPoint.first.turnSpeed
             )
+            val kPID = closestPoint.kPID
+            val kFF = closestPoint.kFF
             pidSpeeds.vxMetersPerSecond *= kPID
             pidSpeeds.vyMetersPerSecond *= kPID
             val ffSpeeds = ChassisSpeeds(direction.x * DrivebaseConstants.Measurements.MAX_VELOCITY * closestPoint.targetSpeed * kFF, direction.y * DrivebaseConstants.Measurements.MAX_VELOCITY * closestPoint.targetSpeed * kFF, 0.0)
@@ -403,9 +403,12 @@ object PurePursuitController {
         kSmooth: Double = DrivebaseConstants.PurePursuit.K_SMOOTH,
         kCurvature: Double = DrivebaseConstants.PurePursuit.K_CURVATURE,
         minFollowDistance: Double = DrivebaseConstants.PurePursuit.K_MIN_FOLLOW_DISTANCE,
-        kFollowDistance: Double = DrivebaseConstants.PurePursuit.K_FOLLOW_DISTANCE
+        kFollowDistance: Double = DrivebaseConstants.PurePursuit.K_FOLLOW_DISTANCE,
+        kPID: Double = DrivebaseConstants.PurePursuit.KPID,
+        kFF: Double = DrivebaseConstants.PurePursuit.KFF,
     ) : List<CurvePoint> {
-        val injected = injectPoints(points, spacing)
+        val kFFed = setDefaultFF(points, kPID, kFF)
+        val injected = injectPoints(kFFed, spacing)
         val a = 1-kSmooth
         val smoothed = smoother(injected, a, kSmooth, 0.001)
         val distanced = distancePoints(smoothed)
@@ -415,6 +418,18 @@ object PurePursuitController {
         val end = bettered[bettered.size-1].pose
         println("path between $start and $end generated")
         return bettered
+    }
+
+    fun setDefaultFF(points: List<CurvePoint>, kPID: Double, kFF: Double) : List<CurvePoint> {
+        var newPoints: MutableList<CurvePoint> = mutableListOf()
+        points.forEach { point ->
+            if (point.kFF == DrivebaseConstants.PurePursuit.KFF && point.kPID == DrivebaseConstants.PurePursuit.KPID) {
+                newPoints.add(point.copy(kFF=kFF, kPID=kPID))
+            } else {
+                newPoints.add(point.copy())
+            }
+        }
+        return newPoints
     }
 
 

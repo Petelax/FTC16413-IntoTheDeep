@@ -5,6 +5,7 @@
             <goBILDA5202SeriesMotor name="elevatorLeft" port="0" />
             <goBILDA5202SeriesMotor name="elevatorRight" port="1" />
             <goBILDA5202SeriesMotor name="horizontalExtension" port="2" />
+            <goBILDA5202SeriesMotor name="climb" port="3" />
             <Servo name="horizontalArm" port="0" />
             <Servo name="horizontalWrist" port="1" />
             <Servo name="verticalArm" port="2" />

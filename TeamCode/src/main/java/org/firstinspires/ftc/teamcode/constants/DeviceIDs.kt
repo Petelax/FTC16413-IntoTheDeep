@@ -25,6 +25,7 @@ object DeviceIDs {
 
     const val ELEVATOR_LEFT = "elevatorLeft"
     const val ELEVATOR_RIGHT = "elevatorRight"
+    const val CLIMB = "climb"
 
     const val DEPOSIT = "deposit"
     const val VERTICAL_ARM = "verticalArm"

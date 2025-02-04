@@ -197,7 +197,7 @@ class SampleAuto : OpMode() {
         CurvePoint(Pose2d(29.75, 7.375, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(26.09, 12.12, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
-    ), kSmooth = 0.95)
+    ), kSmooth = 0.95, kPID = 0.9, kFF = 0.1)
 
     private val second = listOf(
         CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
@@ -225,7 +225,7 @@ class SampleAuto : OpMode() {
                 Wait(0.2),
                 Timeout(verticalSample, 2.0),
             ),
-            Timeout(PurePursuitController.followPathCommand(first, 0.9, 0.1), 2.0),
+            Timeout(PurePursuitController.followPathCommand(first), 2.0),
         ),
         Wait(0.2),
         verticalRetract,

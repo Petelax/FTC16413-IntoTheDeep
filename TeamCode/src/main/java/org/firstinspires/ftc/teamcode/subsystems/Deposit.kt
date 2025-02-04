@@ -107,5 +107,9 @@ object Deposit : Subsystem {
         return getDistance() <= VerticalConstants.DepositPositions.TIGHT_DEPOSIT_THRESHOLD
     }
 
+    fun waitUntilHoldingPiece() : Lambda {
+        return Lambda("deposit-wait-until-holding-piece").setFinish{reallyHoldingPiece()}
+    }
+
 
 }
