@@ -41,6 +41,8 @@ object DrivebaseConstants {
 
         @JvmField var cachingTolerance = 0.01
 
+        @JvmField var velocityTimeout = 200.0
+
         // note: drivebase efficiency prototype 84%
 
         //const val MAX_ANGULAR_VELOCITY_RAD = 10
@@ -136,7 +138,7 @@ object DrivebaseConstants {
         RotationKD = 0.35,
 
         TranslationPositionTolerance = 0.25,
-        TranslationVelocityTolerance = 10.0,
+        TranslationVelocityTolerance = 1.8,
 
         RotationPositionTolerance = 0.025,
         RotationVelocityTolerance = 1.0,

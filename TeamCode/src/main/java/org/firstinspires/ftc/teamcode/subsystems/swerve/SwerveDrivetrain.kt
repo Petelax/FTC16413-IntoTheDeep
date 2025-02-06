@@ -80,6 +80,7 @@ object SwerveDrivetrain : Subsystem {
     }
 
     private var pose = Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))
+    private var velocity = ChassisSpeeds()
     private var headingOffset = Rotation2d()
 
     val c = DrivebaseConstants.PIDToPosition
@@ -159,6 +160,8 @@ object SwerveDrivetrain : Subsystem {
     fun periodic() {
         val tempPose = odo.position
         pose = Pose2d(tempPose.x, tempPose.y, Rotation2d.fromDegrees(tempPose.h).minus(headingOffset))
+        val tempVel = odo.velocity
+        velocity = ChassisSpeeds(tempVel.x, tempVel.y, tempVel.h)
 
         lf.periodic()
         rf.periodic()
@@ -176,6 +179,9 @@ object SwerveDrivetrain : Subsystem {
         FtcDashboard.getInstance().sendTelemetryPacket(packet)
          */
         Telemetry.robotPose = pose
+        Telemetry.put("vx", velocity.vxMetersPerSecond)
+        Telemetry.put("vy", velocity.vyMetersPerSecond)
+        Telemetry.put("vw", velocity.omegaRadiansPerSecond)
 
     }
 
@@ -446,8 +452,7 @@ object SwerveDrivetrain : Subsystem {
      * in/s, deg/s
      */
     fun getVelocity(): ChassisSpeeds {
-        val velocity = odo.velocity
-        return ChassisSpeeds(velocity.x, velocity.y, velocity.h)
+        return velocity
     }
 
     /**

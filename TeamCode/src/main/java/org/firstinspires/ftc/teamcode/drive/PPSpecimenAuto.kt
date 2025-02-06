@@ -12,10 +12,14 @@ import dev.frozenmilk.mercurial.commands.groups.Race
 import dev.frozenmilk.mercurial.commands.groups.Sequential
 import dev.frozenmilk.mercurial.commands.util.Wait
 import org.firstinspires.ftc.teamcode.commands.Timeout
+import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
 import org.firstinspires.ftc.teamcode.subsystems.Deposit
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalArm
 import org.firstinspires.ftc.teamcode.subsystems.HorizontalExtension
+import org.firstinspires.ftc.teamcode.subsystems.HorizontalWrist
+import org.firstinspires.ftc.teamcode.subsystems.Intake
 import org.firstinspires.ftc.teamcode.subsystems.VerticalArm
 import org.firstinspires.ftc.teamcode.subsystems.VerticalWrist
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
@@ -60,6 +64,10 @@ class PPSpecimenAuto : OpMode() {
             VerticalWrist.specimenPlace(),
         ),
     )
+    /*
+    val horizontalExtend = Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.MID), HorizontalExtension.pid(
+            HorizontalConstants.HorizontalExtensionPositions.MID), HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist())
+     */
 
     private val first = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
@@ -141,13 +149,13 @@ class PPSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(118.19, 20.5, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(116.10, 21.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(65.0, 22.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 36.5, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
     ), kSmooth = 0.95, kCurvature = 0.075, kPID=0.9, kFF=0.1)
 
     private val eighth = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
         CurvePoint(Pose2d(65.0, 23.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 10.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
     ), kSmooth = 0.95, kCurvature = 0.08, kPID=0.8, kFF=0.2)
 
     val auto = Sequential(
@@ -177,7 +185,7 @@ class PPSpecimenAuto : OpMode() {
                 Timeout(PurePursuitController.followPathCommand(second), 10.0),
                 Sequential(
                     Wait(0.80),
-                    verticalSpecimenPickup
+                    Timeout(verticalSpecimenPickup, 3.0)
                 ),
             ),
         ),
@@ -231,7 +239,7 @@ class PPSpecimenAuto : OpMode() {
                 Timeout(PurePursuitController.followPathCommand(fourth), 4.5),
                 Sequential(
                     Wait(0.75),
-                    verticalSpecimenPickup
+                    Timeout(verticalSpecimenPickup, 3.0)
                 ),
             ),
         ),
@@ -285,7 +293,7 @@ class PPSpecimenAuto : OpMode() {
                 Timeout(PurePursuitController.followPathCommand(sixth), 5.0),
                 Sequential(
                     Wait(0.5),
-                    verticalSpecimenPickup
+                    Timeout(verticalSpecimenPickup, 3.0)
                 ),
             ),
         ),
@@ -338,7 +346,13 @@ class PPSpecimenAuto : OpMode() {
                 VerticalWrist.intake(),
                 Wait(0.7),
                 Elevator.pidAuto(VerticalConstants.ElevatorPositions.BOTTOM),
+            ),
+            /*
+            Sequential(
+                Wait(0.5),
+                horizontalExtend
             )
+             */
         )
 
         /*
@@ -434,6 +448,7 @@ class PPSpecimenAuto : OpMode() {
 
         SwerveDrivetrain.defaultCommand = SwerveDrivetrain.stopCmd()
         Elevator.defaultCommand = null
+        //HorizontalExtension.defaultCommand = HorizontalExtension.hold()
 
         Telemetry.path = first
         Telemetry.put("alliance colour", Globals.AllianceColour.name)

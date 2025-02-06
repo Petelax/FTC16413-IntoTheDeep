@@ -22,6 +22,7 @@ class HorizontalConstants {
         @JvmField var UPPER_LIMIT = 13.8
         @JvmField var LOWER_LIMIT = -1.0
         @JvmField var TOP = 13.5
+        @JvmField var MID = 8.0
         @JvmField var BOTTOM = 0.1
         @JvmField var INSIDE = 0.5
         @JvmField var BOTTOM_HOLD = 0.04

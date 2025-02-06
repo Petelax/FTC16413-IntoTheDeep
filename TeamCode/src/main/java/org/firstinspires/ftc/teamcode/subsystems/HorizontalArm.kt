@@ -77,4 +77,12 @@ object HorizontalArm : Subsystem {
             .setFinish{true}
     }
 
+    fun getCachedPosition(): Double {
+        return cachedPosition
+    }
+
+    fun getPosition(): Double {
+        return servo.position
+    }
+
 }

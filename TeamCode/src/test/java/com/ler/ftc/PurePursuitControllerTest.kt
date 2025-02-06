@@ -69,7 +69,7 @@ class PurePursuitControllerTest {
     fun `mid first line`() {
         val actual = pp.getFollowPointPath(path, Pose2d(12.0, 0.0, Rotation2d()), 3.0, CurvePoint(),
             0.25)
-        val expected = CurvePoint(Pose2d(15.0, 0.0, Rotation2d()), 0.2, 0.2, 3.0, 0.2, totalDistance = 15.0)
+        val expected = CurvePoint(Pose2d(15.0, 0.0, Rotation2d()), 0.2, 0.2, 3.0, 0.2, totalDistance = 15.0, 0.0, 0.0)
 
         assertEquals(expected, actual.first)
     }
@@ -266,10 +266,10 @@ class PurePursuitControllerTest {
         val distanced = pp.distancePoints(path)
 
         val expected = listOf(
-            CurvePoint(pose=Pose2d(Translation2d(0.00, 0.00), Rotation2d(0.0)), moveSpeed=0.2, turnSpeed=0.2, followDistance=3.0, targetSpeed=0.2, totalDistance=0.0),
-            CurvePoint(pose=Pose2d(Translation2d(48.00, 0.00), Rotation2d(0.0)), moveSpeed=0.2, turnSpeed=0.2, followDistance=3.0, targetSpeed=0.2, totalDistance=48.0),
-            CurvePoint(pose=Pose2d(Translation2d(48.00, 48.00), Rotation2d(0.0)), moveSpeed=0.2, turnSpeed=0.2, followDistance=3.0, targetSpeed=0.2, totalDistance=96.0),
-            CurvePoint(pose=Pose2d(Translation2d(72.00, 48.00), Rotation2d(0.0)), moveSpeed=0.2, turnSpeed=0.2, followDistance=3.0, targetSpeed=0.2, totalDistance=120.0)
+            CurvePoint(pose=Pose2d(Translation2d(0.00, 0.00), Rotation2d(0.0)), moveSpeed=0.2, turnSpeed=0.2, followDistance=3.0, targetSpeed=0.2, totalDistance=0.0, 0.0, 0.0),
+            CurvePoint(pose=Pose2d(Translation2d(48.00, 0.00), Rotation2d(0.0)), moveSpeed=0.2, turnSpeed=0.2, followDistance=3.0, targetSpeed=0.2, totalDistance=48.0, 0.0, 0.0),
+            CurvePoint(pose=Pose2d(Translation2d(48.00, 48.00), Rotation2d(0.0)), moveSpeed=0.2, turnSpeed=0.2, followDistance=3.0, targetSpeed=0.2, totalDistance=96.0, 0.0, 0.0),
+            CurvePoint(pose=Pose2d(Translation2d(72.00, 48.00), Rotation2d(0.0)), moveSpeed=0.2, turnSpeed=0.2, followDistance=3.0, targetSpeed=0.2, totalDistance=120.0, 0.0, 0.0)
         )
 
         assertEquals(expected, distanced)
@@ -365,6 +365,12 @@ class PurePursuitControllerTest {
         CurvePoint(Pose2d(69.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(69.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.4, 1.0, 5.0),
     ), kSmooth = 0.95, kCurvature = 0.065)
+
+    private val eighth = PurePursuitController.waypointsToPath(listOf(
+        CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 23.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
+        CurvePoint(Pose2d(120.0, 14.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+    ), kSmooth = 0.95, kCurvature = 0.08, kPID=0.8, kFF=0.2)
 
     @Test
     fun path() {

@@ -146,7 +146,7 @@ class Simulator : Application() {
 
          */
 
-        val newPath = second
+        val newPath = eighth
         newPath.forEach { point ->
             println(point)
         }
@@ -272,7 +272,7 @@ class Simulator : Application() {
     private val eighth = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
         CurvePoint(Pose2d(65.0, 23.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(100.0, 10.0, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 6.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     fun graphPath(pane: Pane, path: List<CurvePoint>) {

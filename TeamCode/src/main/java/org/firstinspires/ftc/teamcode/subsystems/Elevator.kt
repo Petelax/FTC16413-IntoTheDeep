@@ -48,6 +48,9 @@ object Elevator : Subsystem {
     private var motorRight by subsystemCell{
         FeatureRegistrar.activeOpMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.ELEVATOR_RIGHT)
     }
+    private var motorClimb by subsystemCell{
+        FeatureRegistrar.activeOpMode.hardwareMap.get(DcMotorEx::class.java, DeviceIDs.CLIMB)
+    }
 
     private var limit by subsystemCell {
         FeatureRegistrar.activeOpMode.hardwareMap.touchSensor.get(DeviceIDs.VERTICAL_LIMIT)
@@ -57,6 +60,7 @@ object Elevator : Subsystem {
     private var currentPosition: Double = 0.0
     private var positionOffset = 0.0
     private var lastSpeed = 0.0
+    private var lastClimbSpeed = 0.0
     private var atBottom = true
     private var lastAtBottom = false
     private var currentLeft = 0.0
@@ -80,15 +84,19 @@ object Elevator : Subsystem {
         if (opMode.meta.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
             motorLeft.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
             motorRight.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+            motorClimb.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
         }
 
         motorLeft.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motorRight.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        motorClimb.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
 
         motorLeft.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
         motorRight.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
+        motorClimb.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
 
         motorRight.direction = DcMotorSimple.Direction.REVERSE
+        motorClimb.direction = DcMotorSimple.Direction.REVERSE
 
         //pidfController.setPIDF(c.KP, c.KI, c.KD, c.KF)
 
@@ -117,8 +125,7 @@ object Elevator : Subsystem {
         targetPosition = 0.0
         controller.enabled = false
 
-        defaultCommand = drive{-opMode.opMode.gamepad2.left_stick_y.toDouble() + if(opMode.opMode.gamepad1.right_bumper) {-1000.0} else {0.0} }
-        //defaultCommand = fsm
+        defaultCommand = driveAndClimb({-opMode.opMode.gamepad2.left_stick_y.toDouble() + if(opMode.opMode.gamepad1.right_bumper) {-1000.0} else {0.0}}, {if (opMode.opMode.gamepad1.dpad_up) {1.0} else {0.0} + if (opMode.opMode.gamepad1.dpad_down) {-1.0} else {0.0}})
     }
 
     override fun preUserStartHook(opMode: Wrapper) {
@@ -160,6 +167,23 @@ object Elevator : Subsystem {
                 }
         }
      */
+
+    fun driveAndClimb(speed: DoubleSupplier, climbSpeed: DoubleSupplier): Lambda {
+        return Lambda("elavator-default-climb").addRequirements(Elevator)
+            .setInit{
+                controller.enabled = false
+                setSpeed(speed.asDouble)
+            }
+            .setExecute{
+                if (abs(climbSpeed.asDouble) > 0.2) {
+                    setClimbSpeed(climbSpeed.asDouble)
+                } else {
+                    setClimbSpeed(0.0)
+                }
+            }
+            .setInterruptible(true)
+
+    }
 
     fun drive(speed: DoubleSupplier): Lambda {
         return Lambda("elevator-default").addRequirements(Elevator)
@@ -255,8 +279,8 @@ object Elevator : Subsystem {
 
     fun climb(speed: DoubleSupplier) : Lambda {
         return Lambda("elevator-climb").addRequirements(Elevator)
-            .setInit{defaultCommand = null }
-            .setExecute{setRawSpeed(speed.asDouble)}
+            .setInit{ defaultCommand = null; controller.enabled = false }
+            .setExecute{setRawSpeed(speed.asDouble); setClimbSpeed(speed.asDouble)}
             .setFinish{false}
             .setInterruptible(false)
     }
@@ -316,6 +340,14 @@ object Elevator : Subsystem {
             }
         }
 
+    }
+
+    fun setClimbSpeed(speed: Double) {
+        val corrected = speed.coerceIn(-1.0..1.0)
+        if (Cache.shouldUpdate(lastClimbSpeed, corrected)) {
+            motorClimb.power = corrected
+            lastClimbSpeed = corrected
+        }
     }
 
     fun getPosition(): Double {

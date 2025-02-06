@@ -140,6 +140,14 @@ object HorizontalExtension : Subsystem {
             }
     }
 
+    fun hold(): Lambda {
+        return Lambda("horizontal-extension-inside").addRequirements(HorizontalExtension)
+            .setInit{
+                targetPosition = HorizontalConstants.HorizontalExtensionPositions.BOTTOM
+                controller.enabled = true
+            }
+    }
+
     fun driveAndStop(speed: DoubleSupplier): Lambda {
         return Lambda("horizontal-extension-god-help-me").addRequirements(HorizontalExtension)
             .setExecute{

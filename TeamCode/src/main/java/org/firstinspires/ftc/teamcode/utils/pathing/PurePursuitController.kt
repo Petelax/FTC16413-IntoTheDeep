@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.utils.pathing
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Vector2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
+import com.qualcomm.robotcore.util.ElapsedTime
 import dev.frozenmilk.mercurial.commands.Lambda
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
@@ -13,6 +14,7 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -32,6 +34,8 @@ object PurePursuitController {
     private val xRateLimiter = RateLimiter(DrivebaseConstants.Measurements.MAX_ACCELERATION)
     private val yRateLimiter = RateLimiter(DrivebaseConstants.Measurements.MAX_ACCELERATION)
 
+    private var timeSinceDriving = System.currentTimeMillis()
+
     fun followPathCommand(path: List<CurvePoint>): Lambda {
         return Lambda("follow-path").addRequirements(SwerveDrivetrain)
             .setInit{
@@ -39,16 +43,25 @@ object PurePursuitController {
                 lastPoint = path[0]
                 lastClosestPoint = Pair(Vector2d(), 0)
                 resetController()
+                timeSinceDriving = System.currentTimeMillis()
             }
             .setExecute{
                 SwerveDrivetrain.firstOrderFieldCentricDrive(
                     rateLimit(followPath(path, SwerveDrivetrain.getPose()))
                 )
+
+                val vel = SwerveDrivetrain.getVelocity()
+                if (hypot(vel.vxMetersPerSecond, vel.vyMetersPerSecond).absoluteValue > 1.0) {
+                    timeSinceDriving = System.currentTimeMillis()
+                }
+
             }
             .setFinish{
-                (SwerveDrivetrain.getPose().x - path.last().pose.x).absoluteValue < DrivebaseConstants.PIDToPosition.TranslationPositionTolerance &&
+                ((SwerveDrivetrain.getPose().x - path.last().pose.x).absoluteValue < DrivebaseConstants.PIDToPosition.TranslationPositionTolerance &&
                 (SwerveDrivetrain.getPose().y - path.last().pose.y).absoluteValue < DrivebaseConstants.PIDToPosition.TranslationPositionTolerance &&
-                (SwerveDrivetrain.getPose().heading - path.last().pose.heading).absoluteValue < DrivebaseConstants.PIDToPosition.RotationPositionTolerance
+                (SwerveDrivetrain.getPose().heading - path.last().pose.heading).absoluteValue < DrivebaseConstants.PIDToPosition.RotationPositionTolerance)
+                        || ((System.currentTimeMillis() - timeSinceDriving > DrivebaseConstants.Measurements.velocityTimeout))
+
             }
             .setEnd{
                 SwerveDrivetrain.stop()
