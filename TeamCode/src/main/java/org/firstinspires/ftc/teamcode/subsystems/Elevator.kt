@@ -1,29 +1,21 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.arcrobotics.ftclib.controller.PIDFController
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
-import com.qualcomm.robotcore.hardware.TouchSensor
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.dependency.Dependency
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
 import dev.frozenmilk.dairy.core.util.controller.calculation.pid.DoubleComponent
 import dev.frozenmilk.dairy.core.util.controller.implementation.DoubleController
-import dev.frozenmilk.dairy.core.util.controller.implementation.UnitController
 import dev.frozenmilk.dairy.core.util.supplier.numeric.CachedMotionComponentSupplier
-import dev.frozenmilk.dairy.core.util.supplier.numeric.EnhancedDoubleSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponentSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
 import dev.frozenmilk.mercurial.commands.Lambda
 import dev.frozenmilk.mercurial.commands.groups.Race
-import dev.frozenmilk.mercurial.commands.groups.Sequential
-import dev.frozenmilk.mercurial.commands.stateful.StatefulLambda
-import dev.frozenmilk.mercurial.commands.util.StateMachine
 import dev.frozenmilk.mercurial.commands.util.Wait
 import dev.frozenmilk.mercurial.subsystems.Subsystem
-import dev.frozenmilk.util.cell.RefCell
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
@@ -58,6 +50,7 @@ object Elevator : Subsystem {
 
     //private var elevator: MotorGroup
     private var currentPosition: Double = 0.0
+    private var currentClimbPosition: Double = 0.0
     private var positionOffset = 0.0
     private var lastSpeed = 0.0
     private var lastClimbSpeed = 0.0
@@ -76,9 +69,13 @@ object Elevator : Subsystem {
     var targetPosition = 0.0
         private set
 
+    var targetClimbPosition = 0.0
+        private set
+
     var limitless = false
 
     lateinit var controller: DoubleController
+    lateinit var climbController: DoubleController
 
     override fun preUserInitHook(opMode: Wrapper) {
         if (opMode.meta.flavor == OpModeMeta.Flavor.AUTONOMOUS) {
@@ -122,8 +119,31 @@ object Elevator : Subsystem {
                 .plus(DoubleComponent.D(MotionComponents.STATE, VerticalConstants.ElevatorCoefficients.KD)),
         )
 
+        climbController = DoubleController(
+            targetSupplier = MotionComponentSupplier {
+                if (it == MotionComponents.STATE) {
+                    return@MotionComponentSupplier targetClimbPosition
+                }
+                0.0
+            },
+            stateSupplier = { getClimbPosition() },
+            toleranceEpsilon = CachedMotionComponentSupplier(
+                MotionComponentSupplier {
+                    return@MotionComponentSupplier when (it) {
+                        MotionComponents.STATE -> VerticalConstants.ElevatorConstants.CLIMB_POSITION_TOLERANCE
+                        MotionComponents.VELOCITY -> VerticalConstants.ElevatorConstants.CLIMB_VELOCITY_TOLERANCE
+                        else -> Double.NaN
+                    }
+                }
+            ),
+            outputConsumer = ::setClimbSpeed,
+            controllerCalculation = DoubleComponent.P(MotionComponents.STATE, VerticalConstants.ClimbCoefficients.KP)
+                .plus(DoubleComponent.D(MotionComponents.STATE, VerticalConstants.ClimbCoefficients.KD)),
+        )
+
         targetPosition = 0.0
         controller.enabled = false
+        climbController.enabled = false
 
         defaultCommand = driveAndClimb({-opMode.opMode.gamepad2.left_stick_y.toDouble() + if(opMode.opMode.gamepad1.right_bumper) {-1000.0} else {0.0}}, {if (opMode.opMode.gamepad1.dpad_up) {1.0} else {0.0} + if (opMode.opMode.gamepad1.dpad_down) {-1.0} else {0.0}})
     }
@@ -136,6 +156,7 @@ object Elevator : Subsystem {
 
     override fun preUserLoopHook(opMode: Wrapper) {
         currentPosition = (motorLeft.currentPosition * constants.TICKS_TO_INCHES) - positionOffset
+        currentClimbPosition = motorClimb.currentPosition * constants.CLIMB_TICKS_TO_INCHES
 
         atBottom = limit.isPressed
         if (atBottom && !lastAtBottom) {
@@ -149,6 +170,7 @@ object Elevator : Subsystem {
         currentPosition = 0.0
         positionOffset = 0.0
         controller.controllerCalculation.reset()
+        climbController.controllerCalculation.reset()
     }
 
     /*
@@ -350,6 +372,10 @@ object Elevator : Subsystem {
         }
     }
 
+    fun getClimbPosition(): Double {
+        return currentClimbPosition
+    }
+
     fun getPosition(): Double {
         return currentPosition
     }
@@ -374,11 +400,6 @@ object Elevator : Subsystem {
     }
     fun getCurrent(): Double {
         return currentRight + currentLeft
-    }
-
-    enum class States {
-        PID,
-        MANUAL
     }
 
 }

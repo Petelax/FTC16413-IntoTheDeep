@@ -20,6 +20,13 @@ class VerticalConstants {
     }
 
     @Config
+    object ClimbCoefficients {
+        @JvmField var KP = 0.01
+        @JvmField var KI = 0.0
+        @JvmField var KD = 0.0
+    }
+
+    @Config
     object ElevatorPositions {
         @JvmField var UPPER_LIMIT = 28.1 //28.2
         @JvmField var LOWER_LIMIT = 0.0 //28.2
@@ -39,6 +46,10 @@ class VerticalConstants {
         //@JvmField var POSITION_TOLERANCE = 0.25
         @JvmField var POSITION_TOLERANCE = 0.5
         @JvmField var VELOCITY_TOLERANCE = 5.0
+
+        @JvmField var CLIMB_TICKS_TO_INCHES = 0.0007893271368
+        @JvmField var CLIMB_POSITION_TOLERANCE = 1.0
+        @JvmField var CLIMB_VELOCITY_TOLERANCE = 5.0
     }
 
     @Config
