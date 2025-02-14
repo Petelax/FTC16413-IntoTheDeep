@@ -63,8 +63,8 @@ class VerticalConstants {
     @Config
     object VerticalArmConstants {
         @JvmField var unitsToSeconds = 0.4
-        @JvmField var intakeToSpecimen = 0.5
-        @JvmField var specimenToIntake = 0.8
+        @JvmField var intakeToSpecimen = 0.3
+        @JvmField var specimenToIntake = 0.65
 
         @JvmField var intakeToSample = 0.3
         @JvmField var sampleToIntake = 0.020

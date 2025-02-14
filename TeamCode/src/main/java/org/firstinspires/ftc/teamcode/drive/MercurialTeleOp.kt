@@ -115,7 +115,7 @@ class MercurialTeleOp : OpMode() {
                     ),
                     Sequential()
                 ),
-                IfElse( {VerticalArm.isArmSpecimen()},
+                IfElse( {VerticalArm.isArmSpecimen() && Elevator.getPosition() > VerticalConstants.ElevatorPositions.ARM},
                     Sequential(
                         Parallel(
                             Wait(VerticalConstants.VerticalArmConstants.specimenToIntake),
@@ -218,15 +218,15 @@ class MercurialTeleOp : OpMode() {
             IfElse(
                 {HorizontalExtension.getPosition() > 0.5},
                 Parallel(
-                    Sequential(
+                    Timeout(Sequential(
                         HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
-                    ),
+                    ), 0.500),
                     Wait(0.450),
                 ),
                 Sequential()
             ),
-            HorizontalExtension.spin(-0.3),
-            Wait(0.10),
+            HorizontalExtension.spin(-0.6),
+            Wait(0.15),
             Race( null,
                 Intake.spinUntilHolding(),
                 Wait(0.400),
@@ -373,7 +373,14 @@ class MercurialTeleOp : OpMode() {
     }
 
     override fun start() {
-        //SwerveDrivetrain.resetHeading()
+        Parallel(
+            VerticalArm.setVerticalArm(VerticalArm.getPosition()),
+            VerticalWrist.setVerticalWrist(VerticalWrist.cachedPosition),
+            Deposit.setDeposit(Deposit.cachedPosition),
+            HorizontalArm.setHorizontalArm(HorizontalArm.getCachedPosition()),
+            HorizontalWrist.setHorizontalWrist(HorizontalWrist.cachedPosition)
+        ).schedule()
+
     }
 
     override fun loop() {

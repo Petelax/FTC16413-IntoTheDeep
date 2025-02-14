@@ -13,6 +13,7 @@ class HorizontalConstants {
         @JvmField var KI = 0.0
         @JvmField var KD = 0.001
         @JvmField var KF = 0.07
+        @JvmField var KE = 0.10
 
         @JvmField var KG = 0.0
     }
@@ -21,6 +22,7 @@ class HorizontalConstants {
     object HorizontalExtensionPositions {
         @JvmField var UPPER_LIMIT = 13.8
         @JvmField var LOWER_LIMIT = -1.0
+        @JvmField var SPRING_START = 2.0
         @JvmField var TOP = 13.5
         @JvmField var MID = 8.0
         @JvmField var BOTTOM = 0.1
@@ -53,7 +55,7 @@ class HorizontalConstants {
 
     @Config
     object HorizontalArmPositions {
-        @JvmField var OUT = 0.075 //0.07
+        @JvmField var OUT = 0.1 //0.07
         @JvmField var IN = 1.0
         @JvmField var MID = 0.5
     }

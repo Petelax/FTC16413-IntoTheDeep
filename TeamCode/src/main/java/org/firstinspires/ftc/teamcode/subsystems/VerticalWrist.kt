@@ -21,7 +21,10 @@ object VerticalWrist : Subsystem {
     annotation class Attach
 
     override var dependency: Dependency<*> = Subsystem.DEFAULT_DEPENDENCY and SingleAnnotation(Attach::class.java)
-    private var cachedPosition = 100.0
+    var cachedPosition = VerticalConstants.VerticalWristPositions.INTAKE
+        private set
+
+    private var isPowered = false
 
     private val servo by subsystemCell {
         FeatureRegistrar.activeOpMode.hardwareMap.get(ServoImplEx::class.java, DeviceIDs.VERTICAL_WRIST)
@@ -29,13 +32,15 @@ object VerticalWrist : Subsystem {
 
     override fun preUserInitHook(opMode: Wrapper) {
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
-        cachedPosition = 100.0
+        //cachedPosition = 100.0
+        isPowered = false
         //servo.position = VerticalConstants.VerticalWristPositions.INTAKE
     }
 
     fun setPosition(position: Double) {
         val corrected = position.coerceIn(0.0..1.0)
-        if (Cache.shouldUpdate(cachedPosition, corrected)) {
+        if (Cache.shouldUpdate(cachedPosition, corrected) || !isPowered) {
+            isPowered = true
             servo.position = corrected
             cachedPosition = corrected
         }

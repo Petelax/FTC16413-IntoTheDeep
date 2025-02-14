@@ -22,6 +22,7 @@ import java.lang.annotation.Inherited
 import java.util.function.DoubleSupplier
 import kotlin.math.abs
 import kotlin.math.absoluteValue
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sign
 
