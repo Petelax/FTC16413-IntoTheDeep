@@ -109,7 +109,7 @@ class SampleAuto : OpMode() {
                 ),
                 Sequential()
             ),
-            IfElse( {VerticalArm.isArmSpecimen()},
+            IfElse( {VerticalArm.isArmSpecimen() && Elevator.getPosition() > VerticalConstants.ElevatorPositions.ARM},
                 Sequential(
                     Parallel(
                         Wait(VerticalConstants.VerticalArmConstants.specimenToIntake),
@@ -151,33 +151,21 @@ class SampleAuto : OpMode() {
 
     val horizontalRetract = Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake())
 
-    val intake =
-        Parallel(
-            IfElse ( {HorizontalExtension.getPosition() < 1.0},
-                Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
-                Parallel(HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
-            ),
-            VerticalArm.intake(),
-            VerticalWrist.intake(),
-
-        )
-
     val sample = Sequential(
-        Timeout(Parallel(HorizontalExtension.waitUntilSetPoint(1.0), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake()), 1.5),
+        Timeout(Parallel(HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake()), 1.5),
 
         IfElse(
-            {HorizontalExtension.getPosition() > 1.0},
+            {HorizontalExtension.getPosition() > 0.5},
             Parallel(
-                Sequential(
+                Timeout(Sequential(
                     HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
-                    HorizontalExtension.spin(-0.3),
-                ),
-                Wait(0.250),
+                ), 0.500),
+                Wait(0.450),
             ),
             Sequential()
         ),
-        HorizontalExtension.spin(-0.4),
-        Wait(0.01),
+        HorizontalExtension.spin(-0.6),
+        Wait(0.15),
         Race( null,
             Intake.spinUntilHolding(),
             Wait(0.400),
@@ -192,6 +180,17 @@ class SampleAuto : OpMode() {
         Wait(0.10),
         verticalSample
     )
+
+    val intake =
+        Parallel(
+            IfElse ( {HorizontalExtension.getPosition() < 1.0},
+                Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
+                Parallel(HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
+            ),
+            VerticalArm.intake(),
+            VerticalWrist.intake(),
+
+            )
 
     private val first = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(29.75, 7.375, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 6.0),
@@ -219,15 +218,26 @@ class SampleAuto : OpMode() {
         CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
     )
 
+    private val sixth = listOf(
+        CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-55.0)), 1.0, 1.0, 6.0),
+    )
+
+    private val seventh = listOf(
+        CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-55.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
+    )
+
     val auto = Sequential(
         Parallel(
             Sequential(
                 Wait(0.2),
                 Timeout(verticalSample, 2.0),
             ),
-            Timeout(PurePursuitController.followPathCommand(first), 2.0),
+            //Timeout(PurePursuitController.followPathCommand(first), 2.0),
+            SwerveDrivetrain.bp2p(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 2.0)
         ),
-        Wait(0.2),
+        Wait(0.2),/*HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.INSIDE), */
         verticalRetract,
         Parallel(
             Timeout(PurePursuitController.followPathCommand(second), 2.0),
@@ -235,7 +245,7 @@ class SampleAuto : OpMode() {
                 Timeout(Intake.runIntakeStopping().then(Intake.backDrive()), 4.0),
                 Sequential(
                     Timeout(intake, 1.0),
-                    HorizontalExtension.spin(0.3),
+                    HorizontalExtension.spin(0.45),
                     Wait(1.5),
                     HorizontalExtension.spin(0.0),
                 ),
@@ -252,7 +262,7 @@ class SampleAuto : OpMode() {
                 Timeout(Intake.runIntakeStopping().then(Intake.backDrive()), 4.0),
                 Sequential(
                     Timeout(intake, 1.0),
-                    HorizontalExtension.spin(0.4),
+                    HorizontalExtension.spin(0.45),
                     Wait(3.0),
                     HorizontalExtension.spin(0.0),
                 ),
@@ -260,6 +270,24 @@ class SampleAuto : OpMode() {
         ),
         Parallel(
             Timeout(PurePursuitController.followPathCommand(fifth), 2.0),
+            sample,
+        ),
+        verticalRetract,
+        Parallel(
+            Timeout(PurePursuitController.followPathCommand(sixth), 2.0),
+            SwerveDrivetrain.bp2p(Pose2d(20.0, 10.0, Rotation2d.fromDegrees(-80.0)), 2.0),
+            Race(
+                Timeout(Intake.runIntakeStopping().then(Intake.backDrive()), 4.0),
+                Sequential(
+                    Timeout(intake, 1.0),
+                    HorizontalExtension.spin(0.45),
+                    Wait(3.0),
+                    HorizontalExtension.spin(0.0),
+                ),
+            )
+        ),
+        Parallel(
+            Timeout(PurePursuitController.followPathCommand(seventh), 2.0),
             sample,
         ),
         verticalRetract,
@@ -272,6 +300,8 @@ class SampleAuto : OpMode() {
         VerticalArm.setPosition(VerticalConstants.VerticalArmPositions.AUTO_START)
         Deposit.setPosition(VerticalConstants.DepositPositions.IN)
         VerticalWrist.setPosition(VerticalConstants.VerticalWristPositions.INTAKE)
+
+        Intake.setPower(0.0)
 
         SwerveDrivetrain.defaultCommand = SwerveDrivetrain.stopCmd()
         Elevator.defaultCommand = null

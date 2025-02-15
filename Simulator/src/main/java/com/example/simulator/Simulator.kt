@@ -146,7 +146,7 @@ class Simulator : Application() {
 
          */
 
-        val newPath = eighth
+        val newPath = sampleTest
         newPath.forEach { point ->
             println(point)
         }
@@ -191,6 +191,10 @@ class Simulator : Application() {
     ), kSmooth = 0.95)
 
      */
+    private val sampleTest = PurePursuitController.waypointsToPath(listOf(
+        CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(10.0, 20.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+    ))
 
     private val first = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),

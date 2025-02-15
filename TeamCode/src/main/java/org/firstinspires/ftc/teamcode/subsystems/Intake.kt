@@ -105,7 +105,7 @@ object Intake : Subsystem {
     }
 
 
-    private fun setPower(power: Double) {
+    fun setPower(power: Double) {
         val corrected = power.coerceIn(-1.0..1.0)
         if (Cache.shouldUpdate(cachedPower, corrected)) {
             left.power = corrected

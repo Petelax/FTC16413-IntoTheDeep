@@ -157,63 +157,8 @@ class MercurialTeleOp : OpMode() {
 
         val horizontalRetract = Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake())
 
-        /*
         val sample = Sequential(
-
-            Timeout(Parallel(
-                HorizontalExtension.waitUntilInsideSetPoint(HorizontalConstants.HorizontalExtensionPositions.INSIDE, HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
-                //HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.INSIDE),
-                HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
-                HorizontalArm.inHorizontalArm(),
-                HorizontalWrist.inHorizontalWrist(),
-                Intake.stopIntake()
-            ), 1.0),
-
-            IfElse(
-                {HorizontalExtension.getPosition() > 0.5},
-                Parallel(
-                    Sequential(
-                        HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM),
-                        HorizontalExtension.spin(-0.3),
-                    ),
-                    Wait(0.250),
-                ),
-                Sequential()
-            ),
-            HorizontalExtension.spin(-0.3),
-
-
-            /*
-            Timeout(HorizontalExtension.retract(), 0.500),
-             */
-
-            //Race(
-                Sequential(
-                    Wait(0.01),
-                    Race( null,
-                        Intake.spinUntilHolding(),
-                        Wait(0.400),
-                    ),
-                    Deposit.halfClose(),
-                    Intake.runIntake(),
-                    Wait(0.05),
-                    Intake.stopIntake(),
-
-                    Deposit.close(),
-                    Wait(0.10),
-                ),
-                //HorizontalExtension.retractKeep()
-            //),
-
-            verticalSample
-        )
-
-         */
-        val sample = Sequential(
-            //Parallel(
-            Timeout(Parallel(/*HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.INSIDE), */HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake()), 1.5),
-                //Wait(0.100)
-            //),
+            Timeout(Parallel(HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.inHorizontalArm(), HorizontalWrist.inHorizontalWrist(), Intake.stopIntake()), 1.5),
 
             IfElse(
                 {HorizontalExtension.getPosition() > 0.5},
