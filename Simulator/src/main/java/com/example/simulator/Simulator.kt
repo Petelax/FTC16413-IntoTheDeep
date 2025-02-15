@@ -193,8 +193,9 @@ class Simulator : Application() {
      */
     private val sampleTest = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(10.0, 20.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-    ))
+        CurvePoint(Pose2d(30.0, 62.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(45.0, 62.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+    ), kSmooth = 0.99)
 
     private val first = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),

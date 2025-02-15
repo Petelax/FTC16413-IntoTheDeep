@@ -129,13 +129,13 @@ object DrivebaseConstants {
     @JvmField var PIDToPosition = DrivetrainPIDCoefficients(
         KF = 0.05,
 
-        TranslationKP = 0.3,
+        TranslationKP = 0.285,
         TranslationKI = 0.0,
-        TranslationKD = 0.025,
+        TranslationKD = 0.029,
 
         RotationKP = 15.0,
         RotationKI = 0.0,
-        RotationKD = 0.35,
+        RotationKD = 0.37,
 
         TranslationPositionTolerance = 0.25,
         TranslationVelocityTolerance = 1.8,
