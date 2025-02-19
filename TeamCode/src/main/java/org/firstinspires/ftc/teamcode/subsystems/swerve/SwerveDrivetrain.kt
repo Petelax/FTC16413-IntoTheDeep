@@ -97,10 +97,10 @@ object SwerveDrivetrain : Subsystem {
     override fun preUserInitHook(opMode: Wrapper) {
         val id = DeviceIDs
         val hardwareMap = opMode.opMode.hardwareMap
-        lf = SwerveModule(hardwareMap, id.LF_DRIVE_MOTOR, id.LF_TURN_MOTOR, id.LF_ENCODER, DrivebaseConstants.Measurements.LF_OFFSET)
-        rf = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET)
-        lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET)
-        rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
+        lf = SwerveModule(hardwareMap, id.LF_DRIVE_MOTOR, id.LF_TURN_MOTOR, id.LF_ENCODER, DrivebaseConstants.Measurements.LF_OFFSET, false)
+        rf = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET, true)
+        lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET, true)
+        rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET, true)
 
         val config = DrivebaseConstants.Otos
         odo.setLinearUnit(config.linearUnit)
@@ -409,6 +409,46 @@ object SwerveDrivetrain : Subsystem {
         return Lambda("stop").addRequirements(SwerveDrivetrain)
             .setExecute{ stop() }
 
+    }
+
+    fun turnLeft(): Lambda {
+        return Lambda("turn-left").addRequirements(SwerveDrivetrain)
+            .setInit {
+                headingController.reset()
+                headingController.setpoint = Math.toRadians(-175.0)
+            }
+            .setExecute {
+                val currentPose = getPose()
+                var headingFeedback = -headingController.calculate(
+                    currentPose.rotation.radians,
+                    Math.toRadians(-175.0)
+                )
+                headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+
+                firstOrderFieldCentricDrive(ChassisSpeeds(0.0, 0.0, headingFeedback))
+            }
+            .setFinish { headingController.atSetpoint() }
+            .setEnd { _ -> turnRight() }
+    }
+
+    fun turnRight(): Lambda {
+        return Lambda("turn-right").addRequirements(SwerveDrivetrain)
+            .setInit {
+                headingController.reset()
+                headingController.setpoint = Math.toRadians(175.0)
+            }
+            .setExecute {
+                val currentPose = getPose()
+                var headingFeedback = -headingController.calculate(
+                    currentPose.rotation.radians,
+                    Math.toRadians(175.0)
+                )
+                headingFeedback += headingFeedback.sign * DrivebaseConstants.PIDToPosition.KF
+
+                firstOrderFieldCentricDrive(ChassisSpeeds(0.0, 0.0, headingFeedback))
+            }
+            .setFinish { headingController.atSetpoint() }
+            .setEnd { _ -> turnLeft() }
     }
 
     fun setPose(pose: Pose2d) {

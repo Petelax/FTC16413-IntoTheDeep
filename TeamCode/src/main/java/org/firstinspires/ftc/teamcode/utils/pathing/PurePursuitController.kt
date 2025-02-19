@@ -36,7 +36,11 @@ object PurePursuitController {
 
     private var timeSinceDriving = System.currentTimeMillis()
 
-    fun followPathCommand(path: List<CurvePoint>): Lambda {
+    /**
+     * @param path path
+     * @param velocityTimeout ms
+     */
+    fun followPathCommand(path: List<CurvePoint>, velocityTimeout: Double = DrivebaseConstants.Measurements.velocityTimeout): Lambda {
         return Lambda("follow-path").addRequirements(SwerveDrivetrain)
             .setInit{
                 lastIndex = 0.0
@@ -51,7 +55,7 @@ object PurePursuitController {
                 )
 
                 val vel = SwerveDrivetrain.getVelocity()
-                if (hypot(vel.vxMetersPerSecond, vel.vyMetersPerSecond).absoluteValue > 1.0) {
+                if (hypot(vel.vxMetersPerSecond, vel.vyMetersPerSecond).absoluteValue > 1.25) {
                     timeSinceDriving = System.currentTimeMillis()
                 }
 
@@ -60,7 +64,7 @@ object PurePursuitController {
                 ((SwerveDrivetrain.getPose().x - path.last().pose.x).absoluteValue < DrivebaseConstants.PIDToPosition.TranslationPositionTolerance &&
                 (SwerveDrivetrain.getPose().y - path.last().pose.y).absoluteValue < DrivebaseConstants.PIDToPosition.TranslationPositionTolerance &&
                 (SwerveDrivetrain.getPose().heading - path.last().pose.heading).absoluteValue < DrivebaseConstants.PIDToPosition.RotationPositionTolerance)
-                        || ((System.currentTimeMillis() - timeSinceDriving > DrivebaseConstants.Measurements.velocityTimeout))
+                        || ((System.currentTimeMillis() - timeSinceDriving > velocityTimeout))
 
             }
             .setEnd{

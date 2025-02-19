@@ -20,7 +20,7 @@ class HorizontalConstants {
 
     @Config
     object HorizontalExtensionPositions {
-        @JvmField var UPPER_LIMIT = 13.8
+        @JvmField var UPPER_LIMIT = 20.0
         @JvmField var LOWER_LIMIT = -1.0
         @JvmField var SPRING_START = 2.0
         @JvmField var TOP = 13.5

@@ -146,16 +146,18 @@ class Simulator : Application() {
 
          */
 
-        val newPath = sampleTest
+        /*
+        val newPath = second
         newPath.forEach { point ->
             println(point)
         }
+         */
 
-        graphPath(pane, newPath)
+        //graphPath(pane, newPath)
 
-        /*
         graphPath(pane, first)
         graphPath(pane, second)
+        /*
         graphPath(pane, third)
         graphPath(pane, fourth)
         graphPath(pane, fifth)
@@ -183,20 +185,6 @@ class Simulator : Application() {
         primaryStage.show()
     }
 
-    /*
-    private val first = PurePursuitController.waypointsToPath(listOf(
-        CurvePoint(Pose2d(29.75, 7.375, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(27.31, 10.54, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
-    ), kSmooth = 0.95)
-
-     */
-    private val sampleTest = PurePursuitController.waypointsToPath(listOf(
-        CurvePoint(Pose2d(20.0, 20.0, Rotation2d.fromDegrees(-135.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(30.0, 62.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(45.0, 62.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-    ), kSmooth = 0.99)
-
     private val first = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(78.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
@@ -216,9 +204,13 @@ class Simulator : Application() {
         CurvePoint(Pose2d(108.0, 30.0, Rotation2d.fromDegrees(-95.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(109.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(120.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(120.0, 25.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.30, 1.0, 6.0),
-        CurvePoint(Pose2d(120.0, 11.75, Rotation2d.fromDegrees(-90.0)), 0.30, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 4.0, Rotation2d.fromDegrees(-90.0)), 1.0, 0.1, 6.0),
+        CurvePoint(Pose2d(120.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(132.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
+        CurvePoint(Pose2d(132.0, 4.0, Rotation2d.fromDegrees(-90.0)), 1.0, 0.1, 6.0),
+        CurvePoint(Pose2d(132.0, 60.0, Rotation2d.fromDegrees(-90.0)), 1.0, 0.1, 6.0),
+        CurvePoint(Pose2d(138.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 0.1, 6.0),
+        CurvePoint(Pose2d(138.0, 4.0, Rotation2d.fromDegrees(-90.0)), 1.0, 0.1, 6.0),
     ), kSmooth = 0.895, kCurvature = 0.080, spacing = 1.5)
 
     private val third = PurePursuitController.waypointsToPath(listOf(
@@ -240,8 +232,11 @@ class Simulator : Application() {
         CurvePoint(Pose2d(110.0, 45.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
         CurvePoint(Pose2d(118.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
         CurvePoint(Pose2d(132.0, 57.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 2.0),
-        CurvePoint(Pose2d(132.0, 20.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(132.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.8, 1.0, 6.0),
+        CurvePoint(Pose2d(132.0, 40.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(132.0, 35.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(132.0, 30.0, Rotation2d.fromDegrees(-90.0)), 0.4, 0.1, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(132.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.3, 0.1, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(132.0, 0.0, Rotation2d.fromDegrees(-90.0)), 0.2, 0.1, 6.0, 0.05, 0.95),
     ), kSmooth = 0.95, kCurvature = 0.075)
 
     private val fifth = PurePursuitController.waypointsToPath(listOf(
@@ -250,7 +245,7 @@ class Simulator : Application() {
         CurvePoint(Pose2d(118.19, 20.5, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(116.10, 21.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(70.0, 24.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(70.0, 35.75, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
+        CurvePoint(Pose2d(70.0, 35.75, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val sixth = PurePursuitController.waypointsToPath(listOf(
@@ -261,8 +256,9 @@ class Simulator : Application() {
         CurvePoint(Pose2d(85.0, 24.0, Rotation2d.fromDegrees(170.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(95.0, 24.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(100.0, 24.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(120.0, 25.0, Rotation2d.fromDegrees(-90.0)), 0.8, 1.0, 6.0),
-        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.75, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 25.0, Rotation2d.fromDegrees(-90.0)), 0.30, 0.1, 6.0),
+        CurvePoint(Pose2d(120.0, 16.5, Rotation2d.fromDegrees(-90.0)), 0.20, 0.1, 6.0, 0.3, 0.7),
+        CurvePoint(Pose2d(120.0, 0.0, Rotation2d.fromDegrees(-90.0)), 0.20, 0.1, 6.0, 0.1, 0.9),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     private val seventh = PurePursuitController.waypointsToPath(listOf(
@@ -271,13 +267,13 @@ class Simulator : Application() {
         CurvePoint(Pose2d(118.19, 20.5, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(116.10, 21.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
         CurvePoint(Pose2d(65.0, 22.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
+        CurvePoint(Pose2d(65.0, 36.5, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
     ), kSmooth = 0.95, kCurvature = 0.075)
 
     private val eighth = PurePursuitController.waypointsToPath(listOf(
         CurvePoint(Pose2d(65.0, 36.0, Rotation2d.fromDegrees(90.0)), 0.9, 1.0, 5.0),
         CurvePoint(Pose2d(65.0, 23.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(100.0, 10.0, Rotation2d.fromDegrees(-180.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(120.0, 10.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
     ), kSmooth = 0.95, kCurvature = 0.08)
 
     fun graphPath(pane: Pane, path: List<CurvePoint>) {

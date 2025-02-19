@@ -22,6 +22,8 @@ object Telemetry: Feature {
 
     private var packets: MutableMap<String, Any> = mutableMapOf()
 
+    var enabled = false
+
     var robotPose = Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))
          set(value) {
             field = value
@@ -60,6 +62,10 @@ object Telemetry: Feature {
     }
 
     private fun update(opMode: Wrapper) {
+        if (!enabled) {
+            return
+        }
+
         var packet = TelemetryPacket()
         packet.putAll(packets)
 

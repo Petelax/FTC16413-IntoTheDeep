@@ -12,7 +12,6 @@ import dev.frozenmilk.mercurial.commands.groups.Sequential
 import dev.frozenmilk.mercurial.commands.util.IfElse
 import dev.frozenmilk.mercurial.commands.util.Wait
 import org.firstinspires.ftc.teamcode.commands.Timeout
-import org.firstinspires.ftc.teamcode.commands.ftclib.subsystems.HorizontalRetract
 import org.firstinspires.ftc.teamcode.constants.DrivetrainPIDCoefficients
 import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
@@ -71,7 +70,7 @@ class MercurialTeleOp : OpMode() {
 
         val verticalSpecimenPlace = Parallel(
             Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE),
-            Elevator.pid(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+2.0),
+            Elevator.pid(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+0.9),
             Sequential(
                 Elevator.waitUntilAboveArm(),
                 Parallel(

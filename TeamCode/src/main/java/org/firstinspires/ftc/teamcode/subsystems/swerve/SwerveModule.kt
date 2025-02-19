@@ -30,6 +30,7 @@ class SwerveModule
     s: String,
     e: String,
     encoderOffset: Double,
+    private var pwmEnable: Boolean,
     private var voltage: Double = 12.0
 ) {
     private var motor: DcMotorEx
@@ -63,6 +64,11 @@ class SwerveModule
 
         servo.pwmRange = PwmControl.PwmRange(500.0, 2500.0, 5000.0)
         servo.direction = DcMotorSimple.Direction.REVERSE
+        if (pwmEnable) {
+            //servo.setPwmEnable()
+        } else {
+            //servo.setPwmDisable()
+        }
 
         turnPID.enableContinuousInput(0.0, 2.0*Math.PI)
     }
