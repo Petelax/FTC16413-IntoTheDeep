@@ -1,15 +1,19 @@
 package org.firstinspires.ftc.teamcode.utils.pathing
 
 import com.arcrobotics.ftclib.geometry.Pose2d
+import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.geometry.Vector2d
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.qualcomm.robotcore.util.ElapsedTime
 import dev.frozenmilk.mercurial.commands.Lambda
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
+import org.firstinspires.ftc.teamcode.constants.DrivetrainPIDCoefficients
 import org.firstinspires.ftc.teamcode.subsystems.swerve.SwerveDrivetrain
 import org.firstinspires.ftc.teamcode.utils.DrivetrainPIDController
+import org.firstinspires.ftc.teamcode.utils.MathUtil
 import org.firstinspires.ftc.teamcode.utils.RateLimiter
 import org.firstinspires.ftc.teamcode.utils.Telemetry
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
@@ -40,7 +44,7 @@ object PurePursuitController {
      * @param path path
      * @param velocityTimeout ms
      */
-    fun followPathCommand(path: List<CurvePoint>, velocityTimeout: Double = DrivebaseConstants.Measurements.velocityTimeout): Lambda {
+    fun followPathCommand(path: List<CurvePoint>, velocityTimeout: Double = DrivebaseConstants.Measurements.velocityTimeout, stop: Boolean = true, constants: DrivetrainPIDCoefficients = DrivebaseConstants.PIDToPosition): Lambda {
         return Lambda("follow-path").addRequirements(SwerveDrivetrain)
             .setInit{
                 lastIndex = 0.0
@@ -55,20 +59,21 @@ object PurePursuitController {
                 )
 
                 val vel = SwerveDrivetrain.getVelocity()
-                if (hypot(vel.vxMetersPerSecond, vel.vyMetersPerSecond).absoluteValue > 1.25) {
+                if (hypot(vel.vxMetersPerSecond, vel.vyMetersPerSecond).absoluteValue > 0.1) {
                     timeSinceDriving = System.currentTimeMillis()
                 }
 
             }
             .setFinish{
-                ((SwerveDrivetrain.getPose().x - path.last().pose.x).absoluteValue < DrivebaseConstants.PIDToPosition.TranslationPositionTolerance &&
-                (SwerveDrivetrain.getPose().y - path.last().pose.y).absoluteValue < DrivebaseConstants.PIDToPosition.TranslationPositionTolerance &&
-                (SwerveDrivetrain.getPose().heading - path.last().pose.heading).absoluteValue < DrivebaseConstants.PIDToPosition.RotationPositionTolerance)
-                        || ((System.currentTimeMillis() - timeSinceDriving > velocityTimeout))
+                ((SwerveDrivetrain.getPose().x - path.last().pose.x).absoluteValue < constants.TranslationPositionTolerance &&
+                (SwerveDrivetrain.getPose().y - path.last().pose.y).absoluteValue < constants.TranslationPositionTolerance &&
+                (SwerveDrivetrain.getPose().heading - path.last().pose.heading).absoluteValue < constants.RotationPositionTolerance)
+                        || (!stop && (System.currentTimeMillis() - timeSinceDriving > velocityTimeout) && (distance(path[path.lastIndex].getVector2d(), lastClosestPoint.first)) < DrivebaseConstants.Measurements.distanceToEnd)
 
             }
             .setEnd{
-                SwerveDrivetrain.stop()
+                if (stop)
+                    SwerveDrivetrain.stop()
             }
     }
 
@@ -408,6 +413,40 @@ object PurePursuitController {
                 sqrt(next.targetSpeed.pow(2) + 2 * a * distance)
             )
             newPath[i] = current.copy(targetSpeed = velocity)
+        }
+
+        return newPath
+
+    }
+
+    fun interpolateRotation(path: List<CurvePoint>): List<CurvePoint> {
+        var initialPoint = path[0]
+        var initialIndex = 0
+
+        var newPath = path.toMutableList()
+
+        path.forEachIndexed { i, point ->
+            if (point.pose.rotation.radians != initialPoint.pose.rotation.radians) {
+                val endPoint = point
+
+                val notFlipped = endPoint.pose.rotation.radians - initialPoint.pose.rotation.radians
+                val flipped = (2*PI + endPoint.pose.rotation.radians) - initialPoint.pose.rotation.radians
+                val targetRadians = if (notFlipped.absoluteValue < flipped.absoluteValue) {
+                    (notFlipped + initialPoint.pose.rotation.radians)
+                } else {
+                    (flipped + initialPoint.pose.rotation.radians)
+                }
+
+                for (j in initialIndex until i) {
+                    val t = (path[j].totalDistance - initialPoint.totalDistance) / (endPoint.totalDistance - initialPoint.totalDistance)
+                    val target = MathUtil.interpolate(initialPoint.pose.rotation.radians, targetRadians, t)
+                    newPath[j] = path[j].copy(pose = Pose2d(path[j].pose.translation, Rotation2d(target)))
+                }
+
+                initialPoint = endPoint
+                initialIndex = i
+
+            }
         }
 
         return newPath

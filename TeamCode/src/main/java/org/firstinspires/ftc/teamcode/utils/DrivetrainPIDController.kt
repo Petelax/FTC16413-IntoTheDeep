@@ -63,5 +63,16 @@ class DrivetrainPIDController(private val c: DrivetrainPIDCoefficients) {
         headingController.reset()
     }
 
+    fun atSetPoint(): Boolean {
+        return xController.atSetPoint() && yController.atSetPoint() && headingController.atSetpoint()
+    }
+
+    fun setCoefficients(c: DrivetrainPIDCoefficients) {
+        headingController.setTolerance(c.RotationPositionTolerance, c.RotationVelocityTolerance)
+        xController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
+        yController.setTolerance(c.TranslationPositionTolerance, c.TranslationVelocityTolerance)
+
+    }
+
 
 }

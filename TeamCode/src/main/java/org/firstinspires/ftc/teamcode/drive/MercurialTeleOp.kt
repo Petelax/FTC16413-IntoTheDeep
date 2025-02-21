@@ -226,7 +226,7 @@ class MercurialTeleOp : OpMode() {
             //Elevator.cancel(),
 
             //Elevator.driveAndClimb({gamepad2.left_stick_y.toDouble() + if(gamepad1.right_bumper) {-1000.0} else {0.0}}, {if (gamepad1.dpad_up) {1.0} else {0.0} + if (gamepad1.dpad_down) {-1.0} else {0.0}})
-            Elevator.climb{-1.0}
+            Elevator.climbSpeed{-1.0}
         )
 
         mechanismGamepad.dpadUp.onTrue(Parallel(Sequential(Intake.runIntake(), Wait(0.400), Intake.stopIntake()), verticalSample).with(horizontalRetract))
@@ -239,6 +239,12 @@ class MercurialTeleOp : OpMode() {
 
         mechanismGamepad.x.onTrue(horizontalRetract)
         mechanismGamepad.b.onTrue(
+            IfElse ( {HorizontalExtension.getPosition() < 1.0},
+                Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
+                Parallel(HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
+            ),
+        )
+        mechanismGamepad.start.onTrue(
             IfElse ( {HorizontalExtension.getPosition() < 1.0},
                 Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.CLEAR), HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
                 Parallel(HorizontalArm.outHorizontalArm(), HorizontalWrist.outHorizontalWrist()),
@@ -265,7 +271,7 @@ class MercurialTeleOp : OpMode() {
 
          */
         mechanismGamepad.b.onTrue(Wait(0.100).then(Intake.runIntakeStopping().then(Intake.backDrive())))
-        mechanismGamepad.start.onTrue(Wait(0.100).then(Intake.runIntakeStoppingBackwards().then(Intake.backBackDrive())))
+        mechanismGamepad.start.onTrue(Wait(0.100).then(Intake.runIntakeStoppingBackwards().then(Wait(HorizontalConstants.IntakeSpeeds.POST_BACK_BACK_BACK_TIME).then(Intake.stopIntake()))))
 
         mechanismGamepad.a.onTrue(Parallel(HorizontalExtension.waitUntilSetPoint(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalExtension.pid(HorizontalConstants.HorizontalExtensionPositions.BOTTOM), HorizontalArm.setPositionCommand(HorizontalConstants.HorizontalArmPositions.MID)))
 
@@ -289,7 +295,7 @@ class MercurialTeleOp : OpMode() {
 
         driveGamepad.leftStickButton.onTrue(SwerveDrivetrain.resetHeadingCommand())
 
-        driveGamepad.back.onTrue(Intake.spinUntilHolding())
+        //driveGamepad.back.onTrue(Intake.spinUntilHolding())
 
         //Telemetry.points.add(Pose2d(72.0, 72.0, Rotation2d(0.0)))
         //Telemetry.points.add(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0)))
@@ -331,13 +337,14 @@ class MercurialTeleOp : OpMode() {
 
         //packet.put("elevator pid speed", Elevator.controller.velocity)
         //packet.put("elevator pid state", Elevator.controller.state)
-        //packet.put("elevator pos", Elevator.getPosition())
+        Telemetry.put("elevator pos", Elevator.getPosition())
         Telemetry.put("horizontal pos", HorizontalExtension.getPosition())
+        Telemetry.put("climber pos", Elevator.getClimbPosition())
         //packet.put("elevator target", Elevator.targetPosition)
         //packet.put("elevator pid atSetPoint", Elevator.controller.finished())
         //packet.put("elevator pid atSetPoint 2", Elevator.atSetPoint())
-        Telemetry.put("hori arm cached", HorizontalArm.getCachedPosition())
-        Telemetry.put("hori arm", HorizontalArm.getPosition())
+        //Telemetry.put("hori arm cached", HorizontalArm.getCachedPosition())
+        //Telemetry.put("hori arm", HorizontalArm.getPosition())
 
         //packet.put("pin0", Intake.getPin0())
         Telemetry.put("intake piece", Intake.getGamePiece().name)

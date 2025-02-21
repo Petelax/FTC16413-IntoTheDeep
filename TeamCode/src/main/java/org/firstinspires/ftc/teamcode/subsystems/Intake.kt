@@ -171,7 +171,8 @@ object Intake : Subsystem {
                     getGamePiece() == Sample.BLUE || getGamePiece() == Sample.YELLOW
                 }
             }
-            .setEnd{setSpeed(HorizontalConstants.IntakeSpeeds.BACK)}
+            //.setEnd{setSpeed(HorizontalConstants.IntakeSpeeds.BACK)}
+            .setEnd{}
             .setInterruptible{true}
     }
 
@@ -185,14 +186,15 @@ object Intake : Subsystem {
                     getGamePiece() == Sample.BLUE || getGamePiece() == Sample.YELLOW
                 }
             }
-            .setEnd{setSpeed(-HorizontalConstants.IntakeSpeeds.BACK_BACK)}
+            //.setEnd{setSpeed(-HorizontalConstants.IntakeSpeeds.BACK_BACK)}
+            .setEnd{}
             .setInterruptible{true}
     }
 
     fun backBackDrive(): Sequential {
         return Sequential(
             Wait(HorizontalConstants.IntakeSpeeds.PRE_BACK_TIME),
-            setSpeed(-HorizontalConstants.IntakeSpeeds.BACK_BACK),
+            setSpeed(HorizontalConstants.IntakeSpeeds.BACK_BACK),
             Wait(HorizontalConstants.IntakeSpeeds.BACK_BACK_TIME),
             stopIntake()
         )

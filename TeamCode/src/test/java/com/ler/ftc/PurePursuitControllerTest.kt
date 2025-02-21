@@ -380,6 +380,19 @@ class PurePursuitControllerTest {
         }
     }
 
+    @Test
+    fun rotationInterp() {
+        val test = (PurePursuitController.waypointsToPath(listOf(
+            CurvePoint(Pose2d(0.0, 0.0, Rotation2d()), 0.2, 0.2, 3.0),
+            CurvePoint(Pose2d(0.0, 0.0, Rotation2d()), 0.2, 0.2, 3.0),
+            CurvePoint(Pose2d(48.0, 0.0, Rotation2d(20.0)), 0.2, 0.2, 3.0),
+        )))
+
+        test.forEach { point ->
+            println(point.pose.rotation)
+        }
+    }
+
 
     private fun chassisSpeedsEqual(a: ChassisSpeeds, b: ChassisSpeeds) : Boolean {
         val x = a.vxMetersPerSecond == b.vxMetersPerSecond

@@ -14,6 +14,7 @@ import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.dependency.Dependency
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
+import dev.frozenmilk.mercurial.commands.Command
 import dev.frozenmilk.mercurial.commands.Lambda
 import dev.frozenmilk.mercurial.commands.groups.Parallel
 import dev.frozenmilk.mercurial.commands.groups.Race
@@ -28,7 +29,9 @@ import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.TRACK_WIDTH
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants.Measurements.WHEEL_BASE
+import org.firstinspires.ftc.teamcode.constants.DrivetrainPIDCoefficients
 import org.firstinspires.ftc.teamcode.subsystems.Deposit
+import org.firstinspires.ftc.teamcode.utils.DrivetrainPIDController
 import org.firstinspires.ftc.teamcode.utils.PIDController
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import java.lang.annotation.Inherited
@@ -91,6 +94,8 @@ object SwerveDrivetrain : Subsystem {
     val profiledXController: ProfiledPIDController = ProfiledPIDController(c.TranslationKP, c.TranslationKI, c.TranslationKD, TrapezoidProfile.Constraints(c.MaxVelocity, c.MaxAcceleration))
     val profiledYController: ProfiledPIDController = ProfiledPIDController(c.TranslationKP, c.TranslationKI, c.TranslationKD, TrapezoidProfile.Constraints(c.MaxVelocity, c.MaxAcceleration))
     val profiledHeadingController: PIDController = PIDController(c.RotationKP, c.RotationKI, c.RotationKD)
+
+    val noVelocityController: DrivetrainPIDController = DrivetrainPIDController(DrivebaseConstants.noVelocity)
 
     val driveHeadingController: PIDController = PIDController(DrivebaseConstants.DriveHeadingPID.KP, DrivebaseConstants.DriveHeadingPID.KI, DrivebaseConstants.DriveHeadingPID.KD)
 
@@ -348,6 +353,32 @@ object SwerveDrivetrain : Subsystem {
             null,
             Parallel(
                 cp2p(setPoint),
+                Wait(0.1),
+            ),
+            Wait(timeout)
+        )
+    }
+
+    fun nvp2p(setPoint: Pose2d, coefficients: DrivetrainPIDCoefficients = DrivebaseConstants.noVelocity) : Lambda {
+        return Lambda("nvp2p").addRequirements(SwerveDrivetrain)
+            .setInit{
+                noVelocityController.setCoefficients(coefficients)
+                noVelocityController.reset()
+                noVelocityController.calculate(getPose(), setPoint, 1.0, 1.0)
+            }
+            .setExecute{
+                val velocity = noVelocityController.calculate(getPose(), setPoint, 1.0, 1.0)
+                firstOrderFieldCentricDrive(velocity)
+            }
+            .setFinish{ noVelocityController.atSetPoint() }
+            .setEnd{ _ -> stop() }
+    }
+
+    fun bnvp2p(setPoint: Pose2d, timeout: Double, coefficients: DrivetrainPIDCoefficients = DrivebaseConstants.noVelocity) : Command {
+        return Race(
+            null,
+            Parallel(
+                nvp2p(setPoint, coefficients),
                 Wait(0.1),
             ),
             Wait(timeout)

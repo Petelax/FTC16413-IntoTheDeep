@@ -42,7 +42,8 @@ object DrivebaseConstants {
         @JvmField var cachingTolerance = 0.01
 
         // ms
-        @JvmField var velocityTimeout = 250.0
+        @JvmField var velocityTimeout = 700.0
+        @JvmField var distanceToEnd = 3.0
 
         // note: drivebase efficiency prototype 84%
 
@@ -151,6 +152,31 @@ object DrivebaseConstants {
         MaxAngularVelocity = 60.0,
 
     )
+
+    @JvmField var noVelocity = DrivetrainPIDCoefficients(
+        KF = 0.05,
+
+        TranslationKP = 0.3,
+        TranslationKI = 0.0,
+        TranslationKD = 0.025,
+
+        RotationKP = 15.0,
+        RotationKI = 0.0,
+        RotationKD = 0.35,
+
+        TranslationPositionTolerance = 1.00,
+        TranslationVelocityTolerance = 1000000.0,
+
+        RotationPositionTolerance = 0.05,
+        RotationVelocityTolerance = 1000000.0,
+
+        MaxAcceleration = 30.0,
+        MaxVelocity = 0.05,
+
+        MaxAngularAcceleration = 120.0,
+        MaxAngularVelocity = 60.0,
+
+        )
 
     @Config
     object DriveHeadingPID {

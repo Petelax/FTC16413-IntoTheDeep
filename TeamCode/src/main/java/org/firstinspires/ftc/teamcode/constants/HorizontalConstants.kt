@@ -50,7 +50,8 @@ class HorizontalConstants {
         @JvmField var BACK_BACK = -0.1
         @JvmField var BACK_TIME = 0.050
         @JvmField var BACK_BACK_TIME = 0.150
-        @JvmField var PRE_BACK_TIME = 0.0
+        @JvmField var PRE_BACK_TIME = 0.100
+        @JvmField var POST_BACK_BACK_BACK_TIME = 0.070
     }
 
     @Config

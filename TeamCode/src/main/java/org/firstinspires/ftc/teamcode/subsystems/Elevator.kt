@@ -12,8 +12,11 @@ import dev.frozenmilk.dairy.core.util.supplier.numeric.CachedMotionComponentSupp
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponentSupplier
 import dev.frozenmilk.dairy.core.util.supplier.numeric.MotionComponents
 import dev.frozenmilk.dairy.core.wrapper.Wrapper
+import dev.frozenmilk.mercurial.commands.Command
 import dev.frozenmilk.mercurial.commands.Lambda
+import dev.frozenmilk.mercurial.commands.groups.Parallel
 import dev.frozenmilk.mercurial.commands.groups.Race
+import dev.frozenmilk.mercurial.commands.groups.Sequential
 import dev.frozenmilk.mercurial.commands.util.Wait
 import dev.frozenmilk.mercurial.subsystems.Subsystem
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta
@@ -23,6 +26,7 @@ import org.firstinspires.ftc.teamcode.utils.Cache
 import java.lang.annotation.Inherited
 import java.util.function.DoubleSupplier
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.max
 
 object Elevator : Subsystem {
@@ -49,8 +53,10 @@ object Elevator : Subsystem {
     }
 
     //private var elevator: MotorGroup
-    private var currentPosition: Double = 0.0
-    private var currentClimbPosition: Double = 0.0
+
+    //TODO
+    var currentPosition: Double = 0.0
+    var currentClimbPosition: Double = 0.0
     private var positionOffset = 0.0
     private var lastSpeed = 0.0
     private var lastClimbSpeed = 0.0
@@ -173,6 +179,15 @@ object Elevator : Subsystem {
         climbController.controllerCalculation.reset()
     }
 
+    fun hardReset() {
+        motorClimb.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        motorClimb.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        motorLeft.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+        motorLeft.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        reset()
+
+    }
+
     /*
     val fsm: StateMachine<States> = StateMachine(States.MANUAL)
         .withState(States.MANUAL) { state: RefCell<States>, name: String ->
@@ -266,6 +281,17 @@ object Elevator : Subsystem {
             .setInterruptible(true)
     }
 
+    fun climbPid(setPoint: Double): Lambda {
+        return Lambda("elevator-climb-pid")
+            .setInit{
+                targetClimbPosition = setPoint
+                climbController.controllerCalculation.reset()
+                climbController.enabled = true
+            }
+            .setFinish{ atClimbSetPoint() }
+            .setInterruptible(true)
+    }
+
     fun pidAutoTimeout(setPoint: Double, timeout: Double): Race {
         return Race(null,
             pidAuto(setPoint),
@@ -299,12 +325,72 @@ object Elevator : Subsystem {
         return Lambda("waiting-for-setpoint").setFinish{ atSetPoint() }
     }
 
-    fun climb(speed: DoubleSupplier) : Lambda {
+    fun climbSpeed(speed: DoubleSupplier) : Lambda {
         return Lambda("elevator-climb").addRequirements(Elevator)
             .setInit{ defaultCommand = null; controller.enabled = false }
             .setExecute{setRawSpeed(speed.asDouble); setClimbSpeed(speed.asDouble)}
             .setFinish{false}
             .setInterruptible(false)
+    }
+
+    /**
+     * climb to pos
+     */
+    fun climb(climbSetPoint: Double, elevatorSetPoint: Double) : Lambda {
+        return Lambda("elevator-climb").addRequirements(Elevator)
+            .setInit{
+                defaultCommand = null
+                controller.enabled = false
+                climbController.enabled = false
+
+                targetClimbPosition = climbSetPoint
+                targetPosition = elevatorSetPoint
+            }
+            .setExecute{
+                setRawSpeed(-1.0)
+                val speed = if ((elevatorSetPoint - currentPosition).absoluteValue < 0.10) {
+                    0.0
+                } else if (elevatorSetPoint > currentPosition) {
+                    1.0
+                } else {
+                    -1.0
+                }
+                setClimbSpeed(speed)
+            }
+            .setFinish{ reallyAtSetPoint() }
+            .setEnd{ _ -> setClimbSpeed(0.0); setRawSpeed(0.0) }
+    }
+
+    fun climbUp(climbSetPoint: Double, elevatorSetPoint: Double) : Command {
+        return Parallel(
+            climberUp(climbSetPoint),
+            Sequential(
+                Wait(1.0),
+                pidAuto(elevatorSetPoint),
+            )
+        )
+    }
+
+    fun climberUp(climbSetPoint: Double): Lambda {
+        return Lambda("elevator-climber-up").addRequirements(Elevator)
+            .setInit{
+                defaultCommand = null
+                targetClimbPosition = climbSetPoint
+                climbController.controllerCalculation.reset()
+                climbController.enabled = false
+
+            }
+            .setExecute{
+                val speed = if (climbSetPoint < currentClimbPosition) {
+                    0.0
+                } else {
+                    1.0
+                }
+                setClimbSpeed(speed)
+
+            }
+            .setFinish{ climbHigherThanTarget() }
+            .setEnd{ _ -> setClimbSpeed(0.0) }
     }
 
     fun cancel(): Lambda {
@@ -316,6 +402,36 @@ object Elevator : Subsystem {
                 && abs(controller.velocity) <= VerticalConstants.ElevatorConstants.VELOCITY_TOLERANCE
     }
 
+    fun reallyAtSetPoint(): Boolean {
+        return (targetPosition > getPosition())
+                && abs(controller.velocity) <= VerticalConstants.ElevatorConstants.SMALLER_VELOCITY_TOLERANCE
+
+    }
+
+    fun climbHigherThanTarget(): Boolean {
+        return currentClimbPosition > targetClimbPosition
+    }
+
+    fun atClimbSetPoint(): Boolean {
+        return abs(targetPosition - getPosition()) <= VerticalConstants.ElevatorConstants.CLIMB_POSITION_TOLERANCE
+    }
+
+    fun climbBangBang(setPoint: Double): Lambda {
+        return Lambda("climb-bang-bang")
+            .setInit{ climbController.enabled = false }
+            .setExecute{
+                val speed = if ((setPoint - currentClimbPosition).absoluteValue < 0.25) {
+                    0.0
+                } else if (setPoint > currentClimbPosition) {
+                    1.0
+                } else {
+                    -1.0
+                }
+
+                setClimbSpeed(speed)
+            }
+            .setFinish{ atClimbSetPoint() }
+    }
     /*
     fun pidCalculate(sp: Double): Double {
         return pidfController.calculate(getPosition(), sp)
