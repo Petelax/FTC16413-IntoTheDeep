@@ -50,13 +50,13 @@ class HorizontalConstants {
         @JvmField var BACK_BACK = -0.1
         @JvmField var BACK_TIME = 0.050
         @JvmField var BACK_BACK_TIME = 0.150
-        @JvmField var PRE_BACK_TIME = 0.100
+        @JvmField var PRE_BACK_TIME = 0.020
         @JvmField var POST_BACK_BACK_BACK_TIME = 0.070
     }
 
     @Config
     object HorizontalArmPositions {
-        @JvmField var OUT = 0.1 //0.07
+        @JvmField var OUT = 0.12 //0.07
         @JvmField var IN = 1.0
         @JvmField var MID = 0.5
     }

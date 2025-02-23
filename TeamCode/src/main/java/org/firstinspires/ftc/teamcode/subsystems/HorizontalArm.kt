@@ -88,4 +88,8 @@ object HorizontalArm : Subsystem {
         return servo.position
     }
 
+    fun reset() {
+        cachedPosition = HorizontalConstants.HorizontalArmPositions.IN
+    }
+
 }

@@ -84,7 +84,7 @@ class VerticalConstants {
         @JvmField var IN = 0.01
         //@JvmField var MID = 0.08
         @JvmField var MID = 0.40
-        @JvmField var OUT = 0.80
+        @JvmField var OUT = 0.90
         /*
         old
         @JvmField var IN = 0.0

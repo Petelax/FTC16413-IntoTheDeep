@@ -103,4 +103,8 @@ object VerticalArm : Subsystem {
             .setFinish{true}
     }
 
+    fun reset() {
+        var cachedPosition = VerticalConstants.VerticalArmPositions.INTAKE
+    }
+
 }

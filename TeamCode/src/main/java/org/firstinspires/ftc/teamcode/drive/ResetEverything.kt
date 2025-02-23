@@ -34,6 +34,10 @@ class ResetEverything : LinearOpMode() {
         SwerveDrivetrain.reset()
         Elevator.reset()
         HorizontalExtension.reset()
+        HorizontalArm.reset()
+        HorizontalWrist.reset()
+        VerticalArm.reset()
+        VerticalWrist.reset()
         waitForStart()
     }
 

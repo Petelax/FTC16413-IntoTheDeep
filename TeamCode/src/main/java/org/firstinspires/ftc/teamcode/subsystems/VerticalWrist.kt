@@ -89,4 +89,8 @@ object VerticalWrist : Subsystem {
             .setFinish{true}
     }
 
+    fun reset() {
+        var cachedPosition = VerticalConstants.VerticalWristPositions.INTAKE
+    }
+
 }

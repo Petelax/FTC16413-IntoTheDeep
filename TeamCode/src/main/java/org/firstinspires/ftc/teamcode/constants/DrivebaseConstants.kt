@@ -112,7 +112,7 @@ object DrivebaseConstants {
 
         RotationKP = 15.0,
         RotationKI = 0.0,
-        RotationKD = 0.35,
+        RotationKD = 0.40,
 
         TranslationPositionTolerance = 0.25,
         TranslationVelocityTolerance = 10.0,
@@ -137,7 +137,7 @@ object DrivebaseConstants {
 
         RotationKP = 15.0,
         RotationKI = 0.0,
-        RotationKD = 0.35,
+        RotationKD = 0.40,
 
         TranslationPositionTolerance = 0.25,
         TranslationVelocityTolerance = 1.8,
@@ -160,9 +160,9 @@ object DrivebaseConstants {
         TranslationKI = 0.0,
         TranslationKD = 0.025,
 
-        RotationKP = 15.0,
+        RotationKP = 14.5,
         RotationKI = 0.0,
-        RotationKD = 0.35,
+        RotationKD = 0.40,
 
         TranslationPositionTolerance = 1.00,
         TranslationVelocityTolerance = 1000000.0,

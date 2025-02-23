@@ -76,4 +76,9 @@ object HorizontalWrist : Subsystem {
             .setFinish{true}
     }
 
+    fun reset() {
+        cachedPosition = HorizontalConstants.HorizontalArmPositions.IN
+
+    }
+
 }
