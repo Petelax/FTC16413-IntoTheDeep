@@ -208,7 +208,7 @@ class MercurialTeleOp : OpMode() {
 
             Parallel(
                 Sequential(
-                    Wait(0.100),
+                    Wait(0.200),
                     Parallel(
                         Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_ONE),
                         Race(

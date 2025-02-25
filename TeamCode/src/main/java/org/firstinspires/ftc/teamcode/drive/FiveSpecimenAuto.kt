@@ -269,7 +269,7 @@ class FiveSpecimenAuto : OpMode() {
 
                 VerticalArm.specimen(),
                 SwerveDrivetrain.bnvp2p(Pose2d(130.0, 55.0, Rotation2d.fromDegrees(-90.0)), 2.0, DrivebaseConstants.noVelocity.copy(TranslationPositionTolerance = 2.0, RotationPositionTolerance = 0.1)),
-                SwerveDrivetrain.bnvp2p(Pose2d(138., 55.0, Rotation2d.fromDegrees(-91.0)), 2.0, DrivebaseConstants.noVelocity.copy(TranslationPositionTolerance = 0.4, RotationPositionTolerance = 0.03)),
+                SwerveDrivetrain.bnvp2p(Pose2d(138.9, 55.0, Rotation2d.fromDegrees(-91.0)), 2.0, DrivebaseConstants.noVelocity.copy(TranslationPositionTolerance = 0.4, RotationPositionTolerance = 0.03)),
 
             ),
             15.0

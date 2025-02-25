@@ -36,7 +36,7 @@ class ServoLimitFinder: OpMode() {
 
         gamepad = GamepadEx(gamepad1)
 
-        servo = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.DEPOSIT)
+        servo = hardwareMap.get(ServoImplEx::class.java, DeviceIDs.HORIZONTAL_ARM)
         servo.pwmRange = PwmControl.PwmRange(510.0, 2490.0)
 
         elapsedtime.reset()
@@ -62,9 +62,9 @@ class ServoLimitFinder: OpMode() {
 
     @Config
     object ServoPositions {
-        @JvmField var min = 0.01
-        @JvmField var mid = 0.4
-        @JvmField var max = 0.8
+        @JvmField var min = 0.12
+        @JvmField var mid = 0.5
+        @JvmField var max = 1.0
     }
 }
 

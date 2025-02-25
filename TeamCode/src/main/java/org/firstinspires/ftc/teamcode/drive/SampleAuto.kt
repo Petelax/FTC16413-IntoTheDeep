@@ -308,7 +308,7 @@ class SampleAuto : OpMode() {
         verticalRetract,
         Parallel(
             //Timeout(PurePursuitController.followPathCommand(sixth), 2.0),
-            SwerveDrivetrain.bp2p(Pose2d(10.75, 21.5, Rotation2d.fromDegrees(-73.0)), 2.0),
+            SwerveDrivetrain.bp2p(Pose2d(10.25, 21.75, Rotation2d.fromDegrees(-73.0)), 2.0),
             Race(
                 Timeout(Intake.runIntakeStopping().then(Intake.backDrive()), 4.0),
                 Sequential(
