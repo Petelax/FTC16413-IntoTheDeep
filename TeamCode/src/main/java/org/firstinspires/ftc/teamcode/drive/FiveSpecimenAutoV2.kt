@@ -44,8 +44,8 @@ import org.firstinspires.ftc.teamcode.utils.pathing.PurePursuitController
 @VerticalWrist.Attach
 @Deposit.Attach
 
-@Autonomous
-class FiveSpecimenAuto : OpMode() {
+@Autonomous(group = "test")
+class FiveSpecimenAutoV2 : OpMode() {
     val verticalSpecimenPickup = Parallel(
         Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.BOTTOM),
         Elevator.pidAuto(VerticalConstants.ElevatorPositions.BOTTOM),
@@ -139,14 +139,14 @@ class FiveSpecimenAuto : OpMode() {
     ), kSmooth = 0.895, minFollowDistance = 4.0, kFollowDistance = 6.0, kCurvature = 0.15, spacing = 1.5, kPID=0.9, kFF=0.1)
 
     private val pickupFirst = PurePursuitController.waypointsToPath(listOf(
-        CurvePoint(Pose2d(137.9, 58.0, Rotation2d.fromDegrees(-90.5)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(137.9, 50.0, Rotation2d.fromDegrees(-90.5)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(137.9, 40.0, Rotation2d.fromDegrees(-90.5)), 1.0, 1.0, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 24.0, Rotation2d.fromDegrees(-90.5)), 0.30, 0.2, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 20.5, Rotation2d.fromDegrees(-90.5)), 0.25, 0.1, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 19.5, Rotation2d.fromDegrees(-90.5)), 0.10, 0.1, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 17.5, Rotation2d.fromDegrees(-90.5)), 0.10, 0.1, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 0.0, Rotation2d.fromDegrees(-90.5)), 0.10, 0.05, 6.0, 0.05, 0.95),
+        CurvePoint(Pose2d(137.7, 58.0, Rotation2d.fromDegrees(-90.5)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(137.7, 50.0, Rotation2d.fromDegrees(-90.5)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(137.7, 40.0, Rotation2d.fromDegrees(-90.5)), 1.0, 1.0, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(137.7, 24.0, Rotation2d.fromDegrees(-90.5)), 0.30, 0.2, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(137.7, 20.5, Rotation2d.fromDegrees(-90.5)), 0.15, 0.1, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(137.7, 19.5, Rotation2d.fromDegrees(-90.5)), 0.10, 0.1, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(137.7, 17.5, Rotation2d.fromDegrees(-90.5)), 0.10, 0.1, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(137.7, 0.0, Rotation2d.fromDegrees(-90.5)), 0.10, 0.05, 6.0, 0.05, 0.95),
     ), kSmooth = 0.895, minFollowDistance = 4.5, kFollowDistance = 8.0, spacing = 1.5, kPID=0.5, kFF=0.5)
 
     private val placeFirst = PurePursuitController.waypointsToPath(listOf(
@@ -154,7 +154,7 @@ class FiveSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(137.2, 20.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(125.89, 20.27, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(75.0, 22.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(75.0, 35.0, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
+        CurvePoint(Pose2d(75.0, 35.5, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
     ), kSmooth = 0.95, kPID=0.9, kFF=0.1, kFollowDistance = 8.0, kCurvature = 0.075)
 
     private val pickupSecond = PurePursuitController.waypointsToPath(listOf(
@@ -175,7 +175,7 @@ class FiveSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(108.0, 20.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(107.09, 19.25, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(72.0, 22.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(72.0, 35.0, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
+        CurvePoint(Pose2d(72.0, 35.5, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
     ), kSmooth = 0.95, kPID=0.9, kFF=0.1, kFollowDistance = 8.0, kCurvature = 0.073)
 
     private val pickupThird = PurePursuitController.waypointsToPath(listOf(
@@ -196,7 +196,7 @@ class FiveSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(108.0, 20.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(107.0, 19.25, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(69.0, 22.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(69.0, 35.0, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
+        CurvePoint(Pose2d(69.0, 35.5, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
     ), kSmooth = 0.95, kPID=0.9, kFF=0.1, kFollowDistance = 8.0, kCurvature = 0.073)
 
     private val pickupFourth = PurePursuitController.waypointsToPath(listOf(
@@ -217,7 +217,7 @@ class FiveSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(108.0, 20.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(107.0, 19.25, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(66.0, 22.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 5.0),
-        CurvePoint(Pose2d(66.0, 35.0, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
+        CurvePoint(Pose2d(66.0, 35.5, Rotation2d.fromDegrees(90.0)), 0.95, 1.0, 5.0),
     ), kSmooth = 0.95, kPID=0.9, kFF=0.1, kFollowDistance = 8.0, kCurvature = 0.073)
 
     private val park = PurePursuitController.waypointsToPath(listOf(
@@ -232,7 +232,7 @@ class FiveSpecimenAuto : OpMode() {
             VerticalWrist.specimenPlace(),
             Timeout(Elevator.pidAuto(VerticalConstants.ElevatorPositions.SPECIMEN_PLACE+1.0), 1.0),
             Sequential(
-                Timeout(SwerveDrivetrain.alignModules(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))), 0.15),
+                Timeout(SwerveDrivetrain.alignModules(Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))), 0.1),
                 Timeout(PurePursuitController.followPathCommand(first, constants = DrivebaseConstants.noVelocity), 1.7),
             )
         ),

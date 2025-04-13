@@ -146,7 +146,7 @@ class Simulator : Application() {
 
          */
 
-        val newPath = place
+        val newPath = second
         newPath.forEach { point ->
             println(point)
         }
@@ -205,8 +205,8 @@ class Simulator : Application() {
         CurvePoint(Pose2d(87.0, 25.0, Rotation2d.fromDegrees(90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(90.0, 25.0, Rotation2d.fromDegrees(180.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(108.0, 30.0, Rotation2d.fromDegrees(-95.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(109.0, 55.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
-        CurvePoint(Pose2d(114.0, 54.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(109.0, 54.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
+        CurvePoint(Pose2d(113.5, 53.5, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(120.0, 40.0, Rotation2d.fromDegrees(-90.0)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(120.0, 12.0, Rotation2d.fromDegrees(-90.0)), 1.0, 0.8, 6.0, 0.1, 0.9),
     ), kSmooth = 0.895, kCurvature = 0.080, spacing = 1.5)

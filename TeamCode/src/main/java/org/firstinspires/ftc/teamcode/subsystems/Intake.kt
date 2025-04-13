@@ -171,8 +171,8 @@ object Intake : Subsystem {
                     getGamePiece() == Sample.BLUE || getGamePiece() == Sample.YELLOW
                 }
             }
-            //.setEnd{setSpeed(HorizontalConstants.IntakeSpeeds.BACK)}
-            .setEnd{}
+            .setEnd{setSpeed(HorizontalConstants.IntakeSpeeds.BACK)}
+            //.setEnd{}
             .setInterruptible{true}
     }
 

@@ -64,7 +64,7 @@ class HorizontalConstants {
     @Config
     object HorizontalWristPositions {
         @JvmField var IN = 1.0
-        @JvmField var OUT = 0.1
+        @JvmField var OUT = 0.085
     }
 
     /**

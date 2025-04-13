@@ -10,6 +10,7 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS
+import com.qualcomm.robotcore.hardware.VoltageSensor
 import dev.frozenmilk.dairy.core.FeatureRegistrar
 import dev.frozenmilk.dairy.core.dependency.Dependency
 import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation
@@ -82,6 +83,10 @@ object SwerveDrivetrain : Subsystem {
         FeatureRegistrar.activeOpMode.hardwareMap.get(SparkFunOTOS::class.java, DeviceIDs.OTOS)
     }
 
+    private var voltage by subsystemCell {
+        FeatureRegistrar.activeOpMode.hardwareMap.voltageSensor.iterator().next()
+    }
+
     private var pose = Pose2d(78.0, 7.375, Rotation2d.fromDegrees(90.0))
     private var velocity = ChassisSpeeds()
     private var headingOffset = Rotation2d()
@@ -102,10 +107,11 @@ object SwerveDrivetrain : Subsystem {
     override fun preUserInitHook(opMode: Wrapper) {
         val id = DeviceIDs
         val hardwareMap = opMode.opMode.hardwareMap
-        lf = SwerveModule(hardwareMap, id.LF_DRIVE_MOTOR, id.LF_TURN_MOTOR, id.LF_ENCODER, DrivebaseConstants.Measurements.LF_OFFSET, false)
-        rf = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET, true)
-        lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET, true)
-        rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET, true)
+        val v = voltage.voltage
+        lf = SwerveModule(hardwareMap, id.LF_DRIVE_MOTOR, id.LF_TURN_MOTOR, id.LF_ENCODER, DrivebaseConstants.Measurements.LF_OFFSET, false, v)
+        rf = SwerveModule(hardwareMap, id.RF_DRIVE_MOTOR, id.RF_TURN_MOTOR, id.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET, true, v)
+        lr = SwerveModule(hardwareMap, id.LR_DRIVE_MOTOR, id.LR_TURN_MOTOR, id.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET, true, v)
+        rr = SwerveModule(hardwareMap, id.RR_DRIVE_MOTOR, id.RR_TURN_MOTOR, id.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET, true, v)
 
         val config = DrivebaseConstants.Otos
         odo.setLinearUnit(config.linearUnit)

@@ -18,8 +18,8 @@
             <goBILDA5202SeriesMotor name="motorRF" port="1" />
             <goBILDA5202SeriesMotor name="motorLR" port="2" />
             <goBILDA5202SeriesMotor name="motorRR" port="3" />
-            <ContinuousRotationServo name="servoLF" port="0" />
-            <ContinuousRotationServo name="servoRF" port="1" />
+            <ContinuousRotationServo name="left" port="0" />
+            <ContinuousRotationServo name="right" port="1" />
             <ContinuousRotationServo name="servoLR" port="2" />
             <ContinuousRotationServo name="servoRR" port="3" />
             <ContinuousRotationServo name="intakeLeft" port="4" />

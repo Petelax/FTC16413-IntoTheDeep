@@ -35,7 +35,8 @@ class VerticalConstants {
         @JvmField var ARM = 3.5
         @JvmField var ARM_TARGET = 3.75
         @JvmField var SPECIMEN_PLACE = 13.5
-        @JvmField var CLIMB_ONE = 24.0
+        @JvmField var CLIMB_ZERO = 8.9
+        @JvmField var CLIMB_ONE = 29.0
         @JvmField var CLIMB_TWO = 8.5
         @JvmField var CLIMB_THREE = 27.5
     }
@@ -84,7 +85,7 @@ class VerticalConstants {
         @JvmField var IN = 0.01
         //@JvmField var MID = 0.08
         @JvmField var MID = 0.40
-        @JvmField var OUT = 0.90
+        @JvmField var OUT = 1.00
         /*
         old
         @JvmField var IN = 0.0

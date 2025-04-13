@@ -173,14 +173,14 @@ class MercurialTeleOp : OpMode() {
             Wait(0.15),
             Race( null,
                 Intake.spinUntilHolding(),
-                Wait(0.400),
+                Wait(0.410),
             ),
             Deposit.halfClose(),
             Intake.runIntake(),
-            Wait(0.05),
-            Intake.stopIntake(),
+            Wait(0.06),
 
             Deposit.close(),
+            Intake.stopIntake(),
             HorizontalExtension.spin(0.0),
             Wait(0.10),
             verticalSample
@@ -208,20 +208,22 @@ class MercurialTeleOp : OpMode() {
 
             Parallel(
                 Sequential(
-                    Wait(0.200),
+                    Wait(0.050),
                     Parallel(
-                        Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_ONE),
-                        Race(
-                            null,
-                            Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_ONE),
-                            Wait(1.0)
-                        )
+                        Timeout(Elevator.pidAuto(VerticalConstants.ElevatorPositions.CLIMB_ZERO), 0.5),
+//                        Race(
+//                            null,
+//                            Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_ZERO),
+//                            Wait(1.5)
+//                        )
                     )
                 ),
                 //Wait(0.100).then(Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_ONE).with(Elevator.waitUntilSetPoint(VerticalConstants.ElevatorPositions.CLIMB_ONE))),
                 VerticalArm.sample()
             ),
-            Wait(0.1),
+            Wait(0.05),
+            Elevator.pidAuto(VerticalConstants.ElevatorPositions.CLIMB_ONE),
+            Wait(0.05),
             //Lambda("delete").addRequirements(Elevator).setInit{Elevator.defaultCommand = null},
             //Elevator.cancel(),
 
