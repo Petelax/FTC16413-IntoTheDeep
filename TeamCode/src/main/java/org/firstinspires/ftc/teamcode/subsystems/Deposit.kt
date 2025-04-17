@@ -10,7 +10,9 @@ import dev.frozenmilk.mercurial.commands.Lambda
 import dev.frozenmilk.mercurial.subsystems.Subsystem
 import org.firstinspires.ftc.teamcode.constants.DeviceIDs
 import org.firstinspires.ftc.teamcode.constants.VerticalConstants
+import org.firstinspires.ftc.teamcode.utils.AllianceColours
 import org.firstinspires.ftc.teamcode.utils.Cache
+import org.firstinspires.ftc.teamcode.utils.Globals
 import org.firstinspires.ftc.teamcode.utils.Telemetry
 import java.lang.annotation.Inherited
 import kotlin.math.max
@@ -108,7 +110,11 @@ object Deposit : Subsystem {
     }
 
     fun reallyHoldingPiece() : Boolean {
-        return getDistance() <= VerticalConstants.DepositPositions.TIGHT_DEPOSIT_THRESHOLD
+        return if (Globals.AllianceColour == AllianceColours.Blue) {
+            getDistance() <= VerticalConstants.DepositPositions.BLUE_TIGHT_DEPOSIT_THRESHOLD
+        } else {
+            getDistance() <= VerticalConstants.DepositPositions.TIGHT_DEPOSIT_THRESHOLD
+        }
     }
 
     fun waitUntilHoldingPiece() : Lambda {

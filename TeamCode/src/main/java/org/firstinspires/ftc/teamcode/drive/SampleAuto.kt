@@ -267,7 +267,8 @@ class SampleAuto : OpMode() {
         verticalRetract,
         Parallel(
             //Timeout(PurePursuitController.followPathCommand(second), 2.0),
-            SwerveDrivetrain.bp2p(Pose2d(20.6, 20.6, Rotation2d.fromDegrees(-95.5)), 2.0),
+            SwerveDrivetrain.bp2p(Pose2d(20.6, 20.6, Rotation2d.fromDegrees(-92.0)), 2.0),
+            //SwerveDrivetrain.bp2p(Pose2d(20.6, 20.6, Rotation2d.fromDegrees(-95.5)), 2.0),
             Race(
                 Timeout(Intake.runIntakeStopping().then(Intake.backDrive()), 4.0),
                 Sequential(
@@ -308,7 +309,7 @@ class SampleAuto : OpMode() {
         verticalRetract,
         Parallel(
             //Timeout(PurePursuitController.followPathCommand(sixth), 2.0),
-            SwerveDrivetrain.bp2p(Pose2d(10.25, 21.75, Rotation2d.fromDegrees(-73.0)), 2.0),
+            SwerveDrivetrain.bp2p(Pose2d(9.75, 22.25, Rotation2d.fromDegrees(-73.0)), 2.0),
             Race(
                 Timeout(Intake.runIntakeStopping().then(Intake.backDrive()), 4.0),
                 Sequential(
@@ -438,7 +439,7 @@ class SampleAuto : OpMode() {
 
     @Config
     object sampleAutoPoses {
-        @JvmField var startPose = Pose2d(29.75, 7.375, Rotation2d.fromDegrees(180.0))
+        @JvmField var startPose = Pose2d(29.75, 7.125, Rotation2d.fromDegrees(180.0))
         //@JvmField var place = Pose2d(78.0, 39.5, Rotation2d.fromDegrees(90.0))
 
     }

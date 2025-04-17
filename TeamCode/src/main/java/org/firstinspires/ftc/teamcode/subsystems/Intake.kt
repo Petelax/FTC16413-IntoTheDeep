@@ -22,6 +22,7 @@ import org.firstinspires.ftc.teamcode.constants.HorizontalConstants
 import org.firstinspires.ftc.teamcode.utils.AllianceColours
 import org.firstinspires.ftc.teamcode.utils.Cache
 import org.firstinspires.ftc.teamcode.utils.Globals
+import org.firstinspires.ftc.teamcode.utils.Telemetry
 import java.lang.Math.pow
 import java.lang.annotation.Inherited
 import java.util.concurrent.atomic.LongAdder
@@ -88,6 +89,9 @@ object Intake : Subsystem {
     override fun preUserLoopHook(opMode: Wrapper) {
         p0 = pin0.state
         p1 = pin1.state
+
+        Telemetry.put("pin0", p0)
+        Telemetry.put("pin1", p1)
 
     }
 

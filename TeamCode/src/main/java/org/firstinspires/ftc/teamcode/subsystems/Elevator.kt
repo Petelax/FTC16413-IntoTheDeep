@@ -321,6 +321,12 @@ object Elevator : Subsystem {
             .setFinish{ atSetPoint() }
     }
 
+    fun waitUntilAboveSetPoint(setPoint: Double): Lambda {
+        return Lambda("waiting-for-setpoint")
+            .setInit{targetPosition=setPoint}
+            .setFinish{ getPosition() > (targetPosition-1.0) }
+    }
+
     fun waitUntilSetPoint(): Lambda {
         return Lambda("waiting-for-setpoint").setFinish{ atSetPoint() }
     }

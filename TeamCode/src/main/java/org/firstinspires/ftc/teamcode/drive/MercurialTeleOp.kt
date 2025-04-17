@@ -222,7 +222,10 @@ class MercurialTeleOp : OpMode() {
                 VerticalArm.sample()
             ),
             Wait(0.05),
-            Elevator.pidAuto(VerticalConstants.ElevatorPositions.CLIMB_ONE),
+            Race(
+                Elevator.waitUntilAboveSetPoint(VerticalConstants.ElevatorPositions.CLIMB_ONE),
+                Elevator.pid(VerticalConstants.ElevatorPositions.CLIMB_ONE),
+            ),
             Wait(0.05),
             //Lambda("delete").addRequirements(Elevator).setInit{Elevator.defaultCommand = null},
             //Elevator.cancel(),

@@ -142,11 +142,10 @@ class FiveSpecimenAuto : OpMode() {
         CurvePoint(Pose2d(137.9, 58.0, Rotation2d.fromDegrees(-90.5)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(137.9, 50.0, Rotation2d.fromDegrees(-90.5)), 1.0, 1.0, 6.0),
         CurvePoint(Pose2d(137.9, 40.0, Rotation2d.fromDegrees(-90.5)), 1.0, 1.0, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 24.0, Rotation2d.fromDegrees(-90.5)), 0.30, 0.2, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 20.5, Rotation2d.fromDegrees(-90.5)), 0.25, 0.1, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 19.5, Rotation2d.fromDegrees(-90.5)), 0.10, 0.1, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 17.5, Rotation2d.fromDegrees(-90.5)), 0.10, 0.1, 6.0, 0.1, 0.9),
-        CurvePoint(Pose2d(137.9, 0.0, Rotation2d.fromDegrees(-90.5)), 0.10, 0.05, 6.0, 0.05, 0.95),
+        CurvePoint(Pose2d(137.9, 24.0, Rotation2d.fromDegrees(-90.5)), 0.85, 0.2, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(137.9, 20.5, Rotation2d.fromDegrees(-90.5)), 0.45, 0.1, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(137.9, 16.5, Rotation2d.fromDegrees(-90.5)), 0.35, 0.1, 6.0, 0.1, 0.9),
+        CurvePoint(Pose2d(137.9, 0.0, Rotation2d.fromDegrees(-90.5)), 0.20, 0.05, 6.0, 0.05, 0.95),
     ), kSmooth = 0.895, minFollowDistance = 4.5, kFollowDistance = 8.0, spacing = 1.5, kPID=0.5, kFF=0.5)
 
     private val placeFirst = PurePursuitController.waypointsToPath(listOf(
